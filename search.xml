@@ -406,4 +406,44 @@
         <tag>计算机</tag>
       </tags>
   </entry>
+  <entry>
+    <title>读书笔记：开发者测试</title>
+    <url>/2020/04/12/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%BC%80%E5%8F%91%E8%80%85%E6%B5%8B%E8%AF%95/</url>
+    <content><![CDATA[<h1 id="开发者测试"><a href="#开发者测试" class="headerlink" title="开发者测试"></a>开发者测试</h1><h2 id="静态测试扫描工具"><a href="#静态测试扫描工具" class="headerlink" title="静态测试扫描工具"></a>静态测试扫描工具</h2><ul>
+<li>Checkstyle</li>
+</ul>
+<p>代码编码格式、命名约定、Javadoc、类设计（代码规范和风格）</p>
+<ul>
+<li>FindBugs</li>
+</ul>
+<p>字节码缺陷模式匹配</p>
+<ul>
+<li>PMD</li>
+</ul>
+<p>潜在缺陷、未使用代码、重复代码、循环体创建新对象</p>
+<ul>
+<li>P3C</li>
+</ul>
+<p>代码潜在隐患</p>
+<h2 id="测试覆盖分析工具"><a href="#测试覆盖分析工具" class="headerlink" title="测试覆盖分析工具"></a>测试覆盖分析工具</h2><ul>
+<li>JaCoCO</li>
+<li>JCov</li>
+<li>Cobertura</li>
+</ul>
+<h2 id="白盒测试、黑盒测试"><a href="#白盒测试、黑盒测试" class="headerlink" title="白盒测试、黑盒测试"></a>白盒测试、黑盒测试</h2><ul>
+<li>单元测试</li>
+</ul>
+<p>JUnit、Jmockit</p>
+<ul>
+<li>集成测试</li>
+</ul>
+<p>Spring TestContext Framework、利用jenkins编排测试环境的测试用例</p>
+]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>计算机</tag>
+      </tags>
+  </entry>
 </search>
