@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Lanky的博客</title>
+  
+  <subtitle>生活 学习</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://ydvte4.coding-pages.com/"/>
+  <updated>2020-04-12T14:42:51.745Z</updated>
+  <id>https://ydvte4.coding-pages.com/</id>
+  
+  <author>
+    <name>Lanky</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>读书笔记：开发者测试</title>
+    <link href="https://ydvte4.coding-pages.com/2020/04/12/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%BC%80%E5%8F%91%E8%80%85%E6%B5%8B%E8%AF%95/"/>
+    <id>https://ydvte4.coding-pages.com/2020/04/12/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%BC%80%E5%8F%91%E8%80%85%E6%B5%8B%E8%AF%95/</id>
+    <published>2020-04-12T14:25:47.000Z</published>
+    <updated>2020-04-12T14:42:51.745Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="开发者测试"><a href="#开发者测试" class="headerlink" title="开发者测试"></a>开发者测试</h1><h2 id="静态测试扫描工具"><a href="#静态测试扫描工具" class="headerlink" title="静态测试扫描工具"></a>静态测试扫描工具</h2><ul><li>Checkstyle</li></ul><p>代码编码格式、命名约定、Javadoc、类设计（代码规范和风格）</p><ul><li>FindBugs</li></ul><p>字节码缺陷模式匹配</p><ul><li>PMD</li></ul><p>潜在缺陷、未使用代码、重复代码、循环体创建新对象</p><ul><li>P3C</li></ul><p>代码潜在隐患</p><h2 id="测试覆盖分析工具"><a href="#测试覆盖分析工具" class="headerlink" title="测试覆盖分析工具"></a>测试覆盖分析工具</h2><ul><li>JaCoCO</li><li>JCov</li><li>Cobertura</li></ul><h2 id="白盒测试、黑盒测试"><a href="#白盒测试、黑盒测试" class="headerlink" title="白盒测试、黑盒测试"></a>白盒测试、黑盒测试</h2><ul><li>单元测试</li></ul><p>JUnit、Jmockit</p><ul><li>集成测试</li></ul><p>Spring TestContext Framework、利用jenkins编排测试环境的测试用例</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;开发者测试&quot;&gt;&lt;a href=&quot;#开发者测试&quot; class=&quot;headerlink&quot; title=&quot;开发者测试&quot;&gt;&lt;/a&gt;开发者测试&lt;/h1&gt;&lt;h2 id=&quot;静态测试扫描工具&quot;&gt;&lt;a href=&quot;#静态测试扫描工具&quot; class=&quot;headerlink&quot; titl
+      
+    
+    </summary>
+    
+    
+      <category term="学习" scheme="https://ydvte4.coding-pages.com/categories/%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+      <category term="计算机" scheme="https://ydvte4.coding-pages.com/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>读书笔记：异常处理的设计与重构</title>
+    <link href="https://ydvte4.coding-pages.com/2020/04/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%87%8D%E6%9E%84/"/>
+    <id>https://ydvte4.coding-pages.com/2020/04/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%87%8D%E6%9E%84/</id>
+    <published>2020-04-05T15:48:15.000Z</published>
+    <updated>2020-04-05T17:30:57.999Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="异常定义"><a href="#异常定义" class="headerlink" title="异常定义"></a>异常定义</h1><ul><li>fault（缺陷）</li></ul><p>设计缺陷：代码错误</p><p>组件缺陷：组件无法提供功能，包括物理缺陷和交互缺陷</p><p>http 200，return code 0，返回具体错误原因</p><ul><li>error（错误）</li></ul><p>http 520，接口内部错误</p><ul><li>failure（失败）</li></ul><p>http 520，return code 非0，无法提供正常功能</p><ul><li>exception（异常）</li></ul><p>程序语言中传递缺陷、错误、失败的对象</p><h1 id="函数不返回null"><a href="#函数不返回null" class="headerlink" title="函数不返回null"></a>函数不返回null</h1><ul><li>返回””、List、null object 代替</li></ul><h1 id="缺陷处理"><a href="#缺陷处理" class="headerlink" title="缺陷处理"></a>缺陷处理</h1><ul><li>避免缺陷（提前校验）</li><li>缺陷容忍（使用备用方案）</li><li>缺陷移除（修复错误状态）</li><li>缺陷预测（检测软件质量）</li></ul><h1 id="使用try-witch-resource自动清理资源"><a href="#使用try-witch-resource自动清理资源" class="headerlink" title="使用try-witch-resource自动清理资源"></a>使用try-witch-resource自动清理资源</h1><h1 id="finally抛出的异常会覆盖try和catch抛出的异常"><a href="#finally抛出的异常会覆盖try和catch抛出的异常" class="headerlink" title="finally抛出的异常会覆盖try和catch抛出的异常"></a>finally抛出的异常会覆盖try和catch抛出的异常</h1><h1 id="try、catch、finally处理范围"><a href="#try、catch、finally处理范围" class="headerlink" title="try、catch、finally处理范围"></a>try、catch、finally处理范围</h1><ul><li>try</li></ul><p>资源初始化、逻辑处理、抛出异常</p><ul><li>catch</li></ul><p>异常处理、抛出异常、流程重试</p><ul><li>finally</li></ul><p>释放资源</p><h1 id="已查异常和未查异常"><a href="#已查异常和未查异常" class="headerlink" title="已查异常和未查异常"></a>已查异常和未查异常</h1><ul><li>已查异常</li></ul><p>可恢复的异常</p><ul><li>未查异常</li></ul><p>程序错误、开发者应该编程处理</p><h1 id="接口升级"><a href="#接口升级" class="headerlink" title="接口升级"></a>接口升级</h1><ul><li>区分公开接口与发布接口</li><li>重构非发布接口</li><li>谨慎声明发布接口</li><li>不要改变发布接口</li></ul><h1 id="异常处理等级"><a href="#异常处理等级" class="headerlink" title="异常处理等级"></a>异常处理等级</h1><ul><li>等级0：未定义</li></ul><p>http 200，return code 0，接口功能是否正常不确定</p><ul><li>等级1：错误报告</li></ul><p>http 200/520，接口失败时，返回具体错误码</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1、不忽略已查异常</span><br><span class="line">2、不捕获未查异常</span><br><span class="line">3、转抛异常时，不记录日志</span><br><span class="line">4、最外层捕获所有异常</span><br></pre></td></tr></table></figure><ul><li>等级2：状态恢复</li></ul><p>错误处理、资源释放</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1、向后恢复，撤销操作、恢复原数据</span><br><span class="line">2、内存清理、资源释放</span><br></pre></td></tr></table></figure><ul><li>等级3：行为恢复</li></ul><p>在异常时，执行备用逻辑</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1、缺陷处理，诊断、隔离、重新配置、重新初始化</span><br><span class="line">2、重试</span><br><span class="line">3、向前恢复，使用备用数据再次处理、使用备用逻辑继续处理</span><br></pre></td></tr></table></figure><h1 id="异常设计"><a href="#异常设计" class="headerlink" title="异常设计"></a>异常设计</h1><ul><li>异常名称使用异常内容表达，比如not found exception</li><li>低级异常转抛成高级异常</li><li>同构异常，接口抛出父异常，使接口定义同一</li><li>已查异常不处理时，转抛出未查异常</li><li>通道异常、异常包装，回调函数使用未查异常TunnelingException封装已查异常</li><li>聪明异常，使用异常码区分同一种类的异常</li></ul><h1 id="异常的终止与继续"><a href="#异常的终止与继续" class="headerlink" title="异常的终止与继续"></a>异常的终止与继续</h1><ul><li>终止</li></ul><p>结束逻辑，抛出当前层次异常</p><ul><li>继续</li></ul><p>记录异常，并继续处理</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1、批处理</span><br><span class="line">2、定时任务</span><br></pre></td></tr></table></figure><h1 id="异常处理的坏味道"><a href="#异常处理的坏味道" class="headerlink" title="异常处理的坏味道"></a>异常处理的坏味道</h1><ul><li>返回码代替异常</li><li>忽略已查异常</li><li>捕获Throwable跳过异常，比如空指针异常等</li><li>程序最外层没有捕获所有异常</li><li>异常处理只记录日志</li><li>try语句套嵌</li><li>重试代码写在catch块</li><li>资源释放没有写在finally块</li></ul><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1、用异常代替错误码</span><br><span class="line">2、未查异常代替忽略的已查异常</span><br><span class="line">3、未查异常代替空的异常处理</span><br><span class="line">4、程序最外层捕获Throwable</span><br><span class="line">5、套嵌的try使用函数封装</span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;异常定义&quot;&gt;&lt;a href=&quot;#异常定义&quot; class=&quot;headerlink&quot; title=&quot;异常定义&quot;&gt;&lt;/a&gt;异常定义&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;fault（缺陷）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;设计缺陷：代码错误&lt;/p&gt;
+&lt;p&gt;组件缺陷：组件无法提供功能，包
+      
+    
+    </summary>
+    
+    
+      <category term="学习" scheme="https://ydvte4.coding-pages.com/categories/%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+      <category term="计算机" scheme="https://ydvte4.coding-pages.com/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>地下城堡2：暗影刺客赫芬琳</title>
+    <link href="https://ydvte4.coding-pages.com/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12%EF%BC%9A%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/"/>
+    <id>https://ydvte4.coding-pages.com/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12%EF%BC%9A%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/</id>
+    <published>2020-04-01T16:29:15.000Z</published>
+    <updated>2020-04-01T17:51:51.445Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-背景"><a href="#1-背景" class="headerlink" title="1 背景"></a>1 背景</h1><p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12%EF%BC%9A%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/暗影刺客赫芬琳-锁定猎杀.png" alt="暗影刺客赫芬琳-锁定猎杀"></p><h1 id="2-解决方案"><a href="#2-解决方案" class="headerlink" title="2 解决方案"></a>2 解决方案</h1><ul><li>方法：重伤法</li><li>阵容：骑骑法巫</li></ul><p>审判官，4星50级，力速比<1，奶量>310,技能1%奶队友其他全关闭（奶量充足，且可以负重）</1，奶量></p><p>审判官，4星50级，力速比<1，奶量>310,技能1%奶队友其他全关闭（奶量充足，且可以负重）</1，奶量></p><p>大法师，4星50级，力速比<0.25，奶量>310,技能1%奶队友其他全关闭（力速比低解决流血问题，且可以负重）</0.25，奶量></p><p>巫医，2星30级，血量310（体质31），抗性&lt;5（否则无法触发boss流血效果导致其他问题），力速比&lt;0.25,技能3开其他全关（力速比低,可以打出伤害）</p><p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12%EF%BC%9A%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/审判官1.jpeg" alt="审判官1"></p><p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12%EF%BC%9A%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/审判官2.jpeg" alt="审判官2"></p><p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12%EF%BC%9A%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/大法师.jpeg" alt="大法师"></p><p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12%EF%BC%9A%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/巫医.jpeg" alt="巫医"></p><p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12%EF%BC%9A%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/阵容血量.jpeg" alt="阵容血量"></p><p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12%EF%BC%9A%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/风精灵戒指.jpeg" alt="风精灵戒指"></p><h1 id="3-参考资料"><a href="#3-参考资料" class="headerlink" title="3 参考资料"></a>3 参考资料</h1><p><a href="http://bbs.9game.cn/thread-28677294-1-1.html" target="_blank" rel="noopener">重伤法果然名不虚传，过了图12暗影刺客</a><br><a href="https://www.bilibili.com/video/av57363238/?redirectFrom=h5" target="_blank" rel="noopener">地下城堡2超低配重伤法过暗影刺客</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;1-背景&quot;&gt;&lt;a href=&quot;#1-背景&quot; class=&quot;headerlink&quot; title=&quot;1 背景&quot;&gt;&lt;/a&gt;1 背景&lt;/h1&gt;&lt;p&gt;&lt;img src=&quot;/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12%EF
+      
+    
+    </summary>
+    
+    
+      <category term="娱乐" scheme="https://ydvte4.coding-pages.com/categories/%E5%A8%B1%E4%B9%90/"/>
+    
+    
+      <category term="游戏" scheme="https://ydvte4.coding-pages.com/tags/%E6%B8%B8%E6%88%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>孙杨抗检事件</title>
+    <link href="https://ydvte4.coding-pages.com/2020/03/23/%E5%AD%99%E6%9D%A8%E6%8A%97%E6%A3%80%E4%BA%8B%E4%BB%B6/"/>
+    <id>https://ydvte4.coding-pages.com/2020/03/23/%E5%AD%99%E6%9D%A8%E6%8A%97%E6%A3%80%E4%BA%8B%E4%BB%B6/</id>
+    <published>2020-03-22T16:00:05.000Z</published>
+    <updated>2020-04-01T14:42:30.394Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-背景"><a href="#1-背景" class="headerlink" title="1 背景"></a>1 背景</h1><p>【2018年】</p><ul><li>孙杨质疑兴奋剂检测程序不合规</li><li>电话咨询自己领导后，在世界反兴奋剂机构人员默许下，破坏已取样血液</li><li>国际泳联裁决孙杨行为合法</li></ul><p>【2019年】</p><ul><li>世界反兴奋剂机构上述国际体育仲裁法庭</li><li>国际体育仲裁法庭裁决孙杨行为不合法，禁赛八年</li></ul><h1 id="2-分析"><a href="#2-分析" class="headerlink" title="2 分析"></a>2 分析</h1><p>【历史兴奋检测】</p><ul><li>6000次检测无异常</li><li>事件两天前检测无异常</li></ul><p>【孙杨黑历史】</p><ul><li>13年多次无证驾驶被刑拘（个人品德问题）</li><li>14年被检测兴奋剂阳性（孙杨团队业务问题，国际泳联错误禁止心脏病药品）</li><li>16年里约奥运肘击巴西女运动员（个人品德问题）</li><li>18年8月雅加达亚运会穿违规领奖服（个人品德问题）</li><li>18年9月破坏血样（复杂事件，存在国际检测组织下套、保护血样不被掉包等可能性）</li></ul><p>【社会背景】</p><ul><li>中美贸易战</li><li>18年金融危机</li><li>中国威胁论</li><li>中国兴奋剂检测机构弄虚作假严重不被国际信任</li><li>中国体育团队兴奋剂使用严重不被国际信任</li><li>种族歧视，国际体育仲裁法庭和世界反兴奋剂机构对于有色人种检查次数明显偏多且严格</li></ul><h1 id="3-结论"><a href="#3-结论" class="headerlink" title="3 结论"></a>3 结论</h1><ul><li>孙杨个人品德存在问题（事件无关）</li><li>孙杨在兴奋剂检测过程行为不合规</li></ul><h1 id="4-引申"><a href="#4-引申" class="headerlink" title="4 引申"></a>4 引申</h1><ul><li>国家间敌对和歧视是普遍存在的</li><li>种族间敌对和歧视是普遍存在的</li><li>中国的弱法律意识和国外的强法律意识存在矛盾</li><li>弱法律意识导致社会特权阶级无法被有效管控，无序的事务处理方式不被国际接纳</li><li>强法律意识导致社会特权阶级垄断法律武器，多数人的法律偏向被掩盖，形成阶级矛盾</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;1-背景&quot;&gt;&lt;a href=&quot;#1-背景&quot; class=&quot;headerlink&quot; title=&quot;1 背景&quot;&gt;&lt;/a&gt;1 背景&lt;/h1&gt;&lt;p&gt;【2018年】&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;孙杨质疑兴奋剂检测程序不合规&lt;/li&gt;
+&lt;li&gt;电话咨询自己领导后，在世界反兴奋剂
+      
+    
+    </summary>
+    
+    
+      <category term="生活" scheme="https://ydvte4.coding-pages.com/categories/%E7%94%9F%E6%B4%BB/"/>
+    
+    
+      <category term="社会" scheme="https://ydvte4.coding-pages.com/tags/%E7%A4%BE%E4%BC%9A/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>量子力学</title>
+    <link href="https://ydvte4.coding-pages.com/2020/03/23/%E9%87%8F%E5%AD%90%E5%8A%9B%E5%AD%A6/"/>
+    <id>https://ydvte4.coding-pages.com/2020/03/23/%E9%87%8F%E5%AD%90%E5%8A%9B%E5%AD%A6/</id>
+    <published>2020-03-22T16:00:04.000Z</published>
+    <updated>2020-04-13T14:59:47.649Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-背景"><a href="#1-背景" class="headerlink" title="1 背景"></a>1 背景</h1><ul><li>微观粒子运动不符合经典力学规律</li></ul><h1 id="2-假设"><a href="#2-假设" class="headerlink" title="2 假设"></a>2 假设</h1><ul><li>量子</li></ul><p>量子是能量的最小单位</p><ul><li>波函数</li></ul><p>物质符合波函数</p><h1 id="3-推论"><a href="#3-推论" class="headerlink" title="3 推论"></a>3 推论</h1><h2 id="3-1-光电效应"><a href="#3-1-光电效应" class="headerlink" title="3.1 光电效应"></a>3.1 光电效应</h2><ul><li>定义</li></ul><script type="math/tex; mode=display">E_k = hv - W_0</script><ul><li>含义</li></ul><p>光是由一份份的光子组成</p><h2 id="3-2-物质波"><a href="#3-2-物质波" class="headerlink" title="3.2 物质波"></a>3.2 物质波</h2><ul><li>定义</li></ul><script type="math/tex; mode=display">\lambda=\frac{h}{mv}=\frac{h}{p}</script><ul><li>含义</li></ul><p>物质符合波函数</p><h2 id="3-3-薛定谔波动方程"><a href="#3-3-薛定谔波动方程" class="headerlink" title="3.3 薛定谔波动方程"></a>3.3 薛定谔波动方程</h2><ul><li>定义</li></ul><script type="math/tex; mode=display">ih\frac{\delta}{\delta t}\Psi(r,t)=\hat{H}\Psi(r,t)</script><ul><li>含义</li></ul><p>粒子的动能加势能等于其总能量，且守恒。使用波函数构造等式</p><h1 id="4-本质"><a href="#4-本质" class="headerlink" title="4 本质"></a>4 本质</h1><ul><li>物质符合波函数</li><li>描述了粒子的物理逻辑</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;1-背景&quot;&gt;&lt;a href=&quot;#1-背景&quot; class=&quot;headerlink&quot; title=&quot;1 背景&quot;&gt;&lt;/a&gt;1 背景&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;微观粒子运动不符合经典力学规律&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&quot;2-假设&quot;&gt;&lt;a href=&quot;#2-假设&quot;
+      
+    
+    </summary>
+    
+    
+      <category term="学习" scheme="https://ydvte4.coding-pages.com/categories/%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+      <category term="物理" scheme="https://ydvte4.coding-pages.com/tags/%E7%89%A9%E7%90%86/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>广义相对论</title>
+    <link href="https://ydvte4.coding-pages.com/2020/03/23/%E5%B9%BF%E4%B9%89%E7%9B%B8%E5%AF%B9%E8%AE%BA/"/>
+    <id>https://ydvte4.coding-pages.com/2020/03/23/%E5%B9%BF%E4%B9%89%E7%9B%B8%E5%AF%B9%E8%AE%BA/</id>
+    <published>2020-03-22T16:00:03.000Z</published>
+    <updated>2020-04-13T14:44:04.436Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-背景"><a href="#1-背景" class="headerlink" title="1 背景"></a>1 背景</h1><ul><li>万有引力定律存在误差</li></ul><h1 id="2-假设"><a href="#2-假设" class="headerlink" title="2 假设"></a>2 假设</h1><ul><li>等效原理</li></ul><p>引力和惯性力没有区别</p><ul><li>广义相对性原理</li></ul><p>一切物理定律在所有参考系中均等效</p><h1 id="3-推论"><a href="#3-推论" class="headerlink" title="3 推论"></a>3 推论</h1><h2 id="3-1-引力场方程"><a href="#3-1-引力场方程" class="headerlink" title="3.1 引力场方程"></a>3.1 引力场方程</h2><ul><li>定义</li></ul><script type="math/tex; mode=display">G_{\alpha\beta}=R_{\alpha\beta}=\frac{1}{2}Rg_{\alpha\beta}=\frac    {8 \pi G}    {c^4}T_{\alpha\beta}</script><ul><li>含义</li></ul><p>质能导致时空扭曲，扭曲的时空引导物质运动</p><h1 id="4-本质"><a href="#4-本质" class="headerlink" title="4 本质"></a>4 本质</h1><ul><li>万有引力定律是错误的，是一种经验主义结论，存在误差</li><li>爱因斯坦通过洛伦兹变换和张量等数学工具推导出了引力场表达式</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;1-背景&quot;&gt;&lt;a href=&quot;#1-背景&quot; class=&quot;headerlink&quot; title=&quot;1 背景&quot;&gt;&lt;/a&gt;1 背景&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;万有引力定律存在误差&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&quot;2-假设&quot;&gt;&lt;a href=&quot;#2-假设&quot; clas
+      
+    
+    </summary>
+    
+    
+      <category term="学习" scheme="https://ydvte4.coding-pages.com/categories/%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+      <category term="物理" scheme="https://ydvte4.coding-pages.com/tags/%E7%89%A9%E7%90%86/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>狭义相对论</title>
+    <link href="https://ydvte4.coding-pages.com/2020/03/23/%E7%8B%AD%E4%B9%89%E7%9B%B8%E5%AF%B9%E8%AE%BA/"/>
+    <id>https://ydvte4.coding-pages.com/2020/03/23/%E7%8B%AD%E4%B9%89%E7%9B%B8%E5%AF%B9%E8%AE%BA/</id>
+    <published>2020-03-22T16:00:02.000Z</published>
+    <updated>2020-04-13T14:59:55.945Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="1-背景"><a href="#1-背景" class="headerlink" title="1 背景"></a>1 背景</h1><ul><li>洛伦兹变换和伽利略变换不相符</li></ul><p>洛伦兹变换由麦克斯韦方程组等电磁理论推导得出，伽利略变换由经验猜测得出</p><ul><li>洛伦兹变换符合现实</li></ul><p>洛伦兹变换符合现实，伽利略变换只在低速场景近似现实</p><ul><li>光速不变</li></ul><p>不同方向或者参考系的光速测量结果不变</p><h1 id="2-假设"><a href="#2-假设" class="headerlink" title="2 假设"></a>2 假设</h1><ul><li>狭义相对性原理</li></ul><p>一切物理定律（除引力）在所有惯性系中均等效，符合洛伦兹变换</p><ul><li>光速不变原理</li></ul><p>光在真空中总是以确定的速度c传播，速度的大小同光源的运动状态无关</p><h1 id="3-推论"><a href="#3-推论" class="headerlink" title="3 推论"></a>3 推论</h1><h2 id="3-1相对长度"><a href="#3-1相对长度" class="headerlink" title="3.1相对长度"></a>3.1相对长度</h2><ul><li>定义</li></ul><script type="math/tex; mode=display">l=l_0\sqrt{    1-    (        \frac            {v}            {c}    )^2}</script><ul><li>含义</li></ul><p>物体的长度，在运动方向变短</p><h2 id="3-2-相对时间间隔"><a href="#3-2-相对时间间隔" class="headerlink" title="3.2 相对时间间隔"></a>3.2 相对时间间隔</h2><ul><li>定义</li></ul><script type="math/tex; mode=display">\Delta t=\frac    {\Delta t_0}    {        \sqrt{            1-            (                \frac                    {v}                    {c}            )^2        }    }</script><ul><li>含义</li></ul><p>物体的事件耗时，在运动方向相对变大</p><h2 id="3-3-相对速度"><a href="#3-3-相对速度" class="headerlink" title="3.3 相对速度"></a>3.3 相对速度</h2><ul><li>定义</li></ul><script type="math/tex; mode=display">u=\frac    {u_0 + v}    {        1+        \frac            {u_0v}            {c^2}    }</script><ul><li>含义</li></ul><p>物体的相对速度，符合洛伦兹变换</p><h2 id="3-4-相对质量"><a href="#3-4-相对质量" class="headerlink" title="3.4 相对质量"></a>3.4 相对质量</h2><ul><li>定义</li></ul><script type="math/tex; mode=display">m=\frac    {m_0}    {        \sqrt{            1-            (                \frac                    {v}                    {c}            )^2        }    }</script><ul><li>含义</li></ul><p>物体的相对质量，符合洛伦兹变换</p><h2 id="3-5-质能方程"><a href="#3-5-质能方程" class="headerlink" title="3.5 质能方程"></a>3.5 质能方程</h2><ul><li>定义</li></ul><script type="math/tex; mode=display">E = mc^2</script><ul><li>含义</li></ul><p>质量是能量的一种表现形式</p><h1 id="4-本质"><a href="#4-本质" class="headerlink" title="4 本质"></a>4 本质</h1><ul><li>相对速度简单叠加是错误的，是一种经验主义结论</li><li>洛伦兹通过数学公式推导出了真实的物质逻辑关系</li><li>光速不变目前的科技水平暂时无法解析</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;1-背景&quot;&gt;&lt;a href=&quot;#1-背景&quot; class=&quot;headerlink&quot; title=&quot;1 背景&quot;&gt;&lt;/a&gt;1 背景&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;洛伦兹变换和伽利略变换不相符&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;洛伦兹变换由麦克斯韦方程组等电磁理论推导得出，伽利略变
+      
+    
+    </summary>
+    
+    
+      <category term="学习" scheme="https://ydvte4.coding-pages.com/categories/%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+      <category term="物理" scheme="https://ydvte4.coding-pages.com/tags/%E7%89%A9%E7%90%86/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>宇称不守恒</title>
+    <link href="https://ydvte4.coding-pages.com/2020/03/23/%E5%AE%87%E7%A7%B0%E4%B8%8D%E5%AE%88%E6%81%92/"/>
+    <id>https://ydvte4.coding-pages.com/2020/03/23/%E5%AE%87%E7%A7%B0%E4%B8%8D%E5%AE%88%E6%81%92/</id>
+    <published>2020-03-22T16:00:01.000Z</published>
+    <updated>2020-04-13T15:00:04.621Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><ul><li>θ和τ粒子，自旋、质量、寿命、电荷等相同</li><li>θ粒子衰变时，产生2个π介子</li><li>τ粒子衰变时，产生3个π介子</li><li>θ和τ粒子，宇称相反</li></ul><h1 id="假设"><a href="#假设" class="headerlink" title="假设"></a>假设</h1><ul><li>宇称守恒，θ和τ粒子不是同一粒子</li><li>宇称不守恒，θ和τ粒子是同一粒子的不同宇称状态</li></ul><h1 id="论据"><a href="#论据" class="headerlink" title="论据"></a>论据</h1><ul><li>β衰变在不同旋转方向上的的衰变，产生粒子方向宇称不守恒</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;θ和τ粒子，自旋、质量、寿命、电荷等相同&lt;/li&gt;
+&lt;li&gt;θ粒子衰变时，产生2个π介子&lt;/li&gt;
+&lt;li&gt;τ粒子衰变时，产生3
+      
+    
+    </summary>
+    
+    
+      <category term="学习" scheme="https://ydvte4.coding-pages.com/categories/%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+      <category term="物理" scheme="https://ydvte4.coding-pages.com/tags/%E7%89%A9%E7%90%86/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="https://ydvte4.coding-pages.com/2020/03/23/hello-world/"/>
+    <id>https://ydvte4.coding-pages.com/2020/03/23/hello-world/</id>
+    <published>2020-03-22T16:00:00.000Z</published>
+    <updated>2020-04-01T14:42:05.507Z</updated>
+    
+    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.
+      
+    
+    </summary>
+    
+    
+      <category term="学习" scheme="https://ydvte4.coding-pages.com/categories/%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+      <category term="计算机" scheme="https://ydvte4.coding-pages.com/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA/"/>
+    
+  </entry>
+  
+</feed>
