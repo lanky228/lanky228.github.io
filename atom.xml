@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://ydvte4.coding-pages.com/"/>
-  <updated>2020-04-13T17:29:06.543Z</updated>
+  <updated>2020-04-19T17:16:11.285Z</updated>
   <id>https://ydvte4.coding-pages.com/</id>
   
   <author>
@@ -15,6 +15,32 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>读书笔记 Web安全深度解析</title>
+    <link href="https://ydvte4.coding-pages.com/2020/04/20/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-Web%E5%AE%89%E5%85%A8%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/"/>
+    <id>https://ydvte4.coding-pages.com/2020/04/20/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-Web%E5%AE%89%E5%85%A8%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/</id>
+    <published>2020-04-19T16:09:37.000Z</published>
+    <updated>2020-04-19T17:16:11.285Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Web安全深度解析"><a href="#Web安全深度解析" class="headerlink" title="Web安全深度解析"></a>Web安全深度解析</h1><h2 id="HTTP代理工具"><a href="#HTTP代理工具" class="headerlink" title="HTTP代理工具"></a>HTTP代理工具</h2><ul><li>Burp Suite Proxy</li><li>Fiddler</li><li>WinsockExpert</li></ul><h2 id="查询引擎site命令"><a href="#查询引擎site命令" class="headerlink" title="查询引擎site命令"></a>查询引擎site命令</h2><ul><li>site：域名</li><li>intext：正文关键字</li><li>intitle：标题关键字</li><li>info：基本信息</li><li>inurl：url关键字</li><li>filetype：文件类型</li></ul><h2 id="信息探测工具"><a href="#信息探测工具" class="headerlink" title="信息探测工具"></a>信息探测工具</h2><ul><li>Nmap</li><li>DirBuster</li></ul><h2 id="漏洞扫描工具"><a href="#漏洞扫描工具" class="headerlink" title="漏洞扫描工具"></a>漏洞扫描工具</h2><ul><li>Burp Suite</li><li>AWVS</li><li>AppScan</li></ul><h2 id="SQL注入漏洞"><a href="#SQL注入漏洞" class="headerlink" title="SQL注入漏洞"></a>SQL注入漏洞</h2><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>用户输入被SQL执行器执行</p><h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ul><li>数字型注入</li><li>字符型注入</li></ul><h3 id="注入工具"><a href="#注入工具" class="headerlink" title="注入工具"></a>注入工具</h3><ul><li>SQLMap</li><li>MySQL</li><li>Oracle</li></ul><h3 id="防御措施"><a href="#防御措施" class="headerlink" title="防御措施"></a>防御措施</h3><ul><li>数据类型校验</li><li>特殊字符转意</li><li>预编译语句</li><li>框架技术</li><li>存储过程</li></ul><h2 id="上传漏洞"><a href="#上传漏洞" class="headerlink" title="上传漏洞"></a>上传漏洞</h2><h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><ul><li>IIS解析漏洞</li><li>Apache解析漏洞</li><li>PHP CGI解析漏洞</li></ul><h3 id="防御措施-1"><a href="#防御措施-1" class="headerlink" title="防御措施"></a>防御措施</h3><ul><li>客户端检测</li></ul><p>绕过方法：FireBug、中间人攻击</p><ul><li>服务端检测</li></ul><p>方法：白名单和黑名单校验、MIME校验、目录校验</p><p>绕过方法：截断上传攻击</p><h3 id="文本编辑器上传漏洞"><a href="#文本编辑器上传漏洞" class="headerlink" title="文本编辑器上传漏洞"></a>文本编辑器上传漏洞</h3><ul><li>敏感信息暴露</li><li>黑名单策略错误</li><li>任意文件上传漏洞</li></ul><p>原因：目录过滤不严、文件未重命名</p><p>解决措施：接受文件保存在临时路径、白名单校验拓展名、文件重命名</p><h2 id="XSS跨域脚本漏洞"><a href="#XSS跨域脚本漏洞" class="headerlink" title="XSS跨域脚本漏洞"></a>XSS跨域脚本漏洞</h2><h3 id="原理-2"><a href="#原理-2" class="headerlink" title="原理"></a>原理</h3><p>网页嵌入恶意脚本</p><h3 id="分类-1"><a href="#分类-1" class="headerlink" title="分类"></a>分类</h3><ul><li>反射型</li><li>存储型</li><li>DOM</li></ul><h3 id="检查工具"><a href="#检查工具" class="headerlink" title="检查工具"></a>检查工具</h3><ul><li>AppScan</li><li>AWVS</li><li>Burp Suite</li></ul><h3 id="XSS危害"><a href="#XSS危害" class="headerlink" title="XSS危害"></a>XSS危害</h3><ul><li>XSS 会话劫持</li><li>XSS Framework</li><li>XSS GetShell</li><li>XSS 蠕虫</li></ul><h3 id="防御措施-2"><a href="#防御措施-2" class="headerlink" title="防御措施"></a>防御措施</h3><ul><li>输入输出校验转码</li><li>HttpOnly</li></ul><h2 id="命令执行漏洞"><a href="#命令执行漏洞" class="headerlink" title="命令执行漏洞"></a>命令执行漏洞</h2><h3 id="分类-2"><a href="#分类-2" class="headerlink" title="分类"></a>分类</h3><ul><li>模型漏洞</li></ul><p>PHP、JAVA</p><ul><li>框架漏洞</li></ul><p>Struct2、ThinkPHP</p><h3 id="防御措施-3"><a href="#防御措施-3" class="headerlink" title="防御措施"></a>防御措施</h3><ul><li>避免使用系统执行命令</li><li>参数校验转义</li><li>函数白名单</li><li>PHP中，无法控制的函数不使用</li></ul><h2 id="文件包含漏洞"><a href="#文件包含漏洞" class="headerlink" title="文件包含漏洞"></a>文件包含漏洞</h2><h3 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h3><ul><li>PHP包含</li><li>JSP包含</li></ul><h3 id="防御措施-4"><a href="#防御措施-4" class="headerlink" title="防御措施"></a>防御措施</h3><ul><li>参数校验</li><li>路径限制</li><li>文件白名单</li><li>避免使用动态包含</li></ul><h2 id="其他漏洞"><a href="#其他漏洞" class="headerlink" title="其他漏洞"></a>其他漏洞</h2><ul><li>CSRF</li><li>逻辑错误漏洞</li></ul><p>绕过授权验证、密码找回逻辑漏洞、支付逻辑漏洞、指定账户恶意攻击</p><ul><li>代码注入</li></ul><p>XML注入、XPath注入、JSON注入、HTTP Parameter Pollution</p><ul><li>URL跳转与钓鱼</li><li>WebServer远程部署</li></ul><p>Tomcat、Jboss、WebLogic</p><h2 id="常见防御措施"><a href="#常见防御措施" class="headerlink" title="常见防御措施"></a>常见防御措施</h2><ul><li>0day漏洞修复</li><li>前后台安全框架</li><li>三方件、加密算法安全</li><li>数据库安全</li><li>安全扫描与评估</li></ul><h2 id="常见攻击"><a href="#常见攻击" class="headerlink" title="常见攻击"></a>常见攻击</h2><h3 id="账户暴力破解"><a href="#账户暴力破解" class="headerlink" title="账户暴力破解"></a>账户暴力破解</h3><h3 id="旁注攻击"><a href="#旁注攻击" class="headerlink" title="旁注攻击"></a>旁注攻击</h3><ul><li>IP逆向查询</li><li>SQL跨库查询</li><li>目录越权</li></ul><p>防御措施：CDN</p><h2 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h2><ul><li>溢出提权</li><li>三方件提权</li><li>虚拟主机提权</li></ul><h3 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h3><ul><li>3389端口</li><li>端口转发</li><li>启动项提权</li><li>DLL劫持</li><li>提权后门</li></ul><h3 id="防御措施-5"><a href="#防御措施-5" class="headerlink" title="防御措施"></a>防御措施</h3><ul><li>服务器补丁</li><li>关闭危险端口</li><li>删除敏感可执行文件</li><li>删除不安全组件</li><li>安装安全配置软件</li></ul><h2 id="ARP欺骗攻击"><a href="#ARP欺骗攻击" class="headerlink" title="ARP欺骗攻击"></a>ARP欺骗攻击</h2><h3 id="检查工具-1"><a href="#检查工具-1" class="headerlink" title="检查工具"></a>检查工具</h3><ul><li>Cain</li><li>Ettercap</li><li>NetFuke</li></ul><h3 id="防御措施-6"><a href="#防御措施-6" class="headerlink" title="防御措施"></a>防御措施</h3><ul><li>静态绑定</li><li>ARP防火墙</li></ul><h2 id="社会工程学"><a href="#社会工程学" class="headerlink" title="社会工程学"></a>社会工程学</h2><ul><li>信息收集</li><li>沟通</li><li>伪造</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;Web安全深度解析&quot;&gt;&lt;a href=&quot;#Web安全深度解析&quot; class=&quot;headerlink&quot; title=&quot;Web安全深度解析&quot;&gt;&lt;/a&gt;Web安全深度解析&lt;/h1&gt;&lt;h2 id=&quot;HTTP代理工具&quot;&gt;&lt;a href=&quot;#HTTP代理工具&quot; class=&quot;
+      
+    
+    </summary>
+    
+    
+      <category term="学习" scheme="https://ydvte4.coding-pages.com/categories/%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+      <category term="计算机" scheme="https://ydvte4.coding-pages.com/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA/"/>
+    
+  </entry>
   
   <entry>
     <title>读书笔记 开发者测试</title>
