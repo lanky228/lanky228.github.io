@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://ydvte4.coding-pages.com/"/>
-  <updated>2020-04-22T19:25:30.767Z</updated>
+  <updated>2020-05-05T15:21:54.006Z</updated>
   <id>https://ydvte4.coding-pages.com/</id>
   
   <author>
@@ -15,6 +15,32 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>词条</title>
+    <link href="https://ydvte4.coding-pages.com/2020/05/05/%E8%AF%8D%E6%9D%A1/"/>
+    <id>https://ydvte4.coding-pages.com/2020/05/05/%E8%AF%8D%E6%9D%A1/</id>
+    <published>2020-05-05T15:11:50.000Z</published>
+    <updated>2020-05-05T15:21:54.006Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="词条"><a href="#词条" class="headerlink" title="词条"></a>词条</h1><h2 id="自动化运维-devopt"><a href="#自动化运维-devopt" class="headerlink" title="自动化运维 devopt"></a>自动化运维 devopt</h2><h3 id="【技术栈】"><a href="#【技术栈】" class="headerlink" title="【技术栈】"></a>【技术栈】</h3><p>操作系统 centos<br>容器管理平台 rancher+k8s<br>容器 docker<br>代码仓库 gogs<br>流程编排 jenkins<br>测试框架 jmeter<br>路由框架 istio<br>服务框架 springboot</p><h3 id="【数据】"><a href="#【数据】" class="headerlink" title="【数据】"></a>【数据】</h3><p>数据库 postgresql、elasticsearch、redis、druid、kafka<br>数据持久化 mybatis<br>数据复制 nifi</p><h3 id="【大数据】"><a href="#【大数据】" class="headerlink" title="【大数据】"></a>【大数据】</h3><p>配置管理 zookeeper<br>任务调度 spark<br>资源管理 yarm<br>存储管理 hdfs<br>查询引擎 calcite、spark jdbc、hive、hbase<br>流处理框架 flink</p><h3 id="【其他】"><a href="#【其他】" class="headerlink" title="【其他】"></a>【其他】</h3><p>单元测试 junit、jmokit<br>集成测试 Spring TestContext Framework<br>接口定义 swagger<br>接口鉴权 jwt<br>项目构建 maven、gradle、npm<br>必选代码扫描 checkstyle、findbug、pmd、Cobertura<br>可选代码扫描 fortify、coverity、klocwork、metrics<br>编程优化 lombok、流式、java8 sream optional<br>工具 git、idea、websorm、fiddler、winmerge、jps、jstack、jstat、jmap、jinfo、Bugzilla、teambition</p><h2 id="Rpc-Soap-Rest"><a href="#Rpc-Soap-Rest" class="headerlink" title="Rpc Soap Rest"></a>Rpc Soap Rest</h2><h3 id="Rpc"><a href="#Rpc" class="headerlink" title="Rpc"></a>Rpc</h3><ul><li>tcp协议</li><li>自定义序列化和反序列化逻辑</li></ul><h3 id="Soap"><a href="#Soap" class="headerlink" title="Soap"></a>Soap</h3><ul><li>http协议 </li><li>使用xml定义接口</li></ul><h3 id="Rest"><a href="#Rest" class="headerlink" title="Rest"></a>Rest</h3><ul><li>http协议</li><li>资源化url</li></ul><h2 id="专家系统"><a href="#专家系统" class="headerlink" title="专家系统"></a>专家系统</h2><h3 id="分词"><a href="#分词" class="headerlink" title="分词"></a>分词</h3><h3 id="建模"><a href="#建模" class="headerlink" title="建模"></a>建模</h3><h3 id="查询引擎"><a href="#查询引擎" class="headerlink" title="查询引擎"></a>查询引擎</h3><h2 id="人工智能"><a href="#人工智能" class="headerlink" title="人工智能"></a>人工智能</h2><blockquote><p>国内：阿里·天池<br>国外：kaggle</p></blockquote><h3 id="数据"><a href="#数据" class="headerlink" title="数据"></a>数据</h3><h3 id="训练模型"><a href="#训练模型" class="headerlink" title="训练模型"></a>训练模型</h3><h3 id="得出函数"><a href="#得出函数" class="headerlink" title="得出函数"></a>得出函数</h3><h3 id="TensorFlow"><a href="#TensorFlow" class="headerlink" title="TensorFlow"></a>TensorFlow</h3><ul><li>教程地址：<a href="https://github.com/open-source-for-science/TensorFlow-Course#why-use-tensorflow" target="_blank" rel="noopener">https://github.com/open-source-for-science/TensorFlow-Course#why-use-tensorflow</a></li><li>TensorFlow-Examples对初学者友好<a href="https://github.com/aymericdamien/TensorFlow-ExamplesTensorflow-101" target="_blank" rel="noopener">https://github.com/aymericdamien/TensorFlow-ExamplesTensorflow-101</a></li><li>用Jupyter Notebook编写<a href="https://github.com/sjchoi86/Tensorflow-101TensorFlow_Exercises" target="_blank" rel="noopener">https://github.com/sjchoi86/Tensorflow-101TensorFlow_Exercises</a></li><li>从其他TensorFlow示例重新创建代码<a href="https://github.com/terryum/TensorFlow_ExercisesLSTM-Human-Activity-Recognition" target="_blank" rel="noopener">https://github.com/terryum/TensorFlow_ExercisesLSTM-Human-Activity-Recognition</a></li><li>基于LSTM的TensorFlow在手机传感器数据上的递归神经网络分类<a href="https://github.com/guillaume-chevalier/LSTM-Human-Activity-Recognition—" target="_blank" rel="noopener">https://github.com/guillaume-chevalier/LSTM-Human-Activity-Recognition—</a></li></ul><h2 id="数字系统自动设计"><a href="#数字系统自动设计" class="headerlink" title="数字系统自动设计"></a>数字系统自动设计</h2><h3 id="Verilog-HDL"><a href="#Verilog-HDL" class="headerlink" title="Verilog HDL"></a>Verilog HDL</h3><h3 id="以文本形式来描述数字系统硬件的结构和行为"><a href="#以文本形式来描述数字系统硬件的结构和行为" class="headerlink" title="以文本形式来描述数字系统硬件的结构和行为"></a>以文本形式来描述数字系统硬件的结构和行为</h3><h2 id="计算几何"><a href="#计算几何" class="headerlink" title="计算几何"></a>计算几何</h2><ul><li><a href="https://blog.csdn.net/clover_hxy/article/details/53966405?utm_medium=distribute.wap_relevant.none-task-blog-OPENSEARCH-3&amp;depth_1-utm_source=distribute.wap_relevant.none-task-blog-OPENSEARCH-3" target="_blank" rel="noopener">https://blog.csdn.net/clover_hxy/article/details/53966405?utm_medium=distribute.wap_relevant.none-task-blog-OPENSEARCH-3&amp;depth_1-utm_source=distribute.wap_relevant.none-task-blog-OPENSEARCH-3</a></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;词条&quot;&gt;&lt;a href=&quot;#词条&quot; class=&quot;headerlink&quot; title=&quot;词条&quot;&gt;&lt;/a&gt;词条&lt;/h1&gt;&lt;h2 id=&quot;自动化运维-devopt&quot;&gt;&lt;a href=&quot;#自动化运维-devopt&quot; class=&quot;headerlink&quot; title=&quot;自
+      
+    
+    </summary>
+    
+    
+      <category term="学习" scheme="https://ydvte4.coding-pages.com/categories/%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+      <category term="计算机" scheme="https://ydvte4.coding-pages.com/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA/"/>
+    
+  </entry>
   
   <entry>
     <title>中国银行原油宝事件</title>
