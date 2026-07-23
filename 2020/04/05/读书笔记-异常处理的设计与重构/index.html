@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ydvte4.coding-pages.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="异常定义 fault（缺陷）  设计缺陷：代码错误。 组件缺陷：组件无法提供功能，包括物理缺陷和交互缺陷。  例：HTTP 200，return code 0，返回具体错误原因。   error（错误）   例：HTTP 520，接口内部错误。   failure（失败）   例：HTTP 520，return code 非 0，无法提供正常功能。   exception（异常）  程序语言中传递">
+<meta property="og:type" content="article">
+<meta property="og:title" content="读书笔记 异常处理的设计与重构">
+<meta property="og:url" content="https://ydvte4.coding-pages.com/2020/04/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%87%8D%E6%9E%84/index.html">
+<meta property="og:site_name" content="Lanky的博客">
+<meta property="og:description" content="异常定义 fault（缺陷）  设计缺陷：代码错误。 组件缺陷：组件无法提供功能，包括物理缺陷和交互缺陷。  例：HTTP 200，return code 0，返回具体错误原因。   error（错误）   例：HTTP 520，接口内部错误。   failure（失败）   例：HTTP 520，return code 非 0，无法提供正常功能。   exception（异常）  程序语言中传递">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-04-05T15:48:15.000Z">
+<meta property="article:modified_time" content="2026-07-23T04:45:05.581Z">
+<meta property="article:author" content="Lanky">
+<meta property="article:tag" content="计算机">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ydvte4.coding-pages.com/2020/04/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%87%8D%E6%9E%84/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>读书笔记 异常处理的设计与重构 | Lanky的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lanky的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">生活 学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ydvte4.coding-pages.com/2020/04/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%87%8D%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="计算机 社会 物理 游戏">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          读书笔记 异常处理的设计与重构
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-05 23:48:15" itemprop="dateCreated datePublished" datetime="2020-04-05T23:48:15+08:00">2020-04-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-07-23 12:45:05" itemprop="dateModified" datetime="2026-07-23T12:45:05+08:00">2026-07-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="异常定义"><a href="#异常定义" class="headerlink" title="异常定义"></a>异常定义</h1><ul>
+<li>fault（缺陷）</li>
+</ul>
+<p>设计缺陷：代码错误。</p>
+<p>组件缺陷：组件无法提供功能，包括物理缺陷和交互缺陷。</p>
+<blockquote>
+<p>例：HTTP 200，return code 0，返回具体错误原因。</p>
+</blockquote>
+<ul>
+<li>error（错误）</li>
+</ul>
+<blockquote>
+<p>例：HTTP 520，接口内部错误。</p>
+</blockquote>
+<ul>
+<li>failure（失败）</li>
+</ul>
+<blockquote>
+<p>例：HTTP 520，return code 非 0，无法提供正常功能。</p>
+</blockquote>
+<ul>
+<li>exception（异常）</li>
+</ul>
+<p>程序语言中传递缺陷、错误、失败的对象。</p>
+<h1 id="函数不返回-null"><a href="#函数不返回-null" class="headerlink" title="函数不返回 null"></a>函数不返回 null</h1><ul>
+<li>返回 “”、List、null object 代替。</li>
+</ul>
+<h1 id="缺陷处理"><a href="#缺陷处理" class="headerlink" title="缺陷处理"></a>缺陷处理</h1><ul>
+<li>避免缺陷（提前校验）</li>
+<li>缺陷容忍（使用备用方案）</li>
+<li>缺陷移除（修复错误状态）</li>
+<li>缺陷预测（检测软件质量）</li>
+</ul>
+<h1 id="使用-try-with-resources-自动清理资源"><a href="#使用-try-with-resources-自动清理资源" class="headerlink" title="使用 try-with-resources 自动清理资源"></a>使用 try-with-resources 自动清理资源</h1><h1 id="finally-抛出的异常会覆盖-try-和-catch-抛出的异常"><a href="#finally-抛出的异常会覆盖-try-和-catch-抛出的异常" class="headerlink" title="finally 抛出的异常会覆盖 try 和 catch 抛出的异常"></a>finally 抛出的异常会覆盖 try 和 catch 抛出的异常</h1><h1 id="try、catch、finally-处理范围"><a href="#try、catch、finally-处理范围" class="headerlink" title="try、catch、finally 处理范围"></a>try、catch、finally 处理范围</h1><ul>
+<li>try：资源初始化、逻辑处理、抛出异常。</li>
+<li>catch：异常处理、抛出异常、流程重试。</li>
+<li>finally：释放资源。</li>
+</ul>
+<h1 id="已查异常和未查异常"><a href="#已查异常和未查异常" class="headerlink" title="已查异常和未查异常"></a>已查异常和未查异常</h1><ul>
+<li>已查异常（Checked Exception）：可恢复的异常。</li>
+<li>未查异常（Unchecked Exception）：程序错误，开发者应编程处理。</li>
+</ul>
+<h1 id="接口升级"><a href="#接口升级" class="headerlink" title="接口升级"></a>接口升级</h1><ul>
+<li>区分公开接口与发布接口。</li>
+<li>重构非发布接口。</li>
+<li>谨慎声明发布接口。</li>
+<li>不要改变发布接口。</li>
+</ul>
+<h1 id="异常处理等级"><a href="#异常处理等级" class="headerlink" title="异常处理等级"></a>异常处理等级</h1><ul>
+<li>等级 0：未定义</li>
+</ul>
+<p>HTTP 200，return code 0，接口功能是否正常不确定。</p>
+<ul>
+<li>等级 1：错误报告</li>
+</ul>
+<p>HTTP 200/520，接口失败时返回具体错误码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 不忽略已查异常</span><br><span class="line">2. 不捕获未查异常</span><br><span class="line">3. 转抛异常时不记录日志</span><br><span class="line">4. 最外层捕获所有异常</span><br></pre></td></tr></table></figure>
+<ul>
+<li>等级 2：状态恢复</li>
+</ul>
+<p>错误处理、资源释放。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. 向后恢复：撤销操作、恢复原数据</span><br><span class="line">2. 内存清理、资源释放</span><br></pre></td></tr></table></figure>
+<ul>
+<li>等级 3：行为恢复</li>
+</ul>
+<p>异常时执行备用逻辑。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 缺陷处理：诊断、隔离、重新配置、重新初始化</span><br><span class="line">2. 重试</span><br><span class="line">3. 向前恢复：使用备用数据再次处理、使用备用逻辑继续处理</span><br></pre></td></tr></table></figure>
+<h1 id="异常设计"><a href="#异常设计" class="headerlink" title="异常设计"></a>异常设计</h1><ul>
+<li>异常名称用异常内容表达，比如 NotFoundException。</li>
+<li>低级异常转抛成高级异常。</li>
+<li>同构异常：接口抛出父异常，使接口定义统一。</li>
+<li>已查异常不处理时，转抛为未查异常。</li>
+<li>通道异常、异常包装：回调函数使用未查异常 TunnelingException 封装已查异常。</li>
+<li>聪明异常：使用异常码区分同一种类的异常。</li>
+</ul>
+<h1 id="异常的终止与继续"><a href="#异常的终止与继续" class="headerlink" title="异常的终止与继续"></a>异常的终止与继续</h1><ul>
+<li><p>终止：结束逻辑，抛出当前层次异常。</p>
+</li>
+<li><p>继续：记录异常，并继续处理。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. 批处理</span><br><span class="line">2. 定时任务</span><br></pre></td></tr></table></figure>
+<h1 id="异常处理的坏味道"><a href="#异常处理的坏味道" class="headerlink" title="异常处理的坏味道"></a>异常处理的坏味道</h1><ul>
+<li>返回码代替异常。</li>
+<li>忽略已查异常。</li>
+<li>捕获 Throwable 跳过异常（比如空指针异常等）。</li>
+<li>程序最外层没有捕获所有异常。</li>
+<li>异常处理只记录日志。</li>
+<li>try 语句嵌套。</li>
+<li>重试代码写在 catch 块。</li>
+<li>资源释放没有写在 finally 块。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. 用异常代替错误码</span><br><span class="line">2. 未查异常代替被忽略的已查异常</span><br><span class="line">3. 未查异常代替空的异常处理</span><br><span class="line">4. 程序最外层捕获 Throwable</span><br><span class="line">5. 嵌套的 try 使用函数封装</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA/" rel="tag"># 计算机</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12-%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/" rel="prev" title="地下城堡2-暗影刺客赫芬琳">
+      <i class="fa fa-chevron-left"></i> 地下城堡2-暗影刺客赫芬琳
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/12/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%BC%80%E5%8F%91%E8%80%85%E6%B5%8B%E8%AF%95/" rel="next" title="读书笔记 开发者测试">
+      读书笔记 开发者测试 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#异常定义"><span class="nav-number">1.</span> <span class="nav-text">异常定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#函数不返回-null"><span class="nav-number">2.</span> <span class="nav-text">函数不返回 null</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#缺陷处理"><span class="nav-number">3.</span> <span class="nav-text">缺陷处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用-try-with-resources-自动清理资源"><span class="nav-number">4.</span> <span class="nav-text">使用 try-with-resources 自动清理资源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#finally-抛出的异常会覆盖-try-和-catch-抛出的异常"><span class="nav-number">5.</span> <span class="nav-text">finally 抛出的异常会覆盖 try 和 catch 抛出的异常</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#try、catch、finally-处理范围"><span class="nav-number">6.</span> <span class="nav-text">try、catch、finally 处理范围</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#已查异常和未查异常"><span class="nav-number">7.</span> <span class="nav-text">已查异常和未查异常</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#接口升级"><span class="nav-number">8.</span> <span class="nav-text">接口升级</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异常处理等级"><span class="nav-number">9.</span> <span class="nav-text">异常处理等级</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异常设计"><span class="nav-number">10.</span> <span class="nav-text">异常设计</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异常的终止与继续"><span class="nav-number">11.</span> <span class="nav-text">异常的终止与继续</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异常处理的坏味道"><span class="nav-number">12.</span> <span class="nav-text">异常处理的坏味道</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lanky</p>
+  <div class="site-description" itemprop="description">计算机 社会 物理 游戏</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lanky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">69k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:03</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

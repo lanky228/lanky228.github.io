@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ydvte4.coding-pages.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一句话总结DuckDB 是”分析界的 SQLite”——无需独立服务进程，直接嵌入应用程序运行，特别适合边缘设备轻量分析和 AI 查询工具场景。 背景现有分析数据库（StarRocks、Druid 等）都是服务端进程模式，需独立部署、占用 GB 级内存，不适合资源受限的边缘设备。 DuckDB 作为进程内嵌入式 OLAP（联机分析处理），无服务进程、零外部依赖、可编译为单文件，更适合边缘场景。 2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DuckDB嵌入式分析数据库洞察——轻量级OLAP的AI原生查询与边缘场景适配">
+<meta property="og:url" content="https://ydvte4.coding-pages.com/2026/07/16/DuckDB-%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%88%86%E6%9E%90%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B4%9E%E5%AF%9F/index.html">
+<meta property="og:site_name" content="Lanky的博客">
+<meta property="og:description" content="一句话总结DuckDB 是”分析界的 SQLite”——无需独立服务进程，直接嵌入应用程序运行，特别适合边缘设备轻量分析和 AI 查询工具场景。 背景现有分析数据库（StarRocks、Druid 等）都是服务端进程模式，需独立部署、占用 GB 级内存，不适合资源受限的边缘设备。 DuckDB 作为进程内嵌入式 OLAP（联机分析处理），无服务进程、零外部依赖、可编译为单文件，更适合边缘场景。 2">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-16T02:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-23T04:45:20.629Z">
+<meta property="article:author" content="Lanky">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ydvte4.coding-pages.com/2026/07/16/DuckDB-%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%88%86%E6%9E%90%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B4%9E%E5%AF%9F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>DuckDB嵌入式分析数据库洞察——轻量级OLAP的AI原生查询与边缘场景适配 | Lanky的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lanky的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">生活 学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ydvte4.coding-pages.com/2026/07/16/DuckDB-%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%88%86%E6%9E%90%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B4%9E%E5%AF%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="计算机 社会 物理 游戏">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DuckDB嵌入式分析数据库洞察——轻量级OLAP的AI原生查询与边缘场景适配
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-07-16 10:00:00" itemprop="dateCreated datePublished" datetime="2026-07-16T10:00:00+08:00">2026-07-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-07-23 12:45:20" itemprop="dateModified" datetime="2026-07-23T12:45:20+08:00">2026-07-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>DuckDB 是”分析界的 SQLite”——无需独立服务进程，直接嵌入应用程序运行，特别适合边缘设备轻量分析和 AI 查询工具场景。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>现有分析数据库（StarRocks、Druid 等）都是服务端进程模式，需独立部署、占用 GB 级内存，不适合资源受限的边缘设备。</p>
+<p>DuckDB 作为进程内嵌入式 OLAP（联机分析处理），无服务进程、零外部依赖、可编译为单文件，更适合边缘场景。</p>
+<p>2026 年 4 月的 OLAP 数据库综合评测中，DuckDB 以 8.9/10 分排名第二，仅次于 ClickHouse（9.2），高于 StarRocks（8.3）和 Druid（7.9）。</p>
+<p>同时，DuckDB 已被 LangChain、LlamaIndex 等 AI Agent（AI 智能助手）框架广泛采纳为查询工具后端。本文分析其核心能力与适用边界。</p>
+<h2 id="关键竞争力"><a href="#关键竞争力" class="headerlink" title="关键竞争力"></a>关键竞争力</h2><p>DuckDB 的竞争力来自四个方面。</p>
+<h3 id="嵌入式简单性"><a href="#嵌入式简单性" class="headerlink" title="嵌入式简单性"></a>嵌入式简单性</h3><p>DuckDB 无数据库服务进程，完全嵌入宿主进程运行。整个源码编译为一个头文件加一个实现文件，无外部依赖，安装只需一个 C++ 编译器。</p>
+<p>这与 SQLite 的理念一脉相承，但目标负载从 OLTP（事务处理）转向了 OLAP（分析处理）。</p>
+<h3 id="跨平台可移植性"><a href="#跨平台可移植性" class="headerlink" title="跨平台可移植性"></a>跨平台可移植性</h3><p>DuckDB 可运行于 Linux、macOS、Windows 三大系统和 x86、ARM 两种 CPU 架构。部署范围从资源受限的边缘设备到 100+ CPU 核心的服务器。</p>
+<p>通过 DuckDB-Wasm，还能在浏览器和移动端运行——这是 StarRocks、Druid 等都不具备的能力。</p>
+<h3 id="列式向量化执行"><a href="#列式向量化执行" class="headerlink" title="列式向量化执行"></a>列式向量化执行</h3><p>DuckDB 采用列式存储加向量化执行，每次处理一批数据而非逐行，大幅降低 CPU 开销。</p>
+<p>ClickBench 基准上，DuckDB 单进程热查询中位数 348ms，是 ClickHouse（148ms）的 2.35 倍，但比 Druid（1.77s）快 5 倍以上。43 个查询全部完成、零失败，而 Druid 有 14 个失败。</p>
+<h3 id="Extension-扩展生态"><a href="#Extension-扩展生态" class="headerlink" title="Extension 扩展生态"></a>Extension 扩展生态</h3><p>核心功能以 Extension 形式实现，可动态加载。20+ 核心扩展覆盖 Parquet、Arrow、HTTP/S3、全文搜索、Iceberg、向量搜索等场景，且在所有客户端通用。</p>
+<h2 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h2><p>DuckDB 采用进程内嵌入式架构，组件清晰分离：SQL 解析器、逻辑规划器、优化器、物理规划器、执行引擎，另有事务管理器和存储管理器。</p>
+<p>关键架构特征：</p>
+<ul>
+<li>进程内嵌入，无客户端-服务端协议开销，可直接读取宿主进程内存中的数据，零拷贝</li>
+<li>Push-Based 向量化执行（数据由上游推送到下游），单批默认 2048 行，恰好适配 L2 缓存</li>
+<li>MVCC（多版本并发控制）支持并发事务，单文件数据库存储</li>
+<li>亦支持 Parquet、Iceberg、Delta 等 lakehouse 格式</li>
+</ul>
+<p>📌 与服务端数据库的根本差异：DuckDB 嵌入宿主进程，无网络往返，适合边缘设备。但它是单节点架构，无分布式 shuffle（跨节点数据重分布），无法替代中重型查询负载——这是架构层面的根本边界。</p>
+<h2 id="向量化执行引擎"><a href="#向量化执行引擎" class="headerlink" title="向量化执行引擎"></a>向量化执行引擎</h2><h3 id="Push-Based-模型"><a href="#Push-Based-模型" class="headerlink" title="Push-Based 模型"></a>Push-Based 模型</h3><p>DuckDB 使用 push-based 向量化执行，数据块在算子间由上游推送至下游，而非传统模型的拉取方式。</p>
+<p>每个数据块默认包含 2048 行，该尺寸经过精心设计：单块列数据可完全容纳于 L2 缓存（典型 32MB），算子访问中间结果时延迟低。</p>
+<p>向量化执行的优点：每次处理 2048 个值而非 1 行，函数调用开销被摊薄；SIMD 指令可对一批值做数据并行。</p>
+<p>💡 DuckDB 选择向量化而非 JIT 编译（即时编译），原因是 JIT 依赖 LLVM 等大型编译器库，与”零依赖、高可移植”的设计目标冲突。</p>
+<h3 id="性能定位与边界"><a href="#性能定位与边界" class="headerlink" title="性能定位与边界"></a>性能定位与边界</h3><p>ClickBench 基准上，DuckDB 以 348ms 中位数、43/43 查询全部完成的成绩，位列所有列式引擎第二，加载耗时 2 分钟为最快。</p>
+<p>但架构边界同样清晰：</p>
+<ul>
+<li><strong>并发瓶颈</strong>：16 并发流下延迟退化 41%（所有流运行于单一进程内，内部调度争用抵消额外 CPU 收益）。StarRocks 仅退化 7%</li>
+<li><strong>无节点扩展</strong>：单进程架构无法通过加机器提升单查询性能</li>
+<li><strong>数据扩展尚可</strong>：数据量翻倍下扩展因子 1.13 倍，合理但弱于部分竞品</li>
+</ul>
+<h2 id="Extension-生态与-AI-Agent-集成"><a href="#Extension-生态与-AI-Agent-集成" class="headerlink" title="Extension 生态与 AI Agent 集成"></a>Extension 生态与 AI Agent 集成</h2><h3 id="Extension-机制"><a href="#Extension-机制" class="headerlink" title="Extension 机制"></a>Extension 机制</h3><p>关键 Extension 包括：</p>
+<ul>
+<li><strong>parquet</strong>：Parquet 读写，边缘设备直读列式文件</li>
+<li><strong>httpfs</strong>：HTTP/S3 远端数据直查，无需落地</li>
+<li><strong>fts</strong>：BM25 全文搜索，适合日志检索</li>
+<li><strong>iceberg/delta</strong>：Lakehouse 对接</li>
+<li><strong>vss</strong>：向量相似度搜索，适合 AI/RAG 场景</li>
+<li><strong>motherduck</strong>：MotherDuck 云服务对接，云边协同</li>
+<li><strong>mysql/postgres/sqlite</strong>：外部数据库联邦查询</li>
+</ul>
+<h3 id="AI-Agent-查询集成"><a href="#AI-Agent-查询集成" class="headerlink" title="AI Agent 查询集成"></a>AI Agent 查询集成</h3><p>DuckDB 已被主流 AI Agent 框架广泛采纳：</p>
+<p><strong>LangChain 集成</strong>：通过 SQLAlchemy 连接 DuckDB，提供列表、查 schema、检查 SQL、执行查询四个工具。Agent 的标准流程是：列表 → 查 schema → 起草 SQL → LLM 检查 → 执行 → 读结果或错误 → 自纠错重试。</p>
+<p>💡 关键工程实践：</p>
+<ul>
+<li>DuckDB 方言必须在系统提示中显式声明，否则 LLM 会默认用 PostgreSQL 方言</li>
+<li>错误信息直接回灌 LLM，让 Agent 据此自纠错</li>
+<li>本地 DuckDB 无权限系统，需通过只读连接强制安全</li>
+<li>将业务术语预计算规则写入系统提示，减少 LLM 误解</li>
+</ul>
+<p><strong>LlamaIndex 集成</strong>：提供两种引擎，后者通过向量化索引检索相关表 schema，适合 100+ 表的大规模场景。</p>
+<p><strong>本地隐私保护 Agent</strong>：有论文展示完全本地运行的 SQL Agent（LangChain + DuckDB + 本地大模型），所有数据不出设备，适合电信、金融等受监管行业。</p>
+<h3 id="MotherDuck-混合执行"><a href="#MotherDuck-混合执行" class="headerlink" title="MotherDuck 混合执行"></a>MotherDuck 混合执行</h3><p>MotherDuck 扩展 DuckDB 到云端，关键不是”本地规划 + 远端执行”，而是混合查询处理——查询规划与执行可在本地和云端间分工，依据数据位置自动决定。</p>
+<p>这让 AI Agent 可在保持 DuckDB 体验的同时查询云端数据、卸载重负载。</p>
+<h2 id="边缘场景适配"><a href="#边缘场景适配" class="headerlink" title="边缘场景适配"></a>边缘场景适配</h2><h3 id="单设备边缘分析"><a href="#单设备边缘分析" class="headerlink" title="单设备边缘分析"></a>单设备边缘分析</h3><p>边缘设备维护一个 DuckDB 文件，计算滑动窗口指标，仅将聚合后结果上传云端。15-60 分钟热数据保留在 DuckDB，更早的数据转为 Parquet 分区，保证断电后 KPI 不丢失。</p>
+<h3 id="浏览器边缘分析"><a href="#浏览器边缘分析" class="headerlink" title="浏览器边缘分析"></a>浏览器边缘分析</h3><p>DuckDB-Wasm 在浏览器中运行 SQL，数据通过 WebSocket 或本地文件输入，无需服务器往返。适合离线仪表盘场景，隐私数据不离开设备。</p>
+<h3 id="分布式边缘协同"><a href="#分布式边缘协同" class="headerlink" title="分布式边缘协同"></a>分布式边缘协同</h3><p>GizmoEdge 将 DuckDB 作为执行引擎，协调 K8s 集群、Linux 节点甚至 iOS 设备的异构 worker 并行执行查询。已在 TPC-H SF10000 规模、1000 worker、4000 CPU 上完成测试。</p>
+<h2 id="电信行业案例"><a href="#电信行业案例" class="headerlink" title="电信行业案例"></a>电信行业案例</h2><ul>
+<li><strong>运营商收入保障</strong>：基于 DuckDB 构建星型模型仓库，结合 AI Agent 检测营收泄漏。所有 SQL 查询强制只读模式，用 AST 求值器限制为数字运算，无函数调用——验证了只读 + AST 限制的 Agent 安全范式</li>
+<li><strong>物联网边缘分析</strong>：GizmoEdge 在 1000 个异构 worker 上完成大规模查询</li>
+</ul>
+<h2 id="与现有架构对比"><a href="#与现有架构对比" class="headerlink" title="与现有架构对比"></a>与现有架构对比</h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>DuckDB</th>
+<th>StarRocks/Druid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>部署模式</td>
+<td>进程内嵌入</td>
+<td>独立进程集群</td>
+</tr>
+<tr>
+<td>资源占用</td>
+<td>内存可低至 512MB</td>
+<td>GB 级内存集群</td>
+</tr>
+<tr>
+<td>并发扩展</td>
+<td>16 流退化 41%</td>
+<td>16 流退化 7%</td>
+</tr>
+<tr>
+<td>节点扩展</td>
+<td>不支持（单进程）</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>AI Agent 集成</td>
+<td>LangChain 原生支持</td>
+<td>无原生集成</td>
+</tr>
+<tr>
+<td>Wasm 支持</td>
+<td>原生支持</td>
+<td>不支持</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>📌 核心结论：DuckDB 与现有分析引擎不构成替代关系，而是互补。DuckDB 填补了边缘设备和浏览器场景的能力空白，但单进程边界使其无法承担中重型负载。</p>
+<p>应将 DuckDB 定位为边缘分析层，与中心化引擎构成”边缘-中心”分层架构。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li><p>DuckDB 的进程内嵌入式架构填补了边缘设备和浏览器场景的能力空白，但单进程 + 单机内存的边界明确（16 并发退化 41%、无节点扩展），不可替代中重型查询负载。</p>
+</li>
+<li><p>DuckDB 被 AI Agent 框架原生集成的范式值得借鉴：方言感知系统提示、错误信息回灌自纠错、连接层强制只读、语义层注入减少业务术语误解——这些工程实践可应用到现有 AI 查询服务中。</p>
+</li>
+<li><p>DuckDB 的 Extension 生态是核心竞争力，httpfs（远端直查）、fts（全文搜索）、vss（向量搜索）三个扩展对边缘日志分析、报文检索、AI RAG 场景有直接参考价值。</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AI/" rel="tag"># AI</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/07/16/ClickHouse-%E5%88%97%E5%BC%8FOLAP%E6%B4%9E%E5%AF%9F/" rel="prev" title="ClickHouse列式OLAP数据库洞察——极致查询性能背后的技术架构与StarRocks竞品对比">
+      <i class="fa fa-chevron-left"></i> ClickHouse列式OLAP数据库洞察——极致查询性能背后的技术架构与StarRocks竞品对比
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2026/07/16/Iceberg-Trino-%E5%BC%80%E6%BA%90%E6%B9%96%E4%BB%93%E6%9F%A5%E8%AF%A2%E6%B4%9E%E5%AF%9F/" rel="next" title="Iceberg-Trino-开源湖仓查询洞察">
+      Iceberg-Trino-开源湖仓查询洞察 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一句话总结"><span class="nav-number">1.</span> <span class="nav-text">一句话总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">2.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关键竞争力"><span class="nav-number">3.</span> <span class="nav-text">关键竞争力</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#嵌入式简单性"><span class="nav-number">3.1.</span> <span class="nav-text">嵌入式简单性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#跨平台可移植性"><span class="nav-number">3.2.</span> <span class="nav-text">跨平台可移植性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#列式向量化执行"><span class="nav-number">3.3.</span> <span class="nav-text">列式向量化执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Extension-扩展生态"><span class="nav-number">3.4.</span> <span class="nav-text">Extension 扩展生态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#软件架构"><span class="nav-number">4.</span> <span class="nav-text">软件架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#向量化执行引擎"><span class="nav-number">5.</span> <span class="nav-text">向量化执行引擎</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Push-Based-模型"><span class="nav-number">5.1.</span> <span class="nav-text">Push-Based 模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#性能定位与边界"><span class="nav-number">5.2.</span> <span class="nav-text">性能定位与边界</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Extension-生态与-AI-Agent-集成"><span class="nav-number">6.</span> <span class="nav-text">Extension 生态与 AI Agent 集成</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Extension-机制"><span class="nav-number">6.1.</span> <span class="nav-text">Extension 机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AI-Agent-查询集成"><span class="nav-number">6.2.</span> <span class="nav-text">AI Agent 查询集成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MotherDuck-混合执行"><span class="nav-number">6.3.</span> <span class="nav-text">MotherDuck 混合执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#边缘场景适配"><span class="nav-number">7.</span> <span class="nav-text">边缘场景适配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#单设备边缘分析"><span class="nav-number">7.1.</span> <span class="nav-text">单设备边缘分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#浏览器边缘分析"><span class="nav-number">7.2.</span> <span class="nav-text">浏览器边缘分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分布式边缘协同"><span class="nav-number">7.3.</span> <span class="nav-text">分布式边缘协同</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#电信行业案例"><span class="nav-number">8.</span> <span class="nav-text">电信行业案例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#与现有架构对比"><span class="nav-number">9.</span> <span class="nav-text">与现有架构对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">10.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lanky</p>
+  <div class="site-description" itemprop="description">计算机 社会 物理 游戏</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lanky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">69k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:03</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

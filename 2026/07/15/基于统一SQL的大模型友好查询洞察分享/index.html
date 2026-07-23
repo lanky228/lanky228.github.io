@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ydvte4.coding-pages.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一句话总结业界跨库 SQL 适配有三条成熟路线（联邦引擎、语义层、引擎统一），均不依赖事后 SQL 方言转换（将统一 SQL 中的函数改写为各库兼容的写法）。当前”统一 SQL + 方言转换”方案存在等价函数依赖的结构性风险，应向语义层直接生成各库 SQL 演进。 背景五个子域需要跨 StarRocks&#x2F;Druid&#x2F;GaussDB 三个异构数据库查询，AI 需生成一种 SQL 让三库都能执行。当前">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于统一SQL的大模型友好查询洞察分享">
+<meta property="og:url" content="https://ydvte4.coding-pages.com/2026/07/15/%E5%9F%BA%E4%BA%8E%E7%BB%9F%E4%B8%80SQL%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8F%8B%E5%A5%BD%E6%9F%A5%E8%AF%A2%E6%B4%9E%E5%AF%9F%E5%88%86%E4%BA%AB/index.html">
+<meta property="og:site_name" content="Lanky的博客">
+<meta property="og:description" content="一句话总结业界跨库 SQL 适配有三条成熟路线（联邦引擎、语义层、引擎统一），均不依赖事后 SQL 方言转换（将统一 SQL 中的函数改写为各库兼容的写法）。当前”统一 SQL + 方言转换”方案存在等价函数依赖的结构性风险，应向语义层直接生成各库 SQL 演进。 背景五个子域需要跨 StarRocks&#x2F;Druid&#x2F;GaussDB 三个异构数据库查询，AI 需生成一种 SQL 让三库都能执行。当前">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-15T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-23T04:45:20.629Z">
+<meta property="article:author" content="Lanky">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ydvte4.coding-pages.com/2026/07/15/%E5%9F%BA%E4%BA%8E%E7%BB%9F%E4%B8%80SQL%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8F%8B%E5%A5%BD%E6%9F%A5%E8%AF%A2%E6%B4%9E%E5%AF%9F%E5%88%86%E4%BA%AB/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>基于统一SQL的大模型友好查询洞察分享 | Lanky的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lanky的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">生活 学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ydvte4.coding-pages.com/2026/07/15/%E5%9F%BA%E4%BA%8E%E7%BB%9F%E4%B8%80SQL%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8F%8B%E5%A5%BD%E6%9F%A5%E8%AF%A2%E6%B4%9E%E5%AF%9F%E5%88%86%E4%BA%AB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="计算机 社会 物理 游戏">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于统一SQL的大模型友好查询洞察分享
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-07-15 16:00:00" itemprop="dateCreated datePublished" datetime="2026-07-15T16:00:00+08:00">2026-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-07-23 12:45:20" itemprop="dateModified" datetime="2026-07-23T12:45:20+08:00">2026-07-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>业界跨库 SQL 适配有三条成熟路线（联邦引擎、语义层、引擎统一），均不依赖事后 SQL 方言转换（将统一 SQL 中的函数改写为各库兼容的写法）。当前”统一 SQL + 方言转换”方案存在等价函数依赖的结构性风险，应向语义层直接生成各库 SQL 演进。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>五个子域需要跨 StarRocks/Druid/GaussDB 三个异构数据库查询，AI 需生成一种 SQL 让三库都能执行。当前采用”统一 SQL + 函数映射改写”方案，但已发现 Druid 报文场景查询报错的结构性风险。</p>
+<p>业界已有多条成熟路线解决跨库 SQL 适配问题，需对比研判正确的演进方向。</p>
+<h2 id="当前方案的问题"><a href="#当前方案的问题" class="headerlink" title="当前方案的问题"></a>当前方案的问题</h2><p>当前流程：AI 生成统一 SQL（不感知目标库）→ 引擎层函数映射改写 → 分别下推各库执行。</p>
+<p>具体表现：</p>
+<ul>
+<li><strong>StarRocks</strong>：原生支持该函数，零改写，执行成功 ✅</li>
+<li><strong>GaussDB</strong>：原生支持该函数，零改写，执行成功 ✅</li>
+<li><strong>Druid 报文</strong>：FROM_UNIXTIME 函数不下推，内存计算报错 ❌</li>
+<li><strong>Druid SQL</strong>：改写为等价函数，执行成功（降级路径）✅</li>
+</ul>
+<p>⚠️ <strong>核心问题</strong>：生成统一 SQL 后再改写，某库不支持等价函数即失败。方案依赖每个数据库均存在等价函数可映射，新增不支持等价函数的库即失效。</p>
+<h2 id="业界三种路线"><a href="#业界三种路线" class="headerlink" title="业界三种路线"></a>业界三种路线</h2><h3 id="路线一：联邦引擎——不推-SQL-给源库，引擎层统一执行"><a href="#路线一：联邦引擎——不推-SQL-给源库，引擎层统一执行" class="headerlink" title="路线一：联邦引擎——不推 SQL 给源库，引擎层统一执行"></a>路线一：联邦引擎——不推 SQL 给源库，引擎层统一执行</h3><p>Trino 收到查询请求后，不推 SQL 给源库，而是从各库拉取数据到引擎层统一执行 JOIN 和聚合。</p>
+<p>✅ <strong>为什么不依赖等价函数</strong>：SQL 不在源库执行，源库只需吐数据，不需要支持任何特定函数。</p>
+<p>代表实践：Meta 日处理数千万查询、EB 级数据；Uber 15 集群、5000+ 节点、日 50 万查询。</p>
+<h3 id="路线二：语义层——定义指标一次，感知目标库自动生成该库-SQL"><a href="#路线二：语义层——定义指标一次，感知目标库自动生成该库-SQL" class="headerlink" title="路线二：语义层——定义指标一次，感知目标库自动生成该库 SQL"></a>路线二：语义层——定义指标一次，感知目标库自动生成该库 SQL</h3><p>语义层定义指标（如”CPU 均值 = 按月聚合 CPU 平均值”），感知目标库，自动生成各库专属 SQL。</p>
+<ul>
+<li>StarRocks → 生成 StarRocks 方言 SQL → 执行 ✅</li>
+<li>Druid → 生成 Druid 方言 SQL → 执行 ✅</li>
+<li>GaussDB → 生成 GaussDB 方言 SQL → 执行 ✅</li>
+</ul>
+<p>✅ <strong>为什么不依赖等价函数</strong>：每个库拿到的是语义层为自己专属生成的 SQL，不存在”映射不了”的问题。</p>
+<p>💡 <strong>对大模型的友好性</strong>：AI 只需声明查什么指标，语义层自动完成方言适配，降低 AI 生成 SQL 的复杂度。</p>
+<p>代表实践：dbt MetricFlow、Cube、Netflix DataJunction、Airbnb Minerva。局限：指标建模投入较大（中型企业数百指标 = 数月建模）。</p>
+<h3 id="路线三：引擎统一——只用一个引擎，消除方言问题"><a href="#路线三：引擎统一——只用一个引擎，消除方言问题" class="headerlink" title="路线三：引擎统一——只用一个引擎，消除方言问题"></a>路线三：引擎统一——只用一个引擎，消除方言问题</h3><p>AI 生成 SQL（只有一种方言，因为只有一个引擎），统一引擎直接执行。</p>
+<p>✅ <strong>为什么不依赖等价函数</strong>：只有一个引擎、一种方言，不存在跨库映射。</p>
+<p>代表实践：Meta 四引擎收敛到 Presto 一个，节省”数十万行代码和数千台机器”；滴滴四引擎收敛到 StarRocks，查询性能 4 倍、总成本降 80%。</p>
+<p>⚠️ <strong>关键教训</strong>：性能问题可以用工程手段解决，但运维复杂度无法用工程手段消除——这是引擎统一的根本驱动力。局限：迁移成本高，已有异构库存量场景不适用。</p>
+<h2 id="三种路线对比与选型"><a href="#三种路线对比与选型" class="headerlink" title="三种路线对比与选型"></a>三种路线对比与选型</h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>联邦引擎</th>
+<th>语义层</th>
+<th>引擎统一</th>
+<th>当前方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>适配方式</td>
+<td>不推 SQL 给源库</td>
+<td>感知目标库直接生成</td>
+<td>单引擎无跨库</td>
+<td>统一 SQL + 运行时改写</td>
+</tr>
+<tr>
+<td>依赖源库 SQL 能力</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+<td><strong>是</strong></td>
+</tr>
+<tr>
+<td>等价函数依赖风险</td>
+<td>无</td>
+<td>无</td>
+<td>无</td>
+<td><strong>有（已失败）</strong></td>
+</tr>
+<tr>
+<td>跨源 JOIN</td>
+<td>支持</td>
+<td>不支持</td>
+<td>不支持</td>
+<td>不支持</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>联邦引擎</th>
+<th>语义层</th>
+<th>引擎统一</th>
+<th>当前方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQL 下推执行</td>
+<td>否（引擎层执行）</td>
+<td>是</td>
+<td>不适用</td>
+<td>是</td>
+</tr>
+<tr>
+<td>迁移成本</td>
+<td>中</td>
+<td>中</td>
+<td>高</td>
+<td>低</td>
+</tr>
+<tr>
+<td>适用本系统</td>
+<td>❌ 单数据源更慢</td>
+<td>✅ 三库不动成本最低</td>
+<td>❌ 三库功能互补</td>
+<td>当前方案（有风险）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="选型结论"><a href="#选型结论" class="headerlink" title="选型结论"></a>选型结论</h3><p>业界三种路线均不依赖事后 SQL 方言转换，选型如下：</p>
+<ol>
+<li><p><strong>联邦引擎——不采用。</strong> 查询以单数据源为主，不需要跨源 JOIN；联邦引擎拉取数据到引擎层执行，单数据源查询比原生更慢；需额外部署维护 Trino 集群。</p>
+</li>
+<li><p><strong>引擎统一——不采用。</strong> 三库功能互补（StarRocks 高性能 OLAP、Druid 时序实时、GaussDB 关系型配置），单一引擎无法同时最优；迁移三个生产库业务中断风险大。</p>
+</li>
+<li><p><strong>语义层——采用。</strong> 三库不动迁移成本最低；感知目标库直接生成该库 SQL，消除等价函数依赖；可与当前方言翻译并行运行，平滑过渡。</p>
+</li>
+</ol>
+<h2 id="方言翻译的结构性风险"><a href="#方言翻译的结构性风险" class="headerlink" title="方言翻译的结构性风险"></a>方言翻译的结构性风险</h2><p>当前方案分三步，三个风险均发生在第二步（引擎层函数映射改写）：</p>
+<ul>
+<li>Step 1：AI 生成统一 SQL（不感知目标库）</li>
+<li>Step 2：引擎层函数映射改写 ← ⚠️ 三个风险均在此</li>
+<li>Step 3：改写后的 SQL 下推各库执行</li>
+</ul>
+<p>⚠️ <strong>风险① 等价函数依赖</strong>：每个库必须存在等价函数可替换，否则改写失败。已发生：Druid 报文无等价函数下推，场景失败。</p>
+<p>⚠️ <strong>风险② 语义差异不可处理</strong>：仅能做函数名替换，无法处理 NULL 聚合行为、时区默认值、时间精度等语义级差异。</p>
+<p>⚠️ <strong>风险③ 维护负担</strong>：每个新函数 × 每个新数据库需新增一条映射规则。5 个函数 × 4 个数据源 = 20 条规则，新增 1 个库则变为 25 条。</p>
+<p>当前 SQL 方言转换器基于 Apache Calcite 框架实现函数映射。Druid 报文场景失败已验证风险①，风险②③尚未触发但属结构性隐患。</p>
+<h2 id="目标架构"><a href="#目标架构" class="headerlink" title="目标架构"></a>目标架构</h2><p>核心变化：从”不感知底层 → 统一生成 → 事后改写”到”感知底层 → 直接生成该库 SQL”。</p>
+<p>感知机制：语义层维护表-数据库路由映射（metrics 表 → StarRocks、alerts 表 → Druid）。AI 声明指标后，语义层追溯到底层表，查路由映射确定目标库，直接生成该库 SQL。</p>
+<p>业界验证：Netflix、Airbnb、Spotify 均已落地。OSI Initiative 40+ 公司参与，语义层正成为产业标准。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li><p><strong>当前”统一 SQL + 方言转换”方案存在结构性风险。</strong> 它依赖各库存在等价函数，Druid 报文场景失败已验证此风险。业界三种路线均不依赖事后 SQL 方言转换。</p>
+</li>
+<li><p><strong>应向语义层感知底层数据库直接生成各库 SQL 演进。</strong> 语义层通过路由映射感知底层，生成时就对了，从根源消除”改不动”的风险。三库不动、迁移成本最低，可与当前方案并行过渡。</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AI/" rel="tag"># AI</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/07/15/Snowflake-AI%E6%9F%A5%E8%AF%A2%E4%B8%8E%E8%AF%AD%E4%B9%89%E5%B1%82%E6%B4%9E%E5%AF%9F/" rel="prev" title="Snowflake-AI查询与语义层洞察">
+      <i class="fa fa-chevron-left"></i> Snowflake-AI查询与语义层洞察
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2026/07/16/ClickHouse-%E5%88%97%E5%BC%8FOLAP%E6%B4%9E%E5%AF%9F/" rel="next" title="ClickHouse列式OLAP数据库洞察——极致查询性能背后的技术架构与StarRocks竞品对比">
+      ClickHouse列式OLAP数据库洞察——极致查询性能背后的技术架构与StarRocks竞品对比 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一句话总结"><span class="nav-number">1.</span> <span class="nav-text">一句话总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">2.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#当前方案的问题"><span class="nav-number">3.</span> <span class="nav-text">当前方案的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#业界三种路线"><span class="nav-number">4.</span> <span class="nav-text">业界三种路线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#路线一：联邦引擎——不推-SQL-给源库，引擎层统一执行"><span class="nav-number">4.1.</span> <span class="nav-text">路线一：联邦引擎——不推 SQL 给源库，引擎层统一执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#路线二：语义层——定义指标一次，感知目标库自动生成该库-SQL"><span class="nav-number">4.2.</span> <span class="nav-text">路线二：语义层——定义指标一次，感知目标库自动生成该库 SQL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#路线三：引擎统一——只用一个引擎，消除方言问题"><span class="nav-number">4.3.</span> <span class="nav-text">路线三：引擎统一——只用一个引擎，消除方言问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三种路线对比与选型"><span class="nav-number">5.</span> <span class="nav-text">三种路线对比与选型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#选型结论"><span class="nav-number">5.1.</span> <span class="nav-text">选型结论</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方言翻译的结构性风险"><span class="nav-number">6.</span> <span class="nav-text">方言翻译的结构性风险</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标架构"><span class="nav-number">7.</span> <span class="nav-text">目标架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lanky</p>
+  <div class="site-description" itemprop="description">计算机 社会 物理 游戏</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lanky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">69k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:03</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

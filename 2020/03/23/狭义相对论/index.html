@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ydvte4.coding-pages.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="背景 洛伦兹变换与伽利略变换不相符  洛伦兹变换由麦克斯韦方程组等电磁理论推导得出，伽利略变换则由经验猜测得出。  洛伦兹变换符合现实  洛伦兹变换符合现实，伽利略变换只在低速场景下近似成立。  光速不变  不同方向、不同参考系下，光速的测量结果均保持不变。 假设 狭义相对性原理  一切物理定律（除引力外）在所有惯性系中均等效，符合洛伦兹变换。  光速不变原理  光在真空中始终以确定的速度 $c$">
+<meta property="og:type" content="article">
+<meta property="og:title" content="狭义相对论">
+<meta property="og:url" content="https://ydvte4.coding-pages.com/2020/03/23/%E7%8B%AD%E4%B9%89%E7%9B%B8%E5%AF%B9%E8%AE%BA/index.html">
+<meta property="og:site_name" content="Lanky的博客">
+<meta property="og:description" content="背景 洛伦兹变换与伽利略变换不相符  洛伦兹变换由麦克斯韦方程组等电磁理论推导得出，伽利略变换则由经验猜测得出。  洛伦兹变换符合现实  洛伦兹变换符合现实，伽利略变换只在低速场景下近似成立。  光速不变  不同方向、不同参考系下，光速的测量结果均保持不变。 假设 狭义相对性原理  一切物理定律（除引力外）在所有惯性系中均等效，符合洛伦兹变换。  光速不变原理  光在真空中始终以确定的速度 $c$">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-03-22T16:00:02.000Z">
+<meta property="article:modified_time" content="2026-07-23T04:45:05.581Z">
+<meta property="article:author" content="Lanky">
+<meta property="article:tag" content="物理">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ydvte4.coding-pages.com/2020/03/23/%E7%8B%AD%E4%B9%89%E7%9B%B8%E5%AF%B9%E8%AE%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>狭义相对论 | Lanky的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lanky的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">生活 学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ydvte4.coding-pages.com/2020/03/23/%E7%8B%AD%E4%B9%89%E7%9B%B8%E5%AF%B9%E8%AE%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="计算机 社会 物理 游戏">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          狭义相对论
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-23 00:00:02" itemprop="dateCreated datePublished" datetime="2020-03-23T00:00:02+08:00">2020-03-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-07-23 12:45:05" itemprop="dateModified" datetime="2026-07-23T12:45:05+08:00">2026-07-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>590</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><ul>
+<li>洛伦兹变换与伽利略变换不相符</li>
+</ul>
+<p>洛伦兹变换由麦克斯韦方程组等电磁理论推导得出，伽利略变换则由经验猜测得出。</p>
+<ul>
+<li>洛伦兹变换符合现实</li>
+</ul>
+<p>洛伦兹变换符合现实，伽利略变换只在低速场景下近似成立。</p>
+<ul>
+<li>光速不变</li>
+</ul>
+<p>不同方向、不同参考系下，光速的测量结果均保持不变。</p>
+<h1 id="假设"><a href="#假设" class="headerlink" title="假设"></a>假设</h1><ul>
+<li>狭义相对性原理</li>
+</ul>
+<p>一切物理定律（除引力外）在所有惯性系中均等效，符合洛伦兹变换。</p>
+<ul>
+<li>光速不变原理</li>
+</ul>
+<p>光在真空中始终以确定的速度 $c$ 传播，其大小与光源的运动状态无关。</p>
+<h1 id="推论"><a href="#推论" class="headerlink" title="推论"></a>推论</h1><h2 id="相对长度"><a href="#相对长度" class="headerlink" title="相对长度"></a>相对长度</h2><ul>
+<li>定义</li>
+</ul>
+<script type="math/tex; mode=display">l = l_0 \sqrt{1 - \left(\frac{v}{c}\right)^2}</script><ul>
+<li>含义</li>
+</ul>
+<p>运动方向上，物体的长度变短。</p>
+<h2 id="相对时间间隔"><a href="#相对时间间隔" class="headerlink" title="相对时间间隔"></a>相对时间间隔</h2><ul>
+<li>定义</li>
+</ul>
+<script type="math/tex; mode=display">\Delta t = \frac{\Delta t_0}{\sqrt{1 - \left(\frac{v}{c}\right)^2}}</script><ul>
+<li>含义</li>
+</ul>
+<p>运动方向上，物体的事件耗时相对变大。</p>
+<h2 id="相对速度"><a href="#相对速度" class="headerlink" title="相对速度"></a>相对速度</h2><ul>
+<li>定义</li>
+</ul>
+<script type="math/tex; mode=display">u = \frac{u_0 + v}{1 + \dfrac{u_0 v}{c^2}}</script><ul>
+<li>含义</li>
+</ul>
+<p>物体的相对速度符合洛伦兹变换，而非简单的速度叠加。</p>
+<h2 id="相对质量"><a href="#相对质量" class="headerlink" title="相对质量"></a>相对质量</h2><ul>
+<li>定义</li>
+</ul>
+<script type="math/tex; mode=display">m = \frac{m_0}{\sqrt{1 - \left(\frac{v}{c}\right)^2}}</script><ul>
+<li>含义</li>
+</ul>
+<p>物体的相对质量符合洛伦兹变换。</p>
+<h2 id="质能方程"><a href="#质能方程" class="headerlink" title="质能方程"></a>质能方程</h2><ul>
+<li>定义</li>
+</ul>
+<script type="math/tex; mode=display">E = mc^2</script><ul>
+<li>含义</li>
+</ul>
+<p>质量是能量的一种表现形式。</p>
+<h1 id="本质"><a href="#本质" class="headerlink" title="本质"></a>本质</h1><ul>
+<li>简单的速度叠加是错误的，它只是一种经验主义结论。</li>
+<li>洛伦兹通过数学公式推导出了真实的物质逻辑关系。</li>
+<li>光速不变的深层原因，目前的科技水平暂时无法解析。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%89%A9%E7%90%86/" rel="tag"># 物理</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/23/%E5%AE%87%E7%A7%B0%E4%B8%8D%E5%AE%88%E6%81%92/" rel="prev" title="宇称不守恒">
+      <i class="fa fa-chevron-left"></i> 宇称不守恒
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/03/23/%E5%B9%BF%E4%B9%89%E7%9B%B8%E5%AF%B9%E8%AE%BA/" rel="next" title="广义相对论">
+      广义相对论 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#假设"><span class="nav-number">2.</span> <span class="nav-text">假设</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#推论"><span class="nav-number">3.</span> <span class="nav-text">推论</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#相对长度"><span class="nav-number">3.1.</span> <span class="nav-text">相对长度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#相对时间间隔"><span class="nav-number">3.2.</span> <span class="nav-text">相对时间间隔</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#相对速度"><span class="nav-number">3.3.</span> <span class="nav-text">相对速度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#相对质量"><span class="nav-number">3.4.</span> <span class="nav-text">相对质量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#质能方程"><span class="nav-number">3.5.</span> <span class="nav-text">质能方程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#本质"><span class="nav-number">4.</span> <span class="nav-text">本质</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lanky</p>
+  <div class="site-description" itemprop="description">计算机 社会 物理 游戏</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lanky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">69k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:03</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
