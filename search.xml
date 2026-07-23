@@ -341,528 +341,449 @@
       </tags>
   </entry>
   <entry>
-    <title>Apache Pinot实时OLAP洞察——Druid竞品对比与实时分析查询技术路线选型</title>
-    <url>/2026/07/16/Apache-Pinot-%E5%AE%9E%E6%97%B6OLAP%E6%B4%9E%E5%AF%9F/</url>
-    <content><![CDATA[<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>Apache Pinot 靠 Star-Tree 预聚合索引和原生实时 Upsert，在用户面分析场景比 Druid 低 2-7 倍延迟——但现有 Druid 选型在时序场景仍合理，Pinot 的技术思路值得借鉴而非照搬。</p>
-<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>现有架构用 Apache Druid 作为实时 OLAP（联机分析处理）引擎处理时序数据，包括网络性能指标、告警等。</p>
-<p>Pinot 是 Druid 在实时 OLAP 领域最直接的竞品，两者均源自 LinkedIn 的实时分析需求。需逐维度对比两者差异，验证 Druid 选型是否合理，并识别 Pinot 技术亮点是否值得引入。</p>
-<p>Pinot 不是边缘项目。LinkedIn 内部 50+ 用户面产品、25 万+ QPS、7 亿+成员依赖其服务。Cisco Webex 用其处理 100+ TB/天遥测数据，替代 Elasticsearch，缩减 500+ 节点，查询性能提升 5-150 倍。Uber 有 100+ 实时分析用例、500+ 生产表。</p>
-<h2 id="关键竞争力"><a href="#关键竞争力" class="headerlink" title="关键竞争力"></a>关键竞争力</h2><p>Pinot 的竞争力来自三个方面。</p>
-<h3 id="Star-Tree-预聚合索引"><a href="#Star-Tree-预聚合索引" class="headerlink" title="Star-Tree 预聚合索引"></a>Star-Tree 预聚合索引</h3><p>Star-Tree 是 Pinot 最具辨识度的能力——一种在多列上构建的预聚合索引，能显著降低聚合查询的扫描行数，为给定用例提供查询延迟的硬上界。</p>
-<p>与 Druid 在摄入时做 Roll-up（破坏性聚合，丢失原始行）不同，Star-Tree 是索引层的预聚合，原始行保留，可在同一表上同时支持聚合加速和明细行下钻。</p>
-<p>客户从 Druid 迁移到 Pinot 后实测 2-7 倍延迟降低、3-4 倍吞吐提升。</p>
-<h3 id="原生实时-Upsert"><a href="#原生实时-Upsert" class="headerlink" title="原生实时 Upsert"></a>原生实时 Upsert</h3><p>Pinot 自 0.6.x 起支持基于主键的原生 Upsert（更新或插入），是首个支持实时 Upsert 的实时 OLAP 系统。Druid 缺乏真正的逐行 Upsert，仅支持段级覆盖。</p>
-<p>对网络运维中”迟到事件、数据修正、去重”需求，Pinot 有结构性优势。</p>
-<h3 id="高并发用户面分析"><a href="#高并发用户面分析" class="headerlink" title="高并发用户面分析"></a>高并发用户面分析</h3><p>Pinot 设计中心是”以数千 QPS 持续低延迟服务用户面分析”。LinkedIn 单应用即 5000+ QPS、84-136ms 延迟。Druid 在并发上升时延迟易退化至 10 秒级，而 Pinot 在 1000+ QPS 仍保持毫秒级。</p>
-<h2 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h2><p>Pinot 采用 Controller、Broker、Server、Minion 四组件架构，依赖 Helix（集群管理）和 ZooKeeper（状态存储），外加持久化对象存储作深度存储。</p>
-<p>四层职责：</p>
+    <title>Apache Iceberg 表格式——性能基准测试与架构优势洞察</title>
+    <url>/2026/07/22/Apache-Iceberg%E8%A1%A8%E6%A0%BC%E5%BC%8F%E6%80%A7%E8%83%BD%E4%B8%8E%E6%9E%B6%E6%9E%84%E6%B4%9E%E5%AF%9F/</url>
+    <content><![CDATA[<p>💡 <strong>一句话总结</strong></p>
+<p>本地 DuckDB TPC-DS 实测发现：公平对比下 Iceberg 仅比裸 Parquet 快 4.7%，性能并非它的核心卖点。它真正的价值在不依赖元数据服务、Time Travel（历史时间查询）、Schema/分区演进、ACID 事务，以及跨引擎表语义统一等架构治理能力。</p>
+<hr>
+<h2 id="为什么关注-Iceberg"><a href="#为什么关注-Iceberg" class="headerlink" title="为什么关注 Iceberg"></a>为什么关注 Iceberg</h2><p>企业内部统一 SQL 查询服务面临数据湖化与开放表格式选型问题。Apache Iceberg 是业界增速最快的开放表格式，AWS、Snowflake、Google 集体站队，需要评估是否值得引入。</p>
+<p>为验证 Iceberg 的性能价值，我们用 DuckDB 在本地跑了 TPC-DS（业界标准的数据仓库基准测试）benchmark，对比 Iceberg 表与裸 Parquet 表。</p>
+<p>初步结果显示 Iceberg 在”分区版”场景下加速比高达 +45.6%。但进一步分析发现这个对比不对等——只有 Iceberg 用了分区。双方都分区后，加速比缩水到 +4.7%。</p>
+<p>业界调研也印证：Iceberg 的核心价值不是性能，而是架构治理能力。Netflix 开源 Iceberg 的动机，正是 Hive Metastore（Hive 的元数据服务，简称 HMS）在 PB 级数据上撑不住。</p>
+<hr>
+<h2 id="Iceberg-关键竞争力"><a href="#Iceberg-关键竞争力" class="headerlink" title="Iceberg 关键竞争力"></a>Iceberg 关键竞争力</h2><p>Iceberg 作为开放表格式（一种让多引擎都能读写同一份数据的表标准），竞争力体现在五个维度。</p>
+<p>📌 <strong>通用能力</strong></p>
 <ul>
-<li><strong>Controller</strong>（控制面）：集群管理、表与段元数据、Schema 演进</li>
-<li><strong>Broker</strong>（查询路由）：接收 SQL → 查询优化 → 路由到 Server → 合并结果</li>
-<li><strong>Server</strong>（数据与执行）：段级列式存储 + 多种索引，实时段秒级可查</li>
-<li><strong>Minion</strong>（后台任务）：段合并、压缩、Upsert 后处理</li>
+<li>开放标准，引擎无关：同一份数据可被 Trino、Flink、Spark、DuckDB、Snowflake、BigQuery、Athena 等多引擎读写</li>
+<li>底层基于 Parquet，兼容现有数据湖存储</li>
+<li>元数据与数据同库存储，无需外部服务</li>
 </ul>
-<p>📌 关键特征：</p>
+<p>📌 <strong>关键能力</strong></p>
 <ul>
-<li>Hybrid Table：同一张表可同时含实时（Kafka 流式）和离线（批式）数据，查询自动合并</li>
-<li>实时段在 consuming 状态下即可查询，新鲜度达秒级</li>
-<li>存算分离：深度存储保存持久化副本，Server 本地缓存热段</li>
-<li>多租户原生：基于 tag 的分组，从设计起点支持租户隔离</li>
+<li><strong>不依赖外部元数据服务</strong>：元数据以文件形式存到对象存储，消除 HMS 单点故障与扩展瓶颈</li>
+<li><strong>Time Travel</strong>：每次写入生成 snapshot（快照，数据某一时刻的完整状态记录），可按 snapshot-id 或时间戳查询历史数据</li>
+<li><strong>Schema 演进 / Hidden Partitioning（隐藏分区，用户只关心业务字段，分区路由交给引擎）</strong>：增删改重命名字段不重写历史数据；分区规则可无感变更</li>
+<li><strong>ACID 事务</strong>：ACID 即数据库事务的四大保障（原子性、一致性、隔离性、持久性），Iceberg 用快照隔离 + 乐观并发 + 冲突重试实现</li>
+<li><strong>数据维护</strong>：提供 rewrite_data_files、rewrite_manifests、expire_snapshots 等标准维护操作</li>
 </ul>
-<h2 id="Star-Tree-索引"><a href="#Star-Tree-索引" class="headerlink" title="Star-Tree 索引"></a>Star-Tree 索引</h2><h3 id="多列预聚合与硬延迟上界"><a href="#多列预聚合与硬延迟上界" class="headerlink" title="多列预聚合与硬延迟上界"></a>多列预聚合与硬延迟上界</h3><p>Star-Tree 不替代其他单列索引，而是在多列上构建预聚合文档。原理可以理解为：</p>
-<p>原始数据有维度 D1、D2 和度量 M。Star-Tree 在构建时会预计算各种维度组合的聚合值，包括”丢弃某维度”的 Star-Node（星节点）。查询时如果某维度既不过滤也不分组，直接走 Star-Node，避免遍历所有子节点。</p>
-<p>这就是 Star-Tree 提供”硬上界延迟”的关键——查询命中预聚合文档时，直接读单条结果而非扫描原始行。</p>
-<p><strong>对现有架构的启发</strong>：Druid 的 Roll-up 是摄入时破坏性聚合，原始行丢失。如果遇到”既要聚合加速又要明细下钻”的场景（如告警聚合 + 单告警明细），Star-Tree 的”索引层预聚合、原始行保留”是可借鉴路径。</p>
-<h3 id="默认星树"><a href="#默认星树" class="headerlink" title="默认星树"></a>默认星树</h3><p>启用后系统自动将低基数维度加入星树，预聚合 COUNT 和数值列 SUM。降低了冷启动成本，但针对性不如手写星树。</p>
-<h2 id="多阶段查询引擎"><a href="#多阶段查询引擎" class="headerlink" title="多阶段查询引擎"></a>多阶段查询引擎</h2><h3 id="分阶段执行"><a href="#分阶段执行" class="headerlink" title="分阶段执行"></a>分阶段执行</h3><p>多阶段查询引擎（MSE，又称 v2 引擎）是 Pinot 1.0 起的生产就绪查询引擎，将单阶段 scatter-gather 拆解为多阶段树形执行计划，支持分布式 JOIN、窗口函数、子查询等复杂 SQL。</p>
-<p>三种 stage 类型：</p>
+<hr>
+<h2 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h2><p>Iceberg 的核心设计：把表元数据以文件形式分层存储在对象存储中，与数据文件同库。</p>
+<p>📌 <strong>三层元数据文件结构</strong></p>
 <ul>
-<li><strong>Leaf Stage</strong>：从表读数据，无 JOIN/聚合</li>
-<li><strong>Intermediate Stage</strong>：执行 JOIN、Window 等关系算子</li>
-<li><strong>Root Stage</strong>：在 Broker 上执行，输出最终结果</li>
+<li><strong>metadata.json（表级元数据）</strong>：存放表 schema、分区规则、属性；包含当前快照指针和历史快照列表，是 Time Travel 的基础</li>
+<li><strong>manifest list（快照清单）</strong>：每个快照对应一个，指向多个 manifest</li>
+<li><strong>manifest（数据文件清单）</strong>：记录每个数据文件路径、文件级统计（min/max/记录数）和列级统计，引擎据此做分区裁剪和谓词下推（把过滤条件推到存储层执行）</li>
 </ul>
-<p>⚠️ 关键约束：中间结果内存执行，无 spill-to-disk（溢写到磁盘），超大中间结果会 OOM（内存溢出）。因此 MSE 不适合重型 ETL JOIN，更适合实时 OLAP 范围内的关联查询。</p>
-<h3 id="与单阶段引擎的能力边界"><a href="#与单阶段引擎的能力边界" class="headerlink" title="与单阶段引擎的能力边界"></a>与单阶段引擎的能力边界</h3><div class="table-container">
+<p>引擎只需依次读取这三层文件，就能获得完整表语义，无需任何常驻元数据服务。</p>
+<p>📌 <strong>与 HMS 的根本差异</strong></p>
+<p>HMS 是常驻 RPC 服务，元数据存于关系数据库，引擎通过 Thrift RPC 获取表元数据。Iceberg 的元数据就是文件，引擎直接读对象存储。</p>
+<p>这一差异消除了 HMS 的三大顽疾：单点故障、RPC 瓶颈、元数据与数据不一致。</p>
+<p>其他架构特征：分区规则变更后，老数据按旧规则读、新数据按新规则写，多套规则共存——这是分区演进的技术基础。写入采用乐观并发，提交时检查 metadata.json 是否被其他写入修改，冲突则重试。</p>
+<hr>
+<h2 id="性能实测：四个场景对比"><a href="#性能实测：四个场景对比" class="headerlink" title="性能实测：四个场景对比"></a>性能实测：四个场景对比</h2><h3 id="测试环境与方法"><a href="#测试环境与方法" class="headerlink" title="测试环境与方法"></a>测试环境与方法</h3><p><strong>测试环境</strong>：DuckDB 1.x + Iceberg 1.11.0 + Java 17 + 向量化全开 + 10g driver</p>
+<p><strong>测试方法</strong>：TPC-DS benchmark，对比 Iceberg 表与裸 Parquet 表在相同查询集上的执行耗时，88 个有效查询。分别在 SF1/SF5（SF 即 Scale Factor，数据规模系数）、分区/未分区、公平/不对等对比等多个场景下测试。</p>
+<h3 id="测试结果汇总"><a href="#测试结果汇总" class="headerlink" title="测试结果汇总"></a>测试结果汇总</h3><div class="table-container">
 <table>
 <thead>
 <tr>
-<th>查询需求</th>
-<th>推荐引擎</th>
-<th>原因</th>
+<th>测试场景</th>
+<th>Iceberg 胜</th>
+<th>总加速比</th>
+<th>说明</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>基础过滤/聚合</td>
-<td>单阶段</td>
-<td>开销最低</td>
+<td>SF5 未分区</td>
+<td>61/88 (69%)</td>
+<td>+0.2%</td>
+<td>Raw 胜 27；无分区时 Iceberg 无优势</td>
 </tr>
 <tr>
-<td>JOIN/窗口/子查询</td>
-<td>多阶段</td>
-<td>必须用 MSE</td>
+<td>SF5 公平对比</td>
+<td>71/88 (81%)</td>
+<td>+4.7%</td>
+<td>Raw 胜 17；双方均开分区 + DPP</td>
 </tr>
 <tr>
-<td>大规模全表扫描</td>
-<td>外部引擎</td>
-<td>MSE 内存执行会 OOM</td>
+<td>SF5 分区版（仅 Iceberg 分区）</td>
+<td>83/88 (94%)</td>
+<td>+45.6%</td>
+<td>Raw 胜 5；不对等对比</td>
+</tr>
+<tr>
+<td>SF1 分区版</td>
+<td>68/88 (77%)</td>
+<td>+18.0%</td>
+<td>Raw 胜 20；数据量小时优势更小</td>
 </tr>
 </tbody>
 </table>
 </div>
-<h3 id="版本演进"><a href="#版本演进" class="headerlink" title="版本演进"></a>版本演进</h3><ul>
-<li><strong>1.2（2024-08）</strong>：逻辑数据库（namespace 隔离）、Upsert 一致性模式、JSON 索引增强</li>
-<li><strong>1.3（2025-02）</strong>：实验性时序查询引擎（PromQL/M3QL）、游标分页、多流摄入</li>
-<li><strong>1.4（2025-09）</strong>：时序引擎转 Beta、Pauseless Consumption（最小化摄入延迟）、逻辑表</li>
-</ul>
-<p>💡 Uber 生产实践是 MSE 走向生产的关键信号：Uber 此前用内部 Presto fork 代理 Pinot 查询，日服务 5 亿+ 次。2024-2025 年重构为直接对接 Pinot Broker，逐步退役代理层。Uber 还基于 Pinot 1.3 时序引擎支撑 10 万+ 自动告警。</p>
-<h2 id="网络流量分析案例"><a href="#网络流量分析案例" class="headerlink" title="网络流量分析案例"></a>网络流量分析案例</h2><p>LinkedIn InFlow 基于 Pinot 构建网络流量观测平台：</p>
+<p>⚠️ <strong>注意</strong>：”分区版”场景仅 Iceberg 分区、Raw 不分区，本质是分区优势而非表格式优势，不能据此判断 Iceberg 更快。</p>
+<h3 id="SF5-公平对比详细分析"><a href="#SF5-公平对比详细分析" class="headerlink" title="SF5 公平对比详细分析"></a>SF5 公平对比详细分析</h3><p>这是本报告最核心的实测结论——双方都分区，88 个有效查询。</p>
+<p><strong>总体</strong>：Raw 总耗时 770.8s，Iceberg 734.3s，加速 +4.7%。</p>
+<p><strong>Iceberg 大幅领先 TOP5：</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>查询</th>
+<th>加速比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q5</td>
+<td>+52.6%</td>
+</tr>
+<tr>
+<td>Q52</td>
+<td>+51.7%</td>
+</tr>
+<tr>
+<td>Q44</td>
+<td>+43.0%</td>
+</tr>
+<tr>
+<td>Q8</td>
+<td>+43.6%</td>
+</tr>
+<tr>
+<td>Q65</td>
+<td>+38.3%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Raw 反超 TOP5：</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>查询</th>
+<th>加速比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q69</td>
+<td>-112.9%</td>
+</tr>
+<tr>
+<td>Q10</td>
+<td>-89.3%</td>
+</tr>
+<tr>
+<td>Q35</td>
+<td>-86.9%</td>
+</tr>
+<tr>
+<td>Q7</td>
+<td>-68.9%</td>
+</tr>
+<tr>
+<td>Q74</td>
+<td>-61.8%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>反超原因</strong>：Iceberg 输的查询集中在多表 JOIN（多表关联）场景。Iceberg 底层也是 Parquet，多了元数据层反而有额外开销，在 JOIN 密集场景下被放大。</p>
+<h3 id="关键结论"><a href="#关键结论" class="headerlink" title="关键结论"></a>关键结论</h3><ol>
+<li><p><strong>公平对比下 Iceberg 仅快 4.7%，性能不是核心卖点。</strong> 双方都分区 + DPP（Dynamic Partition Pruning，动态分区裁剪）的对等条件下，Iceberg 胜率 81% 但总加速比仅 +4.7%，远非数量级差异。</p>
+</li>
+<li><p><strong>+45.6% 的大优势主要来自分区 vs 不分区的不对等。</strong> 不能把分区带来的收益归因于 Iceberg。</p>
+</li>
+<li><p><strong>Iceberg 多了元数据层，反而有额外开销。</strong> 多表 JOIN 场景反而更慢（Q69 -112.9%、Q10 -89.3%），说明元数据层在复杂查询中有性能代价。</p>
+</li>
+<li><p><strong>优势随数据量变化。</strong> SF1 分区版 +18.0% → SF5 公平对比 +4.7%。数据量小时 Iceberg 优势更小，元数据开销在小数据集上占比更高。</p>
+</li>
+</ol>
+<hr>
+<h2 id="架构优势解析"><a href="#架构优势解析" class="headerlink" title="架构优势解析"></a>架构优势解析</h2><p>性能虽非核心卖点，但 Iceberg 在架构治理能力上全面超越裸 Parquet。</p>
+<h3 id="不依赖外部元数据服务"><a href="#不依赖外部元数据服务" class="headerlink" title="不依赖外部元数据服务"></a>不依赖外部元数据服务</h3><p>📌 <strong>HMS 痛点</strong></p>
 <ul>
-<li>从 100+ 台骨干/边缘网络设备接收 5 万/秒 sFlow/IPFIX 流量</li>
-<li>50+ 维度、30 天保留、数十 TB 存储</li>
-<li>数据新鲜度从 15 分钟提升至 1 分钟</li>
-<li>查询延迟降低 95%（部分昂贵查询从 Presto 6 分钟降至 Pinot 4 秒）</li>
+<li>单点故障：HMS 宕机导致全表不可访问</li>
+<li>扩展瓶颈：万级分区时 RPC 调用成为瓶颈</li>
+<li>元数据与数据不一致：HMS 元数据与实际数据文件可能脱节</li>
+<li>并发无事务：多写入并发时无 ACID 保证</li>
 </ul>
-<p>该案例与网络性能指标/告警场景高度同构，是评估 Pinot 适用性的最直接参照。</p>
-<h2 id="与-Druid-对比"><a href="#与-Druid-对比" class="headerlink" title="与 Druid 对比"></a>与 Druid 对比</h2><div class="table-container">
+<p>📌 <strong>Iceberg 方案</strong></p>
+<ul>
+<li>元数据以三层文件存到对象存储，与数据同库</li>
+<li>引擎只需读文件即可获得完整表语义，无需任何常驻服务</li>
+<li>Netflix 开源动机正是 HMS 在 PB 级撑不住</li>
+<li>AWS S3 Tables 把 Iceberg 作为一等公民，Snowflake 捐 Polaris Catalog 给 ASF</li>
+</ul>
+<h3 id="Time-Travel（历史时间查询）"><a href="#Time-Travel（历史时间查询）" class="headerlink" title="Time Travel（历史时间查询）"></a>Time Travel（历史时间查询）</h3><ul>
+<li>每次写入生成快照，查询可指定 snapshot-id 或时间戳</li>
+<li>引擎原生支持（Spark/Trino/Flink SQL 语法）</li>
+<li>用途：可重现报表、审计合规、故障排查、ML 训练复现、A/B 实验</li>
+<li>裸 Parquet + HMS 几乎无法做 Time Travel——数据覆盖即丢失历史</li>
+</ul>
+<h3 id="Schema-演进与隐藏分区"><a href="#Schema-演进与隐藏分区" class="headerlink" title="Schema 演进与隐藏分区"></a>Schema 演进与隐藏分区</h3><p>📌 <strong>Schema 演进（表结构演进）</strong></p>
+<ul>
+<li>支持 add/drop/rename/reorder，不重写历史数据</li>
+<li>通过 column id 映射实现，字段重命名不影响历史数据读取</li>
+</ul>
+<p>📌 <strong>Hidden Partitioning（隐藏分区）</strong></p>
+<ul>
+<li>用户按业务字段过滤（如 <code>WHERE event_date = &#39;2026-07-01&#39;</code>），引擎自动路由到对应分区</li>
+<li>分区规则变更后，老数据按旧规则读、新数据按新规则写，迁移无感</li>
+<li>对比 HMS：改分区需重写全表，迁移成本极高</li>
+</ul>
+<h3 id="数据维护"><a href="#数据维护" class="headerlink" title="数据维护"></a>数据维护</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>维护操作</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rewrite_data_files</td>
+<td>合并小文件（binpack/sort/z-order）</td>
+</tr>
+<tr>
+<td>rewrite_manifests</td>
+<td>整理 manifest 加速查询计划</td>
+</tr>
+<tr>
+<td>expire_snapshots</td>
+<td>回收历史快照，释放存储</td>
+</tr>
+<tr>
+<td>remove_orphan_files</td>
+<td>清理孤儿文件</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这些维护操作均为标准 procedure（标准存储过程），引擎直接调用，无需自己写脚本。裸 Parquet 的小文件治理需自行编写脚本，运维成本高。</p>
+<h3 id="Parquet-vs-Iceberg-能力对比"><a href="#Parquet-vs-Iceberg-能力对比" class="headerlink" title="Parquet vs Iceberg 能力对比"></a>Parquet vs Iceberg 能力对比</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>裸 Parquet</th>
+<th>Iceberg</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACID 事务</td>
+<td>❌ 无</td>
+<td>✅ 快照隔离</td>
+</tr>
+<tr>
+<td>并发写入</td>
+<td>❌ 需自己加锁</td>
+<td>✅ 乐观并发 + 冲突重试</td>
+</tr>
+<tr>
+<td>Time travel</td>
+<td>❌ 覆盖就没了</td>
+<td>✅ 原生</td>
+</tr>
+<tr>
+<td>Schema 演进</td>
+<td>⚠️ 仅靠约定</td>
+<td>✅ metadata 驱动</td>
+</tr>
+<tr>
+<td>分区演进</td>
+<td>❌ 改分区重写全表</td>
+<td>✅ 新旧规则共存</td>
+</tr>
+<tr>
+<td>小文件治理</td>
+<td>❌ 自己写脚本</td>
+<td>✅ 标准 procedure</td>
+</tr>
+<tr>
+<td>跨引擎表语义</td>
+<td>❌ 各自约定</td>
+<td>✅ 规范统一</td>
+</tr>
+<tr>
+<td>增量消费</td>
+<td>❌ 自己扫描目录</td>
+<td>✅ snapshot 增量</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>💡 <strong>核心差异</strong>：Iceberg 在 Parquet 之上增加了一层元数据管理，代价是少量性能开销（公平对比仅 +4.7%，JOIN 场景甚至更慢），换来的是 ACID、Time Travel、Schema/分区演进、小文件治理、跨引擎表语义统一等完整的数据管理能力。</p>
+<p>裸 Parquet 是”存储格式”，Iceberg 是”表格式”——两者不在同一层级。</p>
+<h3 id="业界采纳"><a href="#业界采纳" class="headerlink" title="业界采纳"></a>业界采纳</h3><ul>
+<li><strong>Netflix</strong>：开源 Iceberg 的动机是 HMS 在 PB 级撑不住</li>
+<li><strong>AWS</strong>：S3 Tables 将 Iceberg 作为一等公民</li>
+<li><strong>Snowflake</strong>：捐 Polaris Catalog 给 ASF，强调”数据属于客户”</li>
+<li><strong>2024 Tabular 被 Databricks 收购后</strong>，AWS/Snowflake/Google 集体站队 Iceberg</li>
+<li><strong>Apple、Stripe、字节、腾讯</strong>等公开分享 hidden partitioning + compaction 为运维省心关键</li>
+</ul>
+<hr>
+<h2 id="三大表格式对比"><a href="#三大表格式对比" class="headerlink" title="三大表格式对比"></a>三大表格式对比</h2><div class="table-container">
 <table>
 <thead>
 <tr>
 <th>维度</th>
-<th>Apache Pinot（1.4）</th>
-<th>Apache Druid</th>
+<th>Iceberg</th>
+<th>Delta Lake</th>
+<th>Hudi</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>预聚合</td>
-<td>Star-Tree 索引层，原始行保留</td>
-<td>摄入时 Roll-up，原始行丢失</td>
+<td>主导方</td>
+<td>Apache（原 Netflix），中立</td>
+<td>Databricks 主导</td>
+<td>Apache（原 Uber）</td>
 </tr>
 <tr>
-<td>实时 Upsert</td>
-<td>原生支持（0.6.x 起）</td>
-<td>无逐行 Upsert，仅段级覆盖</td>
+<td>核心定位</td>
+<td>通用开放表格式，引擎无关</td>
+<td>Spark 生态一等公民</td>
+<td>流式/upsert 优先</td>
 </tr>
 <tr>
-<td>摄入新鲜度</td>
-<td>秒级可见（典型 &lt; 5s）</td>
-<td>段 handoff 延迟 30-90s</td>
+<td>引擎支持</td>
+<td>全覆盖</td>
+<td>Spark 最完整，其他逐步提升</td>
+<td>Spark/Flink 为主</td>
 </tr>
 <tr>
-<td>索引多样性</td>
-<td>Star-Tree/倒排/范围/JSON/文本/向量</td>
-<td>Bitmap/字典/倒排/范围</td>
+<td>Time travel</td>
+<td>统一清晰</td>
+<td>清晰，同档</td>
+<td>COW/MOR 语义不一致</td>
 </tr>
 <tr>
-<td>时序查询语言</td>
-<td>1.3 起支持 PromQL/M3QL</td>
-<td>原生 SQL，无时序 DSL</td>
+<td>Schema/分区演进</td>
+<td>业界公认最干净</td>
+<td>良好</td>
+<td>受限于 key 模型</td>
 </tr>
 <tr>
-<td>多租户</td>
-<td>tag-based 分组</td>
-<td>lane-based 路由</td>
+<td>社区热度</td>
+<td>增速最快，云厂商集体站队</td>
+<td>体量最大，绑定 Databricks</td>
+<td>增量场景稳固，新增放缓</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>📌 关键差异点：</p>
-<ul>
-<li><strong>预聚合机制</strong>：Pinot 索引层预聚合保留原始行 vs Druid 摄入时破坏性聚合</li>
-<li><strong>实时 Upsert</strong>：Pinot 原生支持 vs Druid 不支持</li>
-<li><strong>摄入新鲜度</strong>：Pinot 秒级 vs Druid 30-90s 段 handoff</li>
-</ul>
-<p><strong>核心结论：</strong></p>
-<p>✅ Druid 选型合理性成立：核心场景是时序数据的实时摄入与查询，Druid 的 Roll-up、HLL/Theta sketch（近似去重算法）、段模型在”高聚合度时序 + 长保留 + 高并发扫描”场景结构性占优。当前无”逐行 Upsert”或”明细下钻 + 聚合加速同表”的强需求。</p>
-<p>✅ Pinot 的 Star-Tree 思路值得借鉴，但不需要引入 Pinot。可在 Druid 侧验证等效预聚合路径（Roll-up 与原始行双写、或物化视图）。</p>
-<p>✅ Druid 段 handoff 30-90s 延迟是结构性约束。若”最近 10 秒”类查询不满足，应优先调优 Druid 实时段参数，而非迁移到 Pinot。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
-<li><p>Pinot 与 Druid 是实时 OLAP 领域两条均被规模化验证的路径，差异化集中在预聚合机制、实时 Upsert 和摄入新鲜度。现有核心场景属于 Druid 结构性占优区间，选型合理。</p>
-</li>
-<li><p>Pinot 的 Star-Tree 索引思路（索引层预聚合 + 原始行保留）值得借鉴，但可在 Druid 侧验证等效机制，无需迁移引擎。前提是确认是否真实存在”既要聚合加速又要明细下钻同表”的场景。</p>
-</li>
-<li><p>Pinot 1.3 引入的时序查询引擎（PromQL/M3QL）是值得长期观察的能力，Uber已用于 10 万+ 告警。但当前仍处 Beta，不宜作为短期切换依据。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>学习</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>ClickHouse列式OLAP数据库洞察——极致查询性能背后的技术架构与StarRocks竞品对比</title>
-    <url>/2026/07/16/ClickHouse-%E5%88%97%E5%BC%8FOLAP%E6%B4%9E%E5%AF%9F/</url>
-    <content><![CDATA[<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>ClickHouse 靠列式存储、向量化执行和稀疏索引把单表聚合查询做到百毫秒级，但多表 JOIN 是短板——如果场景以多表关联为主，StarRocks 更合适。</p>
-<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>OLAP（联机分析处理，专门做数据分析查询的数据库）领域近年竞争激烈。ClickHouse 是增长最快的系统之一。</p>
-<p>DB-Engines 2026 年 7 月排名中，ClickHouse 列第 26 位（25.27 分），较去年上升 4 位，年度得分增长 6.73。技术媒体将其定位为”PB 级云 OLAP 事实标准”。</p>
-<p>本文分析 ClickHouse 的核心架构能力，并与 StarRocks 做逐维度对比，帮助判断两者各自适合什么场景。</p>
-<h2 id="关键竞争力"><a href="#关键竞争力" class="headerlink" title="关键竞争力"></a>关键竞争力</h2><p>ClickHouse 的竞争力来自四个方面。</p>
-<h3 id="极致单表查询性能"><a href="#极致单表查询性能" class="headerlink" title="极致单表查询性能"></a>极致单表查询性能</h3><p>ClickHouse 是”真正的列式数据库”——数据按列存储、按列执行、按列压缩。</p>
-<p>它的向量化执行模型（一次处理一批数据而非逐行）配合 SIMD 指令（CPU 的并行计算指令集），让单表聚合查询稳定进入百毫秒级。</p>
-<p>这是它单表查询快的根本原因。</p>
-<h3 id="MergeTree-家族与物化视图"><a href="#MergeTree-家族与物化视图" class="headerlink" title="MergeTree 家族与物化视图"></a>MergeTree 家族与物化视图</h3><p>ClickHouse 把聚合、归档、去重等操作推迟到后台合并阶段执行，写入路径非常轻。</p>
-<p>物化视图本质是插入触发器：新数据写入时自动聚合，查询时直接读预聚合结果。这种”把计算从查询时移到写入时”的模式，可带来 900 倍查询加速。</p>
-<h3 id="存算分离"><a href="#存算分离" class="headerlink" title="存算分离"></a>存算分离</h3><p>ClickHouse Cloud 用 SharedMergeTree 表引擎把数据存到 S3 等共享对象存储。2025 年 7 月发布的 Shared Catalog 把元数据也集中管理，计算节点彻底无盘化，可实现秒级弹性扩缩。</p>
-<h3 id="开放生态"><a href="#开放生态" class="headerlink" title="开放生态"></a>开放生态</h3><p>ClickHouse 25.x 完成了 Apache Iceberg 双向集成、Delta Lake 写入、OneLake 查询等数据湖互操作能力。</p>
-<h2 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h2><p>ClickHouse 是 C++ 单体二进制，无外部依赖，单进程承载所有功能。架构分四层：</p>
-<ul>
-<li><strong>访问层</strong>：支持 HTTP、TCP、PostgreSQL、MySQL、gRPC 多种协议</li>
-<li><strong>查询处理层</strong>：SQL 解析 → 语法树 → 执行管道，含规则优化器和向量化执行</li>
-<li><strong>存储层</strong>：MergeTree 家族为主，另有 Memory、Distributed、Kafka 等引擎</li>
-<li><strong>协调层</strong>：ClickHouse Keeper（兼容 ZooKeeper 协议）负责元数据和复制</li>
-</ul>
-<p>📌 关键特征：采用 shared-nothing 分布式模型，数据按分片表达式分布到多节点，每片可多副本。</p>
-<p>与 StarRocks 的根本差异在于：StarRocks 用 FE（前端节点，负责元数据和查询规划）和 BE（后端节点，负责存储和执行）分离架构，有全局查询计划。ClickHouse 没有全局查询计划，分布式查询靠”下推到本地表 + 合并结果”——这是它多表 JOIN 弱的架构根因。</p>
-<h2 id="MergeTree-存储引擎与稀疏索引"><a href="#MergeTree-存储引擎与稀疏索引" class="headerlink" title="MergeTree 存储引擎与稀疏索引"></a>MergeTree 存储引擎与稀疏索引</h2><h3 id="稀疏主索引"><a href="#稀疏主索引" class="headerlink" title="稀疏主索引"></a>稀疏主索引</h3><p>MergeTree 是核心存储引擎。数据按主键排序存储在不可变的”数据块”中。</p>
-<p>稀疏索引的核心机制：主键索引只记录每 8192 行的主键值，而非每行。索引常驻内存，消耗可忽略，支持单服务器万亿行数据。</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> telecom_kpi (</span><br><span class="line">    event_time DateTime,</span><br><span class="line">    ne_id UInt32,</span><br><span class="line">    kpi_value Float64</span><br><span class="line">) <span class="keyword">ENGINE</span> = MergeTree()</span><br><span class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> toYYYYMM(event_time)</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> (event_time, ne_id)</span><br><span class="line"><span class="keyword">SETTINGS</span> index_granularity = <span class="number">8192</span>;</span><br></pre></td></tr></table></figure>
-<p>⚠️ 适用边界：稀疏索引不适合高频点查。每次主键查询要读取整 8192 行数据块并解压。如果做精确 ID 查询，StarRocks 的主键表更合适；如果做时间范围扫描加聚合，ClickHouse 优势明显。</p>
-<h3 id="MergeTree-家族变体"><a href="#MergeTree-家族变体" class="headerlink" title="MergeTree 家族变体"></a>MergeTree 家族变体</h3><p>不同合并逻辑派生出多种引擎：</p>
-<ul>
-<li><strong>MergeTree</strong>：标准合并，通用场景</li>
-<li><strong>ReplacingMergeTree</strong>：同主键保留最新版本，适合版本化数据</li>
-<li><strong>SummingMergeTree</strong>：同主键数值求和，适合累加指标</li>
-<li><strong>AggregatingMergeTree</strong>：合并聚合状态，常作物化视图目标表</li>
-<li><strong>CollapsingMergeTree</strong>：按标记列折叠行，适合状态机变更</li>
-</ul>
-<h3 id="数据跳数索引"><a href="#数据跳数索引" class="headerlink" title="数据跳数索引"></a>数据跳数索引</h3><p>除主键稀疏索引外，还支持二级跳数索引：</p>
-<ul>
-<li><strong>MinMax</strong>：记录数据块的最小最大值，适合范围过滤</li>
-<li><strong>Set</strong>：记录去重值集合，适合低基数等值过滤</li>
-<li><strong>bloom_filter</strong>：布隆过滤器，适合高基数等值</li>
-<li><strong>text</strong>：25.10 版倒排索引，支持全文检索</li>
-<li><strong>vector_similarity</strong>：向量相似度搜索（25.8 版发布）</li>
-</ul>
-<p>25.9 版引入”流式跳数索引”，索引检查与数据读取交错执行，在 10 亿行表上带来 2.4 倍加速。</p>
-<h2 id="向量化执行与查询优化"><a href="#向量化执行与查询优化" class="headerlink" title="向量化执行与查询优化"></a>向量化执行与查询优化</h2><h3 id="SIMD-多版本与-LLVM-编译"><a href="#SIMD-多版本与-LLVM-编译" class="headerlink" title="SIMD 多版本与 LLVM 编译"></a>SIMD 多版本与 LLVM 编译</h3><p>ClickHouse 为每段热点代码维护多个计算内核：兼容旧 CPU 的非向量化版、自动向量化的 AVX2 版、手写 AVX-512 版，运行时自动选最快的。</p>
-<p>LLVM 运行时编译用于”算子融合”：把 <code>a * b + c + 1</code> 编译成单一算子，减少函数调用开销。</p>
-<h3 id="全局-JOIN-重排序"><a href="#全局-JOIN-重排序" class="headerlink" title="全局 JOIN 重排序"></a>全局 JOIN 重排序</h3><p>25.9 版引入了 ClickHouse 历史上首个全局 JOIN 重排序能力，是其长期短板的关键改进。</p>
-<p>基准数据惊人：6 表 TPC-H 查询，无统计信息时耗时 3903 秒、峰值内存约 100GB；启用后降至 2.7 秒、内存低于 4GB——<strong>1450 倍加速、25 倍内存降低</strong>。</p>
-<p>⚠️ 仍有限制：需手动创建统计信息，outer join 和子查询覆盖有限。</p>
-<h3 id="物化视图增量聚合"><a href="#物化视图增量聚合" class="headerlink" title="物化视图增量聚合"></a>物化视图增量聚合</h3><p>核心模式是”插入触发器 + 状态聚合”：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 原始报文表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> packets_raw (...)</span><br><span class="line">  <span class="keyword">ENGINE</span> = MergeTree() <span class="keyword">ORDER</span> <span class="keyword">BY</span> (ts, ne_id);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 小时级聚合目标表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> packets_hourly (</span><br><span class="line">    <span class="keyword">hour</span> DateTime, ne_id UInt32,</span><br><span class="line">    bytes_sum AggregateFunction(<span class="keyword">sum</span>, UInt64)</span><br><span class="line">) <span class="keyword">ENGINE</span> = AggregatingMergeTree()</span><br><span class="line">  <span class="keyword">ORDER</span> <span class="keyword">BY</span> (<span class="keyword">hour</span>, ne_id);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<p>💡 关键工程经验：</p>
-<ul>
-<li>GROUP BY 列必须与目标表排序键对齐</li>
-<li>JOIN 在物化视图中代价高，推荐用字典查询替代，快最多 25 倍</li>
-<li>5 个以上物化视图挂同一源表会引发写放大</li>
-</ul>
-<h3 id="适用边界"><a href="#适用边界" class="headerlink" title="适用边界"></a>适用边界</h3><ul>
-<li><strong>JOIN 弱于 StarRocks</strong>：ClickHouse 无成熟的基于代价的优化器</li>
-<li><strong>并发较弱</strong>：500 并发下延迟显著退化，StarRocks 通过查询排队更稳定</li>
-<li><strong>更新代价高</strong>：单行更新可能触发整个数据块重写，推荐用轻量更新</li>
-<li><strong>小批量插入不友好</strong>：建议用异步插入缓冲</li>
-</ul>
-<h2 id="存算分离-1"><a href="#存算分离-1" class="headerlink" title="存算分离"></a>存算分离</h2><h3 id="SharedMergeTree"><a href="#SharedMergeTree" class="headerlink" title="SharedMergeTree"></a>SharedMergeTree</h3><p>ClickHouse Cloud 采用”共享存储 + 存算分离”架构：</p>
-<ul>
-<li>数据全部存于 S3 等共享对象存储</li>
-<li>本地 SSD 仅作缓存</li>
-<li>支持数百副本无显式分片，动态扩缩无需重新分片</li>
-</ul>
-<h3 id="Shared-Catalog"><a href="#Shared-Catalog" class="headerlink" title="Shared Catalog"></a>Shared Catalog</h3><p>2025 年 7 月正式发布，是存算分离架构的最后一块拼图：</p>
-<ul>
-<li>数据库元数据全部集中管理</li>
-<li>计算节点无本地盘依赖，纯粹的 CPU + 内存单元</li>
-<li>支持原子 DDL 操作</li>
-</ul>
-<h3 id="多层缓存"><a href="#多层缓存" class="headerlink" title="多层缓存"></a>多层缓存</h3><p>为弥补对象存储高延迟，构建了三层缓存：本地文件系统缓存、分布式缓存、用户态页缓存。</p>
-<p>还支持多个计算组共享同一对象存储，各自独立扩缩，可实现”读 vs 写”工作负载隔离。</p>
-<h2 id="与-StarRocks-对比"><a href="#与-StarRocks-对比" class="headerlink" title="与 StarRocks 对比"></a>与 StarRocks 对比</h2><div class="table-container">
-<table>
-<thead>
-<tr>
-<th>维度</th>
-<th>ClickHouse</th>
-<th>StarRocks</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>架构</td>
-<td>shared-nothing / 共享存储</td>
-<td>FE/BE 分离，双模支持</td>
-</tr>
-<tr>
-<td>主索引</td>
-<td>稀疏（8192 行粒度）</td>
-<td>主键表支持点查</td>
-</tr>
-<tr>
-<td>多表 JOIN</td>
-<td>弱（TPC-H 无法完成基准）</td>
-<td>强（SSB 快 1.87 倍）</td>
-</tr>
-<tr>
-<td>单表聚合</td>
-<td>强（ClickBench 胜出）</td>
-<td>强</td>
-</tr>
-<tr>
-<td>高并发</td>
-<td>500 并发退化</td>
-<td>资源池维持稳定</td>
-</tr>
-<tr>
-<td>压缩比</td>
-<td>极佳（10-20 倍）</td>
-<td>佳（10-15 倍）</td>
-</tr>
-<tr>
-<td>物化视图</td>
-<td>增量触发器，灵活但需谨慎</td>
-<td>自动刷新 + 查询改写</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>📌 基准数据对比：</p>
-<ul>
-<li><strong>SSB 100GB</strong>：StarRocks 3.5.0 总耗时 992ms，ClickHouse 25.3.3 耗时 1858ms，StarRocks 快 1.87 倍。其中 Q06 差距 2.51 倍、Q13 差距 2.63 倍</li>
-<li><strong>TPC-H 多表 JOIN</strong>：StarRocks 较 ClickHouse 快 3-5 倍；ClickHouse 在 StarRocks 官方基准中”无法完成 TPC-H 测试集”</li>
-<li><strong>ClickBench 单表</strong>：ClickHouse 通常胜出，因宽表扫描效率极高</li>
-</ul>
-<p><strong>核心结论：</strong></p>
-<p>✅ 场景以多表关联为主的，StarRocks 在 SSB 快 1.87 倍、TPC-H 场景 ClickHouse 无法完成基准，选 StarRocks 合理。</p>
-<p>✅ ClickHouse 的稀疏索引设计和物化视图增量聚合值得借鉴——前者让万亿行索引内存可忽略，后者带来数百倍加速。</p>
-<p>✅ 两者都已具备存算分离能力，无需为此更换引擎。ClickHouse 在单表时序扫描场景仍有竞争力。</p>
-<h2 id="电信行业案例"><a href="#电信行业案例" class="headerlink" title="电信行业案例"></a>电信行业案例</h2><ul>
-<li><strong>西班牙 Grupo Masmovil</strong>：用 ClickHouse 监控 RAN 网络，存储节省 16 倍、资源消耗降低 10 倍、数据延迟从 3 小时降至 15 分钟</li>
-<li><strong>德国 BENOCS</strong>：为全球头部电信运营商提供网络流量监控，依赖稀疏索引和时间序列邻近匹配</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
-<li><p>ClickHouse 单表查询性能极强，但多表 JOIN 是架构性短板——无全局查询计划是根因。场景以多表关联为主的，StarRocks 更合适。</p>
-</li>
-<li><p>ClickHouse 的稀疏主索引和物化视图增量聚合是两大技术亮点，可带来万亿行索引内存可忽略和数百倍查询加速，值得在 StarRocks 上验证等价能力。</p>
-</li>
-<li><p>两者存算分离能力都已具备，ClickHouse Cloud 的无盘化设计是工程领先实践，但不需要为此更换技术路线。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>学习</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Databricks-AI-BI洞察</title>
-    <url>/2026/07/15/Databricks-AI-BI%E6%B4%9E%E5%AF%9F/</url>
-    <content><![CDATA[<h1 id="Databricks-AI-BI-洞察"><a href="#Databricks-AI-BI-洞察" class="headerlink" title="Databricks AI/BI 洞察"></a>Databricks AI/BI 洞察</h1><blockquote>
-<p>💡 一句话总结：Databricks 用 AI/BI Genie（复合 AI 系统）+ Unity Catalog（统一治理）+ Delta Lake UniForm（开放表格式）构成湖仓一体的 AI 查询方案，其开源语义层和向量化执行与 Snowflake 形成差异化对比，核心参考价值在语义层可移植性和治理一体化。</p>
+<blockquote>
+<p>注：COW/MOR 指 Copy on Write（写时复制）和 Merge on Read（读时合并），是两种不同的数据更新策略，Hudi 在两种模式下 Time Travel 语义不一致。</p>
 </blockquote>
-<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在分析完 Snowflake 的 AI 查询方案后，本篇聚焦其主要竞争对手 Databricks，形成横向对比，明确两个标杆在 AI 查询和开放存储两个维度的差异。</p>
-<p>Databricks 是 DB-Engines 排名第 7 的数据平台（2026 年 7 月，164 分），年收入从 54 亿美元（2026 年 2 月，+65%）增长到 69 亿美元（2026 年 6 月，+80%），增速高于 Snowflake。电信行业有 AT&amp;T（每天 10+PB 数据，1.82 亿无线用户，5 年 300% ROI）、Nokia 合作等采纳案例。</p>
-<p>其 AI/BI Genie + Unity Catalog + Delta Lake 组合代表了湖仓架构下 AI 查询 + 治理一体化 + 开放表格式的工程路径，值得深度拆解。</p>
-<h2 id="三大支柱"><a href="#三大支柱" class="headerlink" title="三大支柱"></a>三大支柱</h2><p>Databricks 在 AI 查询与治理领域的竞争力来自三个支柱。</p>
-<h3 id="支柱一：复合-AI-系统-Genie"><a href="#支柱一：复合-AI-系统-Genie" class="headerlink" title="支柱一：复合 AI 系统 Genie"></a>支柱一：复合 AI 系统 Genie</h3><p>Genie 不是单一大模型，而是 Compound AI 系统（复合 AI），使用 Chain-of-Thought（思维链）推理：识别列 → 规划 SQL → 组合查询。</p>
-<p>Agent Mode 使用 Claude Sonnet 模型支持多步推理。反馈机制有三优先级：SQL 表达式（精确定义业务语义）&gt; 示例 SQL 查询 &gt; 文本指令。</p>
-<p>Databricks 建议域特定问题准确率超过 80% 后再进入 UAT（用户验收测试），说明 Genie 的准确率是可度量、可分阶段提升的。</p>
-<h3 id="支柱二：统一治理-开放表格式"><a href="#支柱二：统一治理-开放表格式" class="headerlink" title="支柱二：统一治理 + 开放表格式"></a>支柱二：统一治理 + 开放表格式</h3><p>Unity Catalog 三级命名空间（catalog.schema.table），四种访问控制：GRANT/REVOKE + ABAC（基于属性的访问控制）标签策略 + 行列过滤器/脱敏 + 工作区绑定，自动列级血缘跨工作区聚合。</p>
-<p>Delta UniForm 异步生成 Iceberg 元数据，不重写数据文件，实现单份数据双格式。这是与 Snowflake 封闭生态的根本差异——Databricks 通过开源 Unity Catalog OSS 和 UniForm 互操作构建开放生态。</p>
-<h3 id="支柱三：开源语义层-向量化执行"><a href="#支柱三：开源语义层-向量化执行" class="headerlink" title="支柱三：开源语义层 + 向量化执行"></a>支柱三：开源语义层 + 向量化执行</h3><p>Metric Views 于 2026 年 4 月正式发布，YAML 定义 source / joins / fields / measures / filter，核心已开源到 Apache Spark（SPARK-54119）。</p>
-<p>Photon 是 C++ 向量化执行引擎，替代 JVM Spark SQL，客户工作负载平均 3 倍加速、最高 10 倍，曾创 TPC-DS 100TB 世界纪录。语义层开源 + 执行引擎向量化构成”语义可移植 + 性能有保障”的组合。</p>
-<h2 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h2><p>Databricks 湖仓架构分三层：</p>
+<p>📌 <strong>选型建议</strong></p>
 <ul>
-<li><strong>Unity Catalog（治理层）</strong>：三级命名空间，ABAC 标签 + 行列过滤/脱敏 + 权限管理 + 工作区绑定，自动列级血缘，内嵌 Metric Views 语义层</li>
-<li><strong>Photon 执行引擎（计算层）</strong>：C++ 向量化执行，Catalyst 优化器查询规划，不支持算子时回退 Spark，SQL 级 AI 函数 ai_query</li>
-<li><strong>Delta Lake（存储层）</strong>：事务日志，UniForm Iceberg 互操作，单份数据双格式</li>
+<li><strong>Iceberg</strong>：多引擎多云场景的最大公约数，开放中立性最优，引擎支持最广</li>
+<li><strong>Delta Lake</strong>：若以 Spark/Databricks 为核心生态，Delta 是一等公民，但开放性偏弱</li>
+<li><strong>Hudi</strong>：流式 upsert 场景有优势，但新增场景放缓，COW/MOR 语义不一致增加认知负担</li>
 </ul>
-<h3 id="与-Snowflake-的根本差异"><a href="#与-Snowflake-的根本差异" class="headerlink" title="与 Snowflake 的根本差异"></a>与 Snowflake 的根本差异</h3><p>⚠️ Snowflake 是单引擎封闭架构，语义改写在编译器内完成；Databricks 是湖仓架构，治理层、执行层、存储层解耦，语义层作为治理层内嵌对象而非编译器内改写。</p>
-<p>这意味着 Databricks 的语义层理论上可跨引擎复用（核心已开源到 Spark），而 Snowflake 的 Semantic Views 不可移植。</p>
-<h3 id="与我们架构的差异"><a href="#与我们架构的差异" class="headerlink" title="与我们架构的差异"></a>与我们架构的差异</h3><p>我们是多库联邦架构（StarRocks / Druid / GaussDB），无统一治理层，语义改写依赖事后 SQL 转换。Databricks 的统一治理 + 语义层组合为我们提供了另一种参考架构——但我们的”统一”需要跨三个库，复杂度更高。</p>
-<h2 id="AI-BI-Genie-深度解析"><a href="#AI-BI-Genie-深度解析" class="headerlink" title="AI/BI Genie 深度解析"></a>AI/BI Genie 深度解析</h2><h3 id="思维链推理流水线"><a href="#思维链推理流水线" class="headerlink" title="思维链推理流水线"></a>思维链推理流水线</h3><p>Genie 的核心推理流水线采用 Chain-of-Thought，分三步：</p>
-<ul>
-<li><strong>列识别</strong>：从 Genie Space 元数据中识别相关列（每个 Space 最多 30 张表）</li>
-<li><strong>SQL 规划</strong>：规划查询结构与 JOIN 路径，而非直接生成完整 SQL</li>
-<li><strong>查询组合</strong>：在规划基础上组合最终 SQL</li>
-</ul>
-<p>分步推理降低复杂查询的错误率。与 Snowflake 六阶段 Agent 流水线对比：Genie 的三步更轻量，Cortex 的六阶段更精细（含分类、特征提取、上下文增强、多模型生成、错误纠正、综合选优）。</p>
-<p>两者都采用分步推理，但 Cortex 的工程化程度更高（多模型并行 + 编译器校验闭环），Genie 更依赖单一模型的推理能力。</p>
-<h3 id="专家反馈学习机制"><a href="#专家反馈学习机制" class="headerlink" title="专家反馈学习机制"></a>专家反馈学习机制</h3><p>Genie 的反馈机制有三优先级：</p>
-<ul>
-<li><strong>优先级 1（最高）</strong>：SQL 表达式——直接定义业务语义的精确 SQL，消除歧义</li>
-<li><strong>优先级 2</strong>：示例 SQL 查询——问题→SQL 的示例对，作为参考</li>
-<li><strong>优先级 3（最低）</strong>：文本指令——自然语言描述的业务规则，AI 需自行理解</li>
-</ul>
-<p>设计核心：SQL 表达式优先级最高，因为它精确消除歧义；文本指令最低，因为自然语言本身存在歧义。</p>
-<p>用户正面反馈可触发 Genie 建议新 SQL 片段，形成”使用→反馈→学习→建议”闭环。</p>
-<p>📌 与 Snowflake 对比：Genie 的反馈侧重”业务语义精确定义”（SQL 表达式优先），Cortex 的已验证查询侧重”已验证查询检索复用”。两者思路互补，可同时借鉴。</p>
-<h3 id="Agent-Mode-多步推理"><a href="#Agent-Mode-多步推理" class="headerlink" title="Agent Mode 多步推理"></a>Agent Mode 多步推理</h3><p>Agent Mode 使用 Claude Sonnet，支持多步推理，能处理需要拆解子问题、执行中间查询、基于结果继续推理的复杂问题。</p>
-<p>⚠️ 关键限制：</p>
-<ul>
-<li>Agent Mode 仅 UI 可用，API 不支持——无法集成到我们的查询服务</li>
-<li>每个 Genie Space 最多 30 张表——复杂业务域需拆分多个 Space</li>
-<li>只读查询，不支持写操作</li>
-<li>不解释结果——只返回数据，不提供分析洞察</li>
-</ul>
-<p>Genie Conversation API（2025 年 3 月公测）支持编程式调用，但 Agent Mode 不在 API 范围内。若集成 Genie，只能用基础推理，无法用多步推理——这是集成时的能力边界。</p>
-<h2 id="Unity-Catalog-Delta-UniForm-深度解析"><a href="#Unity-Catalog-Delta-UniForm-深度解析" class="headerlink" title="Unity Catalog + Delta UniForm 深度解析"></a>Unity Catalog + Delta UniForm 深度解析</h2><h3 id="ABAC-治理与血缘"><a href="#ABAC-治理与血缘" class="headerlink" title="ABAC 治理与血缘"></a>ABAC 治理与血缘</h3><p>Unity Catalog 四种访问控制：</p>
-<ul>
-<li><strong>GRANT/REVOKE</strong>：基于角色的权限管理</li>
-<li><strong>ABAC 标签策略</strong>：基于标签按数据分类（如个人隐私数据）控制访问</li>
-<li><strong>行列过滤器/脱敏</strong>：行级安全 + 列脱敏，细粒度保护</li>
-<li><strong>工作区绑定</strong>：工作区与 Catalog 绑定，实现隔离</li>
-</ul>
-<p>自动列级血缘跨工作区聚合，提供端到端数据血缘可视化。这对我们”数据血缘跨三库追踪”有参考价值——当前三个库各自独立，缺乏统一血缘视图。</p>
-<p>⚠️ 跨引擎策略不自动同步：Snowflake 可通过 Catalog-Linked Databases 读写 Unity Catalog 表，但每个平台执行自己的策略。Unity Catalog 的统一治理是”Databricks 平台内统一”，跨引擎时治理策略仍需各引擎独立维护。</p>
-<h3 id="Delta-UniForm-Iceberg-互操作"><a href="#Delta-UniForm-Iceberg-互操作" class="headerlink" title="Delta UniForm Iceberg 互操作"></a>Delta UniForm Iceberg 互操作</h3><p>Delta UniForm IcebergCompatV2 的核心机制：</p>
-<ul>
-<li>异步生成 Iceberg 元数据，不重写数据文件——零数据迁移成本</li>
-<li>单份数据支持 Delta + Iceberg 双格式</li>
-<li>Iceberg 客户端只读，不支持写——写入仍需通过 Delta</li>
-<li>Databricks 声称比 Snowflake 快 6 倍 Parquet 摄入、成本低 90%</li>
-</ul>
-<p>DDL 语法示例：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> orders (</span><br><span class="line">  order_id <span class="built_in">BIGINT</span>,</span><br><span class="line">  customer_id <span class="built_in">BIGINT</span>,</span><br><span class="line">  order_total <span class="built_in">DECIMAL</span>(<span class="number">10</span>,<span class="number">2</span>)</span><br><span class="line">)</span><br><span class="line"><span class="keyword">USING</span> DELTA</span><br><span class="line">TBLPROPERTIES (</span><br><span class="line">  <span class="string">'delta.enableIcebergCompatV2'</span>=<span class="string">'true'</span>,</span><br><span class="line">  <span class="string">'delta.universalFormat.enabledFormats'</span>=<span class="string">'iceberg'</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
-<p>📌 与 Apache Polaris 对比：UniForm 是”Delta 为主，Iceberg 单向读”的 Databricks 主导路径；Polaris 是”中立目录，多引擎平等读写”的开放标准。我们若选择 Iceberg 化，Polaris 的多引擎读写能力（含 StarRocks）比 UniForm 单向读更契合三库联邦需求。</p>
-<h3 id="Metric-Views-语义层"><a href="#Metric-Views-语义层" class="headerlink" title="Metric Views 语义层"></a>Metric Views 语义层</h3><p>Metric Views YAML 定义 source / joins / fields / measures / filter 五层，核心已开源到 Apache Spark：</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">orders_metric_view</span></span><br><span class="line"><span class="attr">source:</span></span><br><span class="line">  <span class="attr">table:</span> <span class="string">orders</span></span><br><span class="line">  <span class="attr">fields:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">order_month</span></span><br><span class="line">      <span class="attr">expr:</span> <span class="string">date_trunc('month',</span> <span class="string">order_date)</span></span><br><span class="line"><span class="attr">joins:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">customers</span></span><br><span class="line">    <span class="attr">source:</span></span><br><span class="line">      <span class="attr">table:</span> <span class="string">customers</span></span><br><span class="line">    <span class="attr">on:</span> <span class="string">orders.customer_id</span> <span class="string">=</span> <span class="string">customers.customer_id</span></span><br><span class="line"><span class="attr">measures:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Total</span> <span class="string">Revenue</span></span><br><span class="line">    <span class="attr">expr:</span> <span class="string">SUM(order_total)</span></span><br><span class="line">    <span class="attr">format:</span> <span class="string">currency</span></span><br><span class="line">    <span class="attr">synonyms:</span> <span class="string">["revenue",</span> <span class="string">"营收"</span><span class="string">]</span></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
-<p>查询使用 <code>MEASURE()</code> 函数。语义元数据（显示名、格式化、同义词）同时服务 BI 工具和大模型，让 AI 理解”总收入”=”revenue”=”营收”是同一指标。</p>
-<p>📌 与 Snowflake Semantic Views 对比：</p>
+<p>若要引入开放表格式，<strong>Iceberg 是首选</strong>——中立性和引擎覆盖面最契合多引擎架构。</p>
+<hr>
+<h2 id="Iceberg-与-StarRocks-本地表对比"><a href="#Iceberg-与-StarRocks-本地表对比" class="headerlink" title="Iceberg 与 StarRocks 本地表对比"></a>Iceberg 与 StarRocks 本地表对比</h2><p>引入 Iceberg 意味着需要在 StarRocks 本地表（数据存在 StarRocks 内部的表）与 Iceberg 外表（数据存在 Iceberg、由 StarRocks 查询的表）之间做取舍。</p>
 <div class="table-container">
 <table>
 <thead>
 <tr>
 <th>维度</th>
-<th>Databricks Metric Views</th>
-<th>Snowflake Semantic Views</th>
+<th>StarRocks 本地表</th>
+<th>Iceberg 外表</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>定义格式</td>
-<td>YAML</td>
-<td>YAML + DDL</td>
+<td>存储格式</td>
+<td>自研列式（RLE/字典/前缀编码）</td>
+<td>Parquet + Iceberg 元数据层</td>
 </tr>
 <tr>
-<td>改写位置</td>
-<td>运行时（Spark/Photon）</td>
-<td>编译器内</td>
+<td>查询性能</td>
+<td>最优（向量化 + CBO + 本地缓存）</td>
+<td>有额外开销（元数据解析 + 外表访问）</td>
 </tr>
 <tr>
-<td>开源</td>
-<td>核心开源到 Spark</td>
-<td>未开源</td>
+<td>ACID 事务</td>
+<td>⚠️ 部分支持（主键表）</td>
+<td>✅ 快照隔离</td>
 </tr>
 <tr>
-<td>平台锁定</td>
-<td>单平台，但核心可移植</td>
-<td>不可移植</td>
+<td>Time Travel</td>
+<td>❌ 原生不支持</td>
+<td>✅ 原生</td>
+</tr>
+<tr>
+<td>Schema/分区演进</td>
+<td>⚠️ 受限（改分区需重建）</td>
+<td>✅ 无感演进</td>
+</tr>
+<tr>
+<td>跨引擎表语义</td>
+<td>❌ StarRocks 私有</td>
+<td>✅ 多引擎统一</td>
+</tr>
+<tr>
+<td>小文件治理</td>
+<td>⚠️ 内部自动 Compaction</td>
+<td>✅ 标准 procedure</td>
+</tr>
+<tr>
+<td>数据可移植性</td>
+<td>❌ 锁定 StarRocks</td>
+<td>✅ 引擎无关</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>关键差异：两者都是单平台原生对象，但 Databricks 开源了核心，理论上可在非 Databricks Spark 上运行；Snowflake 完全锁定。若采用开源语义层，Metric Views 比专有方案更具可移植性。</p>
-<h2 id="横向对比"><a href="#横向对比" class="headerlink" title="横向对比"></a>横向对比</h2><div class="table-container">
-<table>
-<thead>
-<tr>
-<th>维度</th>
-<th>Databricks</th>
-<th>Snowflake</th>
-<th>我们现状</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>AI 查询</td>
-<td>Genie（复合 AI，思维链）</td>
-<td>六阶段 Agent</td>
-<td>AI 生成统一 SQL</td>
-</tr>
-<tr>
-<td>反馈学习</td>
-<td>SQL 表达式 &gt; 示例 &gt; 文本</td>
-<td>已验证查询检索</td>
-<td>无</td>
-</tr>
-<tr>
-<td>准确率</td>
-<td>域特定 80% 后 UAT</td>
-<td>90%+ 企业测试</td>
-<td>无系统化方法</td>
-</tr>
-<tr>
-<td>语义层</td>
-<td>Metric Views（开源核心）</td>
-<td>Semantic Views（未开源）</td>
-<td>无</td>
-</tr>
-<tr>
-<td>治理</td>
-<td>UC（ABAC + 行列过滤）</td>
-<td>Horizon</td>
-<td>各库独立</td>
-</tr>
-<tr>
-<td>开放表格式</td>
-<td>UniForm（单向读）</td>
-<td>Polaris（多引擎读写）</td>
-<td>无</td>
-</tr>
-<tr>
-<td>执行引擎</td>
-<td>Photon C++ 向量化（3-10 倍）</td>
-<td>自研 MPP</td>
-<td>StarRocks/Druid/GaussDB</td>
-</tr>
-<tr>
-<td>联邦下推</td>
-<td>不支持（数据需入湖仓）</td>
-<td>不支持</td>
-<td>支持（实时下推三库）</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h3 id="关键结论"><a href="#关键结论" class="headerlink" title="关键结论"></a>关键结论</h3><p><strong>可借鉴：</strong> Metric Views YAML 五层结构（核心开源）、语义元数据增强 AI 理解、Genie 三级反馈优先级、Unity Catalog 自动列级血缘、Photon 向量化执行思路。</p>
-<p><strong>不可借鉴：</strong> Genie Agent Mode（仅 UI）、UniForm 单向读（我们需要多引擎读写）、跨引擎策略不自动同步（三库治理仍需独立设计）。</p>
-<p><strong>根本差异：</strong> 两个标杆的语义层都建立在”数据已入平台”前提上。Databricks 的优势是语义层核心开源可移植，Snowflake 的优势是 Agent 工程化程度更高。我们的核心差异化仍是”感知三库能力差异，事前生成各库 SQL”——这是两个标杆都未解决的领域。</p>
-<h2 id="现状与建议"><a href="#现状与建议" class="headerlink" title="现状与建议"></a>现状与建议</h2><h3 id="现状"><a href="#现状" class="headerlink" title="现状"></a>现状</h3><ul>
-<li>AI 生成统一 SQL → 转换各库语法 → 下推三库执行</li>
-<li>Druid 报文场景等价函数依赖风险已验证失败</li>
-<li>无系统化准确率测试、无反馈学习、无语义模型层、无统一治理层</li>
+<blockquote>
+<p>注：CBO 指 Cost-Based Optimizer，基于代价的查询优化器。</p>
+</blockquote>
+<p>📌 <strong>对比关键结论</strong></p>
+<ol>
+<li><p><strong>性能上 StarRocks 本地表优于 Iceberg 外表。</strong> Iceberg 相比裸 Parquet 仅 +4.7%（公平对比），而 StarRocks 本地表在向量化执行、CBO 优化、本地缓存加持下，查询性能通常优于外表扫描。JOIN 密集场景尤为明显。</p>
+</li>
+<li><p><strong>架构治理上 Iceberg 外表全面领先。</strong> Time Travel、Schema/分区演进、ACID、跨引擎表语义统一是 StarRocks 本地表不具备或不完整的能力。这些能力解决的是”数据能不能用得舒服”的问题。</p>
+</li>
+<li><p><strong>建议分层存储而非二选一。</strong> 热数据/交互分析走 StarRocks 本地表保性能；冷数据/治理数据/跨引擎共享数据走 Iceberg 外表保开放性。StarRocks 已支持 Iceberg 外表查询，可实现混合架构。</p>
+</li>
+<li><p><strong>不应期待 Iceberg 带来性能提升。</strong> 实测数据明确表明，Iceberg 的价值在架构治理而非裸性能。引入依据应是”需要 Time Travel / Schema 演进 / 跨引擎表语义 / 消除 HMS 依赖”，而非”查询更快”。</p>
+</li>
+</ol>
+<hr>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ol>
+<li><p><strong>Iceberg 性能不比裸 Parquet 快多少。</strong> 公平对比仅 +4.7%，+45.6% 的大优势来自分区 vs 不分区的不对等。不应以性能为由引入 Iceberg。</p>
+</li>
+<li><p><strong>不依赖元数据服务是架构核心优势。</strong> 消除 HMS 三大顽疾（单点故障、扩展瓶颈、元数据不一致）。Netflix 开源动机正是 HMS 在 PB 级撑不住。</p>
+</li>
+<li><p><strong>Time Travel、Schema/分区演进、ACID 解决的是”能不能用得舒服”的问题</strong>，不是”跑得多快”。这些能力让数据治理从”自己写脚本”升级为”标准 procedure”，裸 Parquet 无法企及。</p>
+</li>
+<li><p><strong>Iceberg 开放中立性优于 Delta（偏 Databricks）和 Hudi（偏流式）</strong>，是多引擎多云的最大公约数。引擎覆盖最广，最契合多引擎架构。</p>
+</li>
+<li><p><strong>若引入开放表格式，Iceberg 是首选</strong>，但不期待性能提升，着眼架构治理。建议分层存储：热数据走 StarRocks 本地表保性能，冷数据/治理数据/跨引擎共享数据走 Iceberg 外表保开放性。</p>
+</li>
+</ol>
+<hr>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://iceberg.apache.org/" target="_blank" rel="noopener">Apache Iceberg 官方文档</a></li>
+<li><a href="https://netflixtechblog.com/" target="_blank" rel="noopener">Netflix Iceberg TechBlog</a></li>
+<li><a href="https://aws.amazon.com/s3/features/tables/" target="_blank" rel="noopener">AWS S3 Tables</a></li>
+<li><a href="https://github.com/apache/polaris/" target="_blank" rel="noopener">Apache Polaris (TLP)</a></li>
+<li><a href="https://duckdb.org/docs/extensions/iceberg" target="_blank" rel="noopener">DuckDB Iceberg Extension</a></li>
+<li><a href="https://tabular.io/" target="_blank" rel="noopener">Tabular (acquired by Databricks)</a></li>
 </ul>
-<h3 id="分层建议"><a href="#分层建议" class="headerlink" title="分层建议"></a>分层建议</h3><p><strong>高优先级（验证项）：</strong></p>
-<ul>
-<li>语义模型 YAML 规范草案，参考 Metric Views 五层结构</li>
-<li>语义元数据增加 synonyms / display_name / format 字段</li>
-<li>反馈机制按三级优先级设计：SQL 表达式 &gt; 示例 &gt; 文本</li>
-<li>语义层增加 engine_capabilities 字段，AI 生成时感知目标引擎</li>
-</ul>
-<p><strong>中优先级（观察项）：</strong></p>
-<ul>
-<li>准确率门槛设定（域特定 80% 后 UAT），分阶段提升</li>
-<li>Apache Polaris 对接评估（StarRocks 已支持），作为开放目录标准</li>
-<li>Unity Catalog OSS 跟踪（已捐赠 Linux 基金会），评估统一治理参考</li>
-</ul>
-<p><strong>布局项：</strong></p>
-<ul>
-<li>Delta UniForm vs Polaris 路线选型（单向读 vs 多引擎读写）</li>
-<li>Genie Conversation API 集成评估（注意 Agent Mode 不可用）</li>
-</ul>
-<h3 id="演进路径"><a href="#演进路径" class="headerlink" title="演进路径"></a>演进路径</h3><p>分四阶段推进：</p>
-<ul>
-<li><strong>阶段一</strong>：语义模型层建立——定义 YAML 规范（参考五层 + engine_capabilities），语义元数据增强，反馈三级优先级</li>
-<li><strong>阶段二</strong>：事前方言感知——AI 感知目标引擎直接生成该库 SQL，SQL 转换降级为兜底</li>
-<li><strong>阶段三</strong>：准确率与反馈闭环——门槛设定，正面反馈→建议新 SQL，多模型选优</li>
-<li><strong>阶段四</strong>：开放生态对接——Polaris 对接评估，Unity Catalog 治理参考，路线选型</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>✅ 三个核心观点：</p>
-<p><strong>一、Databricks 和 Snowflake 验证了同一结论：语义模型 + 反馈学习是 text-to-SQL 准确率的关键变量。</strong> Genie 更依赖单一模型推理能力，Cortex 更依赖多模型并行 + 编译器校验。两者准确率门槛不同，但可同时借鉴：Genie 的三级反馈优先级（SQL 表达式优先）+ Cortex 的已验证查询检索 + 多模型选优。</p>
-<p><strong>二、Metric Views 核心开源是与 Snowflake 的根本差异，对我们”不绑定单一平台”的需求更契合。</strong> 两者都是单平台原生对象，但 Databricks 开源核心意味着语义模型理论上可跨平台复用。若采用开源语义层路径，Metric Views 的 YAML 规范比专有方案更具可移植性。</p>
-<p><strong>三、开放表格式存在两条路线，Polaris 比 UniForm 更契合我们的多库需求。</strong> UniForm 是”Delta 为主，Iceberg 单向读”的 Databricks 主导路径；Polaris 是”中立目录，多引擎平等读写”的开放标准。我们已采用 StarRocks（Polaris 已支持），推进 Iceberg 化应布局 Polaris 对接评估，UniForm 作为观察项。两个标杆都未解决”感知多库能力差异、事前生成各库 SQL”，这正是我们的核心差异化。</p>
 ]]></content>
       <categories>
         <category>学习</category>
       </categories>
       <tags>
         <tag>AI</tag>
+        <tag>数据湖</tag>
+        <tag>Iceberg</tag>
       </tags>
   </entry>
   <entry>
@@ -1475,6 +1396,531 @@
       </tags>
   </entry>
   <entry>
+    <title>ClickHouse列式OLAP数据库洞察——极致查询性能背后的技术架构与StarRocks竞品对比</title>
+    <url>/2026/07/16/ClickHouse-%E5%88%97%E5%BC%8FOLAP%E6%B4%9E%E5%AF%9F/</url>
+    <content><![CDATA[<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>ClickHouse 靠列式存储、向量化执行和稀疏索引把单表聚合查询做到百毫秒级，但多表 JOIN 是短板——如果场景以多表关联为主，StarRocks 更合适。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>OLAP（联机分析处理，专门做数据分析查询的数据库）领域近年竞争激烈。ClickHouse 是增长最快的系统之一。</p>
+<p>DB-Engines 2026 年 7 月排名中，ClickHouse 列第 26 位（25.27 分），较去年上升 4 位，年度得分增长 6.73。技术媒体将其定位为”PB 级云 OLAP 事实标准”。</p>
+<p>本文分析 ClickHouse 的核心架构能力，并与 StarRocks 做逐维度对比，帮助判断两者各自适合什么场景。</p>
+<h2 id="关键竞争力"><a href="#关键竞争力" class="headerlink" title="关键竞争力"></a>关键竞争力</h2><p>ClickHouse 的竞争力来自四个方面。</p>
+<h3 id="极致单表查询性能"><a href="#极致单表查询性能" class="headerlink" title="极致单表查询性能"></a>极致单表查询性能</h3><p>ClickHouse 是”真正的列式数据库”——数据按列存储、按列执行、按列压缩。</p>
+<p>它的向量化执行模型（一次处理一批数据而非逐行）配合 SIMD 指令（CPU 的并行计算指令集），让单表聚合查询稳定进入百毫秒级。</p>
+<p>这是它单表查询快的根本原因。</p>
+<h3 id="MergeTree-家族与物化视图"><a href="#MergeTree-家族与物化视图" class="headerlink" title="MergeTree 家族与物化视图"></a>MergeTree 家族与物化视图</h3><p>ClickHouse 把聚合、归档、去重等操作推迟到后台合并阶段执行，写入路径非常轻。</p>
+<p>物化视图本质是插入触发器：新数据写入时自动聚合，查询时直接读预聚合结果。这种”把计算从查询时移到写入时”的模式，可带来 900 倍查询加速。</p>
+<h3 id="存算分离"><a href="#存算分离" class="headerlink" title="存算分离"></a>存算分离</h3><p>ClickHouse Cloud 用 SharedMergeTree 表引擎把数据存到 S3 等共享对象存储。2025 年 7 月发布的 Shared Catalog 把元数据也集中管理，计算节点彻底无盘化，可实现秒级弹性扩缩。</p>
+<h3 id="开放生态"><a href="#开放生态" class="headerlink" title="开放生态"></a>开放生态</h3><p>ClickHouse 25.x 完成了 Apache Iceberg 双向集成、Delta Lake 写入、OneLake 查询等数据湖互操作能力。</p>
+<h2 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h2><p>ClickHouse 是 C++ 单体二进制，无外部依赖，单进程承载所有功能。架构分四层：</p>
+<ul>
+<li><strong>访问层</strong>：支持 HTTP、TCP、PostgreSQL、MySQL、gRPC 多种协议</li>
+<li><strong>查询处理层</strong>：SQL 解析 → 语法树 → 执行管道，含规则优化器和向量化执行</li>
+<li><strong>存储层</strong>：MergeTree 家族为主，另有 Memory、Distributed、Kafka 等引擎</li>
+<li><strong>协调层</strong>：ClickHouse Keeper（兼容 ZooKeeper 协议）负责元数据和复制</li>
+</ul>
+<p>📌 关键特征：采用 shared-nothing 分布式模型，数据按分片表达式分布到多节点，每片可多副本。</p>
+<p>与 StarRocks 的根本差异在于：StarRocks 用 FE（前端节点，负责元数据和查询规划）和 BE（后端节点，负责存储和执行）分离架构，有全局查询计划。ClickHouse 没有全局查询计划，分布式查询靠”下推到本地表 + 合并结果”——这是它多表 JOIN 弱的架构根因。</p>
+<h2 id="MergeTree-存储引擎与稀疏索引"><a href="#MergeTree-存储引擎与稀疏索引" class="headerlink" title="MergeTree 存储引擎与稀疏索引"></a>MergeTree 存储引擎与稀疏索引</h2><h3 id="稀疏主索引"><a href="#稀疏主索引" class="headerlink" title="稀疏主索引"></a>稀疏主索引</h3><p>MergeTree 是核心存储引擎。数据按主键排序存储在不可变的”数据块”中。</p>
+<p>稀疏索引的核心机制：主键索引只记录每 8192 行的主键值，而非每行。索引常驻内存，消耗可忽略，支持单服务器万亿行数据。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> telecom_kpi (</span><br><span class="line">    event_time DateTime,</span><br><span class="line">    ne_id UInt32,</span><br><span class="line">    kpi_value Float64</span><br><span class="line">) <span class="keyword">ENGINE</span> = MergeTree()</span><br><span class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> toYYYYMM(event_time)</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> (event_time, ne_id)</span><br><span class="line"><span class="keyword">SETTINGS</span> index_granularity = <span class="number">8192</span>;</span><br></pre></td></tr></table></figure>
+<p>⚠️ 适用边界：稀疏索引不适合高频点查。每次主键查询要读取整 8192 行数据块并解压。如果做精确 ID 查询，StarRocks 的主键表更合适；如果做时间范围扫描加聚合，ClickHouse 优势明显。</p>
+<h3 id="MergeTree-家族变体"><a href="#MergeTree-家族变体" class="headerlink" title="MergeTree 家族变体"></a>MergeTree 家族变体</h3><p>不同合并逻辑派生出多种引擎：</p>
+<ul>
+<li><strong>MergeTree</strong>：标准合并，通用场景</li>
+<li><strong>ReplacingMergeTree</strong>：同主键保留最新版本，适合版本化数据</li>
+<li><strong>SummingMergeTree</strong>：同主键数值求和，适合累加指标</li>
+<li><strong>AggregatingMergeTree</strong>：合并聚合状态，常作物化视图目标表</li>
+<li><strong>CollapsingMergeTree</strong>：按标记列折叠行，适合状态机变更</li>
+</ul>
+<h3 id="数据跳数索引"><a href="#数据跳数索引" class="headerlink" title="数据跳数索引"></a>数据跳数索引</h3><p>除主键稀疏索引外，还支持二级跳数索引：</p>
+<ul>
+<li><strong>MinMax</strong>：记录数据块的最小最大值，适合范围过滤</li>
+<li><strong>Set</strong>：记录去重值集合，适合低基数等值过滤</li>
+<li><strong>bloom_filter</strong>：布隆过滤器，适合高基数等值</li>
+<li><strong>text</strong>：25.10 版倒排索引，支持全文检索</li>
+<li><strong>vector_similarity</strong>：向量相似度搜索（25.8 版发布）</li>
+</ul>
+<p>25.9 版引入”流式跳数索引”，索引检查与数据读取交错执行，在 10 亿行表上带来 2.4 倍加速。</p>
+<h2 id="向量化执行与查询优化"><a href="#向量化执行与查询优化" class="headerlink" title="向量化执行与查询优化"></a>向量化执行与查询优化</h2><h3 id="SIMD-多版本与-LLVM-编译"><a href="#SIMD-多版本与-LLVM-编译" class="headerlink" title="SIMD 多版本与 LLVM 编译"></a>SIMD 多版本与 LLVM 编译</h3><p>ClickHouse 为每段热点代码维护多个计算内核：兼容旧 CPU 的非向量化版、自动向量化的 AVX2 版、手写 AVX-512 版，运行时自动选最快的。</p>
+<p>LLVM 运行时编译用于”算子融合”：把 <code>a * b + c + 1</code> 编译成单一算子，减少函数调用开销。</p>
+<h3 id="全局-JOIN-重排序"><a href="#全局-JOIN-重排序" class="headerlink" title="全局 JOIN 重排序"></a>全局 JOIN 重排序</h3><p>25.9 版引入了 ClickHouse 历史上首个全局 JOIN 重排序能力，是其长期短板的关键改进。</p>
+<p>基准数据惊人：6 表 TPC-H 查询，无统计信息时耗时 3903 秒、峰值内存约 100GB；启用后降至 2.7 秒、内存低于 4GB——<strong>1450 倍加速、25 倍内存降低</strong>。</p>
+<p>⚠️ 仍有限制：需手动创建统计信息，outer join 和子查询覆盖有限。</p>
+<h3 id="物化视图增量聚合"><a href="#物化视图增量聚合" class="headerlink" title="物化视图增量聚合"></a>物化视图增量聚合</h3><p>核心模式是”插入触发器 + 状态聚合”：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 原始报文表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> packets_raw (...)</span><br><span class="line">  <span class="keyword">ENGINE</span> = MergeTree() <span class="keyword">ORDER</span> <span class="keyword">BY</span> (ts, ne_id);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 小时级聚合目标表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> packets_hourly (</span><br><span class="line">    <span class="keyword">hour</span> DateTime, ne_id UInt32,</span><br><span class="line">    bytes_sum AggregateFunction(<span class="keyword">sum</span>, UInt64)</span><br><span class="line">) <span class="keyword">ENGINE</span> = AggregatingMergeTree()</span><br><span class="line">  <span class="keyword">ORDER</span> <span class="keyword">BY</span> (<span class="keyword">hour</span>, ne_id);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>💡 关键工程经验：</p>
+<ul>
+<li>GROUP BY 列必须与目标表排序键对齐</li>
+<li>JOIN 在物化视图中代价高，推荐用字典查询替代，快最多 25 倍</li>
+<li>5 个以上物化视图挂同一源表会引发写放大</li>
+</ul>
+<h3 id="适用边界"><a href="#适用边界" class="headerlink" title="适用边界"></a>适用边界</h3><ul>
+<li><strong>JOIN 弱于 StarRocks</strong>：ClickHouse 无成熟的基于代价的优化器</li>
+<li><strong>并发较弱</strong>：500 并发下延迟显著退化，StarRocks 通过查询排队更稳定</li>
+<li><strong>更新代价高</strong>：单行更新可能触发整个数据块重写，推荐用轻量更新</li>
+<li><strong>小批量插入不友好</strong>：建议用异步插入缓冲</li>
+</ul>
+<h2 id="存算分离-1"><a href="#存算分离-1" class="headerlink" title="存算分离"></a>存算分离</h2><h3 id="SharedMergeTree"><a href="#SharedMergeTree" class="headerlink" title="SharedMergeTree"></a>SharedMergeTree</h3><p>ClickHouse Cloud 采用”共享存储 + 存算分离”架构：</p>
+<ul>
+<li>数据全部存于 S3 等共享对象存储</li>
+<li>本地 SSD 仅作缓存</li>
+<li>支持数百副本无显式分片，动态扩缩无需重新分片</li>
+</ul>
+<h3 id="Shared-Catalog"><a href="#Shared-Catalog" class="headerlink" title="Shared Catalog"></a>Shared Catalog</h3><p>2025 年 7 月正式发布，是存算分离架构的最后一块拼图：</p>
+<ul>
+<li>数据库元数据全部集中管理</li>
+<li>计算节点无本地盘依赖，纯粹的 CPU + 内存单元</li>
+<li>支持原子 DDL 操作</li>
+</ul>
+<h3 id="多层缓存"><a href="#多层缓存" class="headerlink" title="多层缓存"></a>多层缓存</h3><p>为弥补对象存储高延迟，构建了三层缓存：本地文件系统缓存、分布式缓存、用户态页缓存。</p>
+<p>还支持多个计算组共享同一对象存储，各自独立扩缩，可实现”读 vs 写”工作负载隔离。</p>
+<h2 id="与-StarRocks-对比"><a href="#与-StarRocks-对比" class="headerlink" title="与 StarRocks 对比"></a>与 StarRocks 对比</h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>ClickHouse</th>
+<th>StarRocks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>架构</td>
+<td>shared-nothing / 共享存储</td>
+<td>FE/BE 分离，双模支持</td>
+</tr>
+<tr>
+<td>主索引</td>
+<td>稀疏（8192 行粒度）</td>
+<td>主键表支持点查</td>
+</tr>
+<tr>
+<td>多表 JOIN</td>
+<td>弱（TPC-H 无法完成基准）</td>
+<td>强（SSB 快 1.87 倍）</td>
+</tr>
+<tr>
+<td>单表聚合</td>
+<td>强（ClickBench 胜出）</td>
+<td>强</td>
+</tr>
+<tr>
+<td>高并发</td>
+<td>500 并发退化</td>
+<td>资源池维持稳定</td>
+</tr>
+<tr>
+<td>压缩比</td>
+<td>极佳（10-20 倍）</td>
+<td>佳（10-15 倍）</td>
+</tr>
+<tr>
+<td>物化视图</td>
+<td>增量触发器，灵活但需谨慎</td>
+<td>自动刷新 + 查询改写</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>📌 基准数据对比：</p>
+<ul>
+<li><strong>SSB 100GB</strong>：StarRocks 3.5.0 总耗时 992ms，ClickHouse 25.3.3 耗时 1858ms，StarRocks 快 1.87 倍。其中 Q06 差距 2.51 倍、Q13 差距 2.63 倍</li>
+<li><strong>TPC-H 多表 JOIN</strong>：StarRocks 较 ClickHouse 快 3-5 倍；ClickHouse 在 StarRocks 官方基准中”无法完成 TPC-H 测试集”</li>
+<li><strong>ClickBench 单表</strong>：ClickHouse 通常胜出，因宽表扫描效率极高</li>
+</ul>
+<p><strong>核心结论：</strong></p>
+<p>✅ 场景以多表关联为主的，StarRocks 在 SSB 快 1.87 倍、TPC-H 场景 ClickHouse 无法完成基准，选 StarRocks 合理。</p>
+<p>✅ ClickHouse 的稀疏索引设计和物化视图增量聚合值得借鉴——前者让万亿行索引内存可忽略，后者带来数百倍加速。</p>
+<p>✅ 两者都已具备存算分离能力，无需为此更换引擎。ClickHouse 在单表时序扫描场景仍有竞争力。</p>
+<h2 id="电信行业案例"><a href="#电信行业案例" class="headerlink" title="电信行业案例"></a>电信行业案例</h2><ul>
+<li><strong>西班牙 Grupo Masmovil</strong>：用 ClickHouse 监控 RAN 网络，存储节省 16 倍、资源消耗降低 10 倍、数据延迟从 3 小时降至 15 分钟</li>
+<li><strong>德国 BENOCS</strong>：为全球头部电信运营商提供网络流量监控，依赖稀疏索引和时间序列邻近匹配</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li><p>ClickHouse 单表查询性能极强，但多表 JOIN 是架构性短板——无全局查询计划是根因。场景以多表关联为主的，StarRocks 更合适。</p>
+</li>
+<li><p>ClickHouse 的稀疏主索引和物化视图增量聚合是两大技术亮点，可带来万亿行索引内存可忽略和数百倍查询加速，值得在 StarRocks 上验证等价能力。</p>
+</li>
+<li><p>两者存算分离能力都已具备，ClickHouse Cloud 的无盘化设计是工程领先实践，但不需要为此更换技术路线。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Databricks-AI-BI洞察</title>
+    <url>/2026/07/15/Databricks-AI-BI%E6%B4%9E%E5%AF%9F/</url>
+    <content><![CDATA[<h1 id="Databricks-AI-BI-洞察"><a href="#Databricks-AI-BI-洞察" class="headerlink" title="Databricks AI/BI 洞察"></a>Databricks AI/BI 洞察</h1><blockquote>
+<p>💡 一句话总结：Databricks 用 AI/BI Genie（复合 AI 系统）+ Unity Catalog（统一治理）+ Delta Lake UniForm（开放表格式）构成湖仓一体的 AI 查询方案，其开源语义层和向量化执行与 Snowflake 形成差异化对比，核心参考价值在语义层可移植性和治理一体化。</p>
+</blockquote>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在分析完 Snowflake 的 AI 查询方案后，本篇聚焦其主要竞争对手 Databricks，形成横向对比，明确两个标杆在 AI 查询和开放存储两个维度的差异。</p>
+<p>Databricks 是 DB-Engines 排名第 7 的数据平台（2026 年 7 月，164 分），年收入从 54 亿美元（2026 年 2 月，+65%）增长到 69 亿美元（2026 年 6 月，+80%），增速高于 Snowflake。电信行业有 AT&amp;T（每天 10+PB 数据，1.82 亿无线用户，5 年 300% ROI）、Nokia 合作等采纳案例。</p>
+<p>其 AI/BI Genie + Unity Catalog + Delta Lake 组合代表了湖仓架构下 AI 查询 + 治理一体化 + 开放表格式的工程路径，值得深度拆解。</p>
+<h2 id="三大支柱"><a href="#三大支柱" class="headerlink" title="三大支柱"></a>三大支柱</h2><p>Databricks 在 AI 查询与治理领域的竞争力来自三个支柱。</p>
+<h3 id="支柱一：复合-AI-系统-Genie"><a href="#支柱一：复合-AI-系统-Genie" class="headerlink" title="支柱一：复合 AI 系统 Genie"></a>支柱一：复合 AI 系统 Genie</h3><p>Genie 不是单一大模型，而是 Compound AI 系统（复合 AI），使用 Chain-of-Thought（思维链）推理：识别列 → 规划 SQL → 组合查询。</p>
+<p>Agent Mode 使用 Claude Sonnet 模型支持多步推理。反馈机制有三优先级：SQL 表达式（精确定义业务语义）&gt; 示例 SQL 查询 &gt; 文本指令。</p>
+<p>Databricks 建议域特定问题准确率超过 80% 后再进入 UAT（用户验收测试），说明 Genie 的准确率是可度量、可分阶段提升的。</p>
+<h3 id="支柱二：统一治理-开放表格式"><a href="#支柱二：统一治理-开放表格式" class="headerlink" title="支柱二：统一治理 + 开放表格式"></a>支柱二：统一治理 + 开放表格式</h3><p>Unity Catalog 三级命名空间（catalog.schema.table），四种访问控制：GRANT/REVOKE + ABAC（基于属性的访问控制）标签策略 + 行列过滤器/脱敏 + 工作区绑定，自动列级血缘跨工作区聚合。</p>
+<p>Delta UniForm 异步生成 Iceberg 元数据，不重写数据文件，实现单份数据双格式。这是与 Snowflake 封闭生态的根本差异——Databricks 通过开源 Unity Catalog OSS 和 UniForm 互操作构建开放生态。</p>
+<h3 id="支柱三：开源语义层-向量化执行"><a href="#支柱三：开源语义层-向量化执行" class="headerlink" title="支柱三：开源语义层 + 向量化执行"></a>支柱三：开源语义层 + 向量化执行</h3><p>Metric Views 于 2026 年 4 月正式发布，YAML 定义 source / joins / fields / measures / filter，核心已开源到 Apache Spark（SPARK-54119）。</p>
+<p>Photon 是 C++ 向量化执行引擎，替代 JVM Spark SQL，客户工作负载平均 3 倍加速、最高 10 倍，曾创 TPC-DS 100TB 世界纪录。语义层开源 + 执行引擎向量化构成”语义可移植 + 性能有保障”的组合。</p>
+<h2 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h2><p>Databricks 湖仓架构分三层：</p>
+<ul>
+<li><strong>Unity Catalog（治理层）</strong>：三级命名空间，ABAC 标签 + 行列过滤/脱敏 + 权限管理 + 工作区绑定，自动列级血缘，内嵌 Metric Views 语义层</li>
+<li><strong>Photon 执行引擎（计算层）</strong>：C++ 向量化执行，Catalyst 优化器查询规划，不支持算子时回退 Spark，SQL 级 AI 函数 ai_query</li>
+<li><strong>Delta Lake（存储层）</strong>：事务日志，UniForm Iceberg 互操作，单份数据双格式</li>
+</ul>
+<h3 id="与-Snowflake-的根本差异"><a href="#与-Snowflake-的根本差异" class="headerlink" title="与 Snowflake 的根本差异"></a>与 Snowflake 的根本差异</h3><p>⚠️ Snowflake 是单引擎封闭架构，语义改写在编译器内完成；Databricks 是湖仓架构，治理层、执行层、存储层解耦，语义层作为治理层内嵌对象而非编译器内改写。</p>
+<p>这意味着 Databricks 的语义层理论上可跨引擎复用（核心已开源到 Spark），而 Snowflake 的 Semantic Views 不可移植。</p>
+<h3 id="与我们架构的差异"><a href="#与我们架构的差异" class="headerlink" title="与我们架构的差异"></a>与我们架构的差异</h3><p>我们是多库联邦架构（StarRocks / Druid / GaussDB），无统一治理层，语义改写依赖事后 SQL 转换。Databricks 的统一治理 + 语义层组合为我们提供了另一种参考架构——但我们的”统一”需要跨三个库，复杂度更高。</p>
+<h2 id="AI-BI-Genie-深度解析"><a href="#AI-BI-Genie-深度解析" class="headerlink" title="AI/BI Genie 深度解析"></a>AI/BI Genie 深度解析</h2><h3 id="思维链推理流水线"><a href="#思维链推理流水线" class="headerlink" title="思维链推理流水线"></a>思维链推理流水线</h3><p>Genie 的核心推理流水线采用 Chain-of-Thought，分三步：</p>
+<ul>
+<li><strong>列识别</strong>：从 Genie Space 元数据中识别相关列（每个 Space 最多 30 张表）</li>
+<li><strong>SQL 规划</strong>：规划查询结构与 JOIN 路径，而非直接生成完整 SQL</li>
+<li><strong>查询组合</strong>：在规划基础上组合最终 SQL</li>
+</ul>
+<p>分步推理降低复杂查询的错误率。与 Snowflake 六阶段 Agent 流水线对比：Genie 的三步更轻量，Cortex 的六阶段更精细（含分类、特征提取、上下文增强、多模型生成、错误纠正、综合选优）。</p>
+<p>两者都采用分步推理，但 Cortex 的工程化程度更高（多模型并行 + 编译器校验闭环），Genie 更依赖单一模型的推理能力。</p>
+<h3 id="专家反馈学习机制"><a href="#专家反馈学习机制" class="headerlink" title="专家反馈学习机制"></a>专家反馈学习机制</h3><p>Genie 的反馈机制有三优先级：</p>
+<ul>
+<li><strong>优先级 1（最高）</strong>：SQL 表达式——直接定义业务语义的精确 SQL，消除歧义</li>
+<li><strong>优先级 2</strong>：示例 SQL 查询——问题→SQL 的示例对，作为参考</li>
+<li><strong>优先级 3（最低）</strong>：文本指令——自然语言描述的业务规则，AI 需自行理解</li>
+</ul>
+<p>设计核心：SQL 表达式优先级最高，因为它精确消除歧义；文本指令最低，因为自然语言本身存在歧义。</p>
+<p>用户正面反馈可触发 Genie 建议新 SQL 片段，形成”使用→反馈→学习→建议”闭环。</p>
+<p>📌 与 Snowflake 对比：Genie 的反馈侧重”业务语义精确定义”（SQL 表达式优先），Cortex 的已验证查询侧重”已验证查询检索复用”。两者思路互补，可同时借鉴。</p>
+<h3 id="Agent-Mode-多步推理"><a href="#Agent-Mode-多步推理" class="headerlink" title="Agent Mode 多步推理"></a>Agent Mode 多步推理</h3><p>Agent Mode 使用 Claude Sonnet，支持多步推理，能处理需要拆解子问题、执行中间查询、基于结果继续推理的复杂问题。</p>
+<p>⚠️ 关键限制：</p>
+<ul>
+<li>Agent Mode 仅 UI 可用，API 不支持——无法集成到我们的查询服务</li>
+<li>每个 Genie Space 最多 30 张表——复杂业务域需拆分多个 Space</li>
+<li>只读查询，不支持写操作</li>
+<li>不解释结果——只返回数据，不提供分析洞察</li>
+</ul>
+<p>Genie Conversation API（2025 年 3 月公测）支持编程式调用，但 Agent Mode 不在 API 范围内。若集成 Genie，只能用基础推理，无法用多步推理——这是集成时的能力边界。</p>
+<h2 id="Unity-Catalog-Delta-UniForm-深度解析"><a href="#Unity-Catalog-Delta-UniForm-深度解析" class="headerlink" title="Unity Catalog + Delta UniForm 深度解析"></a>Unity Catalog + Delta UniForm 深度解析</h2><h3 id="ABAC-治理与血缘"><a href="#ABAC-治理与血缘" class="headerlink" title="ABAC 治理与血缘"></a>ABAC 治理与血缘</h3><p>Unity Catalog 四种访问控制：</p>
+<ul>
+<li><strong>GRANT/REVOKE</strong>：基于角色的权限管理</li>
+<li><strong>ABAC 标签策略</strong>：基于标签按数据分类（如个人隐私数据）控制访问</li>
+<li><strong>行列过滤器/脱敏</strong>：行级安全 + 列脱敏，细粒度保护</li>
+<li><strong>工作区绑定</strong>：工作区与 Catalog 绑定，实现隔离</li>
+</ul>
+<p>自动列级血缘跨工作区聚合，提供端到端数据血缘可视化。这对我们”数据血缘跨三库追踪”有参考价值——当前三个库各自独立，缺乏统一血缘视图。</p>
+<p>⚠️ 跨引擎策略不自动同步：Snowflake 可通过 Catalog-Linked Databases 读写 Unity Catalog 表，但每个平台执行自己的策略。Unity Catalog 的统一治理是”Databricks 平台内统一”，跨引擎时治理策略仍需各引擎独立维护。</p>
+<h3 id="Delta-UniForm-Iceberg-互操作"><a href="#Delta-UniForm-Iceberg-互操作" class="headerlink" title="Delta UniForm Iceberg 互操作"></a>Delta UniForm Iceberg 互操作</h3><p>Delta UniForm IcebergCompatV2 的核心机制：</p>
+<ul>
+<li>异步生成 Iceberg 元数据，不重写数据文件——零数据迁移成本</li>
+<li>单份数据支持 Delta + Iceberg 双格式</li>
+<li>Iceberg 客户端只读，不支持写——写入仍需通过 Delta</li>
+<li>Databricks 声称比 Snowflake 快 6 倍 Parquet 摄入、成本低 90%</li>
+</ul>
+<p>DDL 语法示例：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> orders (</span><br><span class="line">  order_id <span class="built_in">BIGINT</span>,</span><br><span class="line">  customer_id <span class="built_in">BIGINT</span>,</span><br><span class="line">  order_total <span class="built_in">DECIMAL</span>(<span class="number">10</span>,<span class="number">2</span>)</span><br><span class="line">)</span><br><span class="line"><span class="keyword">USING</span> DELTA</span><br><span class="line">TBLPROPERTIES (</span><br><span class="line">  <span class="string">'delta.enableIcebergCompatV2'</span>=<span class="string">'true'</span>,</span><br><span class="line">  <span class="string">'delta.universalFormat.enabledFormats'</span>=<span class="string">'iceberg'</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>📌 与 Apache Polaris 对比：UniForm 是”Delta 为主，Iceberg 单向读”的 Databricks 主导路径；Polaris 是”中立目录，多引擎平等读写”的开放标准。我们若选择 Iceberg 化，Polaris 的多引擎读写能力（含 StarRocks）比 UniForm 单向读更契合三库联邦需求。</p>
+<h3 id="Metric-Views-语义层"><a href="#Metric-Views-语义层" class="headerlink" title="Metric Views 语义层"></a>Metric Views 语义层</h3><p>Metric Views YAML 定义 source / joins / fields / measures / filter 五层，核心已开源到 Apache Spark：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">orders_metric_view</span></span><br><span class="line"><span class="attr">source:</span></span><br><span class="line">  <span class="attr">table:</span> <span class="string">orders</span></span><br><span class="line">  <span class="attr">fields:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">order_month</span></span><br><span class="line">      <span class="attr">expr:</span> <span class="string">date_trunc('month',</span> <span class="string">order_date)</span></span><br><span class="line"><span class="attr">joins:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">customers</span></span><br><span class="line">    <span class="attr">source:</span></span><br><span class="line">      <span class="attr">table:</span> <span class="string">customers</span></span><br><span class="line">    <span class="attr">on:</span> <span class="string">orders.customer_id</span> <span class="string">=</span> <span class="string">customers.customer_id</span></span><br><span class="line"><span class="attr">measures:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Total</span> <span class="string">Revenue</span></span><br><span class="line">    <span class="attr">expr:</span> <span class="string">SUM(order_total)</span></span><br><span class="line">    <span class="attr">format:</span> <span class="string">currency</span></span><br><span class="line">    <span class="attr">synonyms:</span> <span class="string">["revenue",</span> <span class="string">"营收"</span><span class="string">]</span></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
+<p>查询使用 <code>MEASURE()</code> 函数。语义元数据（显示名、格式化、同义词）同时服务 BI 工具和大模型，让 AI 理解”总收入”=”revenue”=”营收”是同一指标。</p>
+<p>📌 与 Snowflake Semantic Views 对比：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Databricks Metric Views</th>
+<th>Snowflake Semantic Views</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>定义格式</td>
+<td>YAML</td>
+<td>YAML + DDL</td>
+</tr>
+<tr>
+<td>改写位置</td>
+<td>运行时（Spark/Photon）</td>
+<td>编译器内</td>
+</tr>
+<tr>
+<td>开源</td>
+<td>核心开源到 Spark</td>
+<td>未开源</td>
+</tr>
+<tr>
+<td>平台锁定</td>
+<td>单平台，但核心可移植</td>
+<td>不可移植</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>关键差异：两者都是单平台原生对象，但 Databricks 开源了核心，理论上可在非 Databricks Spark 上运行；Snowflake 完全锁定。若采用开源语义层，Metric Views 比专有方案更具可移植性。</p>
+<h2 id="横向对比"><a href="#横向对比" class="headerlink" title="横向对比"></a>横向对比</h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Databricks</th>
+<th>Snowflake</th>
+<th>我们现状</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI 查询</td>
+<td>Genie（复合 AI，思维链）</td>
+<td>六阶段 Agent</td>
+<td>AI 生成统一 SQL</td>
+</tr>
+<tr>
+<td>反馈学习</td>
+<td>SQL 表达式 &gt; 示例 &gt; 文本</td>
+<td>已验证查询检索</td>
+<td>无</td>
+</tr>
+<tr>
+<td>准确率</td>
+<td>域特定 80% 后 UAT</td>
+<td>90%+ 企业测试</td>
+<td>无系统化方法</td>
+</tr>
+<tr>
+<td>语义层</td>
+<td>Metric Views（开源核心）</td>
+<td>Semantic Views（未开源）</td>
+<td>无</td>
+</tr>
+<tr>
+<td>治理</td>
+<td>UC（ABAC + 行列过滤）</td>
+<td>Horizon</td>
+<td>各库独立</td>
+</tr>
+<tr>
+<td>开放表格式</td>
+<td>UniForm（单向读）</td>
+<td>Polaris（多引擎读写）</td>
+<td>无</td>
+</tr>
+<tr>
+<td>执行引擎</td>
+<td>Photon C++ 向量化（3-10 倍）</td>
+<td>自研 MPP</td>
+<td>StarRocks/Druid/GaussDB</td>
+</tr>
+<tr>
+<td>联邦下推</td>
+<td>不支持（数据需入湖仓）</td>
+<td>不支持</td>
+<td>支持（实时下推三库）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="关键结论"><a href="#关键结论" class="headerlink" title="关键结论"></a>关键结论</h3><p><strong>可借鉴：</strong> Metric Views YAML 五层结构（核心开源）、语义元数据增强 AI 理解、Genie 三级反馈优先级、Unity Catalog 自动列级血缘、Photon 向量化执行思路。</p>
+<p><strong>不可借鉴：</strong> Genie Agent Mode（仅 UI）、UniForm 单向读（我们需要多引擎读写）、跨引擎策略不自动同步（三库治理仍需独立设计）。</p>
+<p><strong>根本差异：</strong> 两个标杆的语义层都建立在”数据已入平台”前提上。Databricks 的优势是语义层核心开源可移植，Snowflake 的优势是 Agent 工程化程度更高。我们的核心差异化仍是”感知三库能力差异，事前生成各库 SQL”——这是两个标杆都未解决的领域。</p>
+<h2 id="现状与建议"><a href="#现状与建议" class="headerlink" title="现状与建议"></a>现状与建议</h2><h3 id="现状"><a href="#现状" class="headerlink" title="现状"></a>现状</h3><ul>
+<li>AI 生成统一 SQL → 转换各库语法 → 下推三库执行</li>
+<li>Druid 报文场景等价函数依赖风险已验证失败</li>
+<li>无系统化准确率测试、无反馈学习、无语义模型层、无统一治理层</li>
+</ul>
+<h3 id="分层建议"><a href="#分层建议" class="headerlink" title="分层建议"></a>分层建议</h3><p><strong>高优先级（验证项）：</strong></p>
+<ul>
+<li>语义模型 YAML 规范草案，参考 Metric Views 五层结构</li>
+<li>语义元数据增加 synonyms / display_name / format 字段</li>
+<li>反馈机制按三级优先级设计：SQL 表达式 &gt; 示例 &gt; 文本</li>
+<li>语义层增加 engine_capabilities 字段，AI 生成时感知目标引擎</li>
+</ul>
+<p><strong>中优先级（观察项）：</strong></p>
+<ul>
+<li>准确率门槛设定（域特定 80% 后 UAT），分阶段提升</li>
+<li>Apache Polaris 对接评估（StarRocks 已支持），作为开放目录标准</li>
+<li>Unity Catalog OSS 跟踪（已捐赠 Linux 基金会），评估统一治理参考</li>
+</ul>
+<p><strong>布局项：</strong></p>
+<ul>
+<li>Delta UniForm vs Polaris 路线选型（单向读 vs 多引擎读写）</li>
+<li>Genie Conversation API 集成评估（注意 Agent Mode 不可用）</li>
+</ul>
+<h3 id="演进路径"><a href="#演进路径" class="headerlink" title="演进路径"></a>演进路径</h3><p>分四阶段推进：</p>
+<ul>
+<li><strong>阶段一</strong>：语义模型层建立——定义 YAML 规范（参考五层 + engine_capabilities），语义元数据增强，反馈三级优先级</li>
+<li><strong>阶段二</strong>：事前方言感知——AI 感知目标引擎直接生成该库 SQL，SQL 转换降级为兜底</li>
+<li><strong>阶段三</strong>：准确率与反馈闭环——门槛设定，正面反馈→建议新 SQL，多模型选优</li>
+<li><strong>阶段四</strong>：开放生态对接——Polaris 对接评估，Unity Catalog 治理参考，路线选型</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>✅ 三个核心观点：</p>
+<p><strong>一、Databricks 和 Snowflake 验证了同一结论：语义模型 + 反馈学习是 text-to-SQL 准确率的关键变量。</strong> Genie 更依赖单一模型推理能力，Cortex 更依赖多模型并行 + 编译器校验。两者准确率门槛不同，但可同时借鉴：Genie 的三级反馈优先级（SQL 表达式优先）+ Cortex 的已验证查询检索 + 多模型选优。</p>
+<p><strong>二、Metric Views 核心开源是与 Snowflake 的根本差异，对我们”不绑定单一平台”的需求更契合。</strong> 两者都是单平台原生对象，但 Databricks 开源核心意味着语义模型理论上可跨平台复用。若采用开源语义层路径，Metric Views 的 YAML 规范比专有方案更具可移植性。</p>
+<p><strong>三、开放表格式存在两条路线，Polaris 比 UniForm 更契合我们的多库需求。</strong> UniForm 是”Delta 为主，Iceberg 单向读”的 Databricks 主导路径；Polaris 是”中立目录，多引擎平等读写”的开放标准。我们已采用 StarRocks（Polaris 已支持），推进 Iceberg 化应布局 Polaris 对接评估，UniForm 作为观察项。两个标杆都未解决”感知多库能力差异、事前生成各库 SQL”，这正是我们的核心差异化。</p>
+]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Apache Pinot实时OLAP洞察——Druid竞品对比与实时分析查询技术路线选型</title>
+    <url>/2026/07/16/Apache-Pinot-%E5%AE%9E%E6%97%B6OLAP%E6%B4%9E%E5%AF%9F/</url>
+    <content><![CDATA[<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>Apache Pinot 靠 Star-Tree 预聚合索引和原生实时 Upsert，在用户面分析场景比 Druid 低 2-7 倍延迟——但现有 Druid 选型在时序场景仍合理，Pinot 的技术思路值得借鉴而非照搬。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>现有架构用 Apache Druid 作为实时 OLAP（联机分析处理）引擎处理时序数据，包括网络性能指标、告警等。</p>
+<p>Pinot 是 Druid 在实时 OLAP 领域最直接的竞品，两者均源自 LinkedIn 的实时分析需求。需逐维度对比两者差异，验证 Druid 选型是否合理，并识别 Pinot 技术亮点是否值得引入。</p>
+<p>Pinot 不是边缘项目。LinkedIn 内部 50+ 用户面产品、25 万+ QPS、7 亿+成员依赖其服务。Cisco Webex 用其处理 100+ TB/天遥测数据，替代 Elasticsearch，缩减 500+ 节点，查询性能提升 5-150 倍。Uber 有 100+ 实时分析用例、500+ 生产表。</p>
+<h2 id="关键竞争力"><a href="#关键竞争力" class="headerlink" title="关键竞争力"></a>关键竞争力</h2><p>Pinot 的竞争力来自三个方面。</p>
+<h3 id="Star-Tree-预聚合索引"><a href="#Star-Tree-预聚合索引" class="headerlink" title="Star-Tree 预聚合索引"></a>Star-Tree 预聚合索引</h3><p>Star-Tree 是 Pinot 最具辨识度的能力——一种在多列上构建的预聚合索引，能显著降低聚合查询的扫描行数，为给定用例提供查询延迟的硬上界。</p>
+<p>与 Druid 在摄入时做 Roll-up（破坏性聚合，丢失原始行）不同，Star-Tree 是索引层的预聚合，原始行保留，可在同一表上同时支持聚合加速和明细行下钻。</p>
+<p>客户从 Druid 迁移到 Pinot 后实测 2-7 倍延迟降低、3-4 倍吞吐提升。</p>
+<h3 id="原生实时-Upsert"><a href="#原生实时-Upsert" class="headerlink" title="原生实时 Upsert"></a>原生实时 Upsert</h3><p>Pinot 自 0.6.x 起支持基于主键的原生 Upsert（更新或插入），是首个支持实时 Upsert 的实时 OLAP 系统。Druid 缺乏真正的逐行 Upsert，仅支持段级覆盖。</p>
+<p>对网络运维中”迟到事件、数据修正、去重”需求，Pinot 有结构性优势。</p>
+<h3 id="高并发用户面分析"><a href="#高并发用户面分析" class="headerlink" title="高并发用户面分析"></a>高并发用户面分析</h3><p>Pinot 设计中心是”以数千 QPS 持续低延迟服务用户面分析”。LinkedIn 单应用即 5000+ QPS、84-136ms 延迟。Druid 在并发上升时延迟易退化至 10 秒级，而 Pinot 在 1000+ QPS 仍保持毫秒级。</p>
+<h2 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h2><p>Pinot 采用 Controller、Broker、Server、Minion 四组件架构，依赖 Helix（集群管理）和 ZooKeeper（状态存储），外加持久化对象存储作深度存储。</p>
+<p>四层职责：</p>
+<ul>
+<li><strong>Controller</strong>（控制面）：集群管理、表与段元数据、Schema 演进</li>
+<li><strong>Broker</strong>（查询路由）：接收 SQL → 查询优化 → 路由到 Server → 合并结果</li>
+<li><strong>Server</strong>（数据与执行）：段级列式存储 + 多种索引，实时段秒级可查</li>
+<li><strong>Minion</strong>（后台任务）：段合并、压缩、Upsert 后处理</li>
+</ul>
+<p>📌 关键特征：</p>
+<ul>
+<li>Hybrid Table：同一张表可同时含实时（Kafka 流式）和离线（批式）数据，查询自动合并</li>
+<li>实时段在 consuming 状态下即可查询，新鲜度达秒级</li>
+<li>存算分离：深度存储保存持久化副本，Server 本地缓存热段</li>
+<li>多租户原生：基于 tag 的分组，从设计起点支持租户隔离</li>
+</ul>
+<h2 id="Star-Tree-索引"><a href="#Star-Tree-索引" class="headerlink" title="Star-Tree 索引"></a>Star-Tree 索引</h2><h3 id="多列预聚合与硬延迟上界"><a href="#多列预聚合与硬延迟上界" class="headerlink" title="多列预聚合与硬延迟上界"></a>多列预聚合与硬延迟上界</h3><p>Star-Tree 不替代其他单列索引，而是在多列上构建预聚合文档。原理可以理解为：</p>
+<p>原始数据有维度 D1、D2 和度量 M。Star-Tree 在构建时会预计算各种维度组合的聚合值，包括”丢弃某维度”的 Star-Node（星节点）。查询时如果某维度既不过滤也不分组，直接走 Star-Node，避免遍历所有子节点。</p>
+<p>这就是 Star-Tree 提供”硬上界延迟”的关键——查询命中预聚合文档时，直接读单条结果而非扫描原始行。</p>
+<p><strong>对现有架构的启发</strong>：Druid 的 Roll-up 是摄入时破坏性聚合，原始行丢失。如果遇到”既要聚合加速又要明细下钻”的场景（如告警聚合 + 单告警明细），Star-Tree 的”索引层预聚合、原始行保留”是可借鉴路径。</p>
+<h3 id="默认星树"><a href="#默认星树" class="headerlink" title="默认星树"></a>默认星树</h3><p>启用后系统自动将低基数维度加入星树，预聚合 COUNT 和数值列 SUM。降低了冷启动成本，但针对性不如手写星树。</p>
+<h2 id="多阶段查询引擎"><a href="#多阶段查询引擎" class="headerlink" title="多阶段查询引擎"></a>多阶段查询引擎</h2><h3 id="分阶段执行"><a href="#分阶段执行" class="headerlink" title="分阶段执行"></a>分阶段执行</h3><p>多阶段查询引擎（MSE，又称 v2 引擎）是 Pinot 1.0 起的生产就绪查询引擎，将单阶段 scatter-gather 拆解为多阶段树形执行计划，支持分布式 JOIN、窗口函数、子查询等复杂 SQL。</p>
+<p>三种 stage 类型：</p>
+<ul>
+<li><strong>Leaf Stage</strong>：从表读数据，无 JOIN/聚合</li>
+<li><strong>Intermediate Stage</strong>：执行 JOIN、Window 等关系算子</li>
+<li><strong>Root Stage</strong>：在 Broker 上执行，输出最终结果</li>
+</ul>
+<p>⚠️ 关键约束：中间结果内存执行，无 spill-to-disk（溢写到磁盘），超大中间结果会 OOM（内存溢出）。因此 MSE 不适合重型 ETL JOIN，更适合实时 OLAP 范围内的关联查询。</p>
+<h3 id="与单阶段引擎的能力边界"><a href="#与单阶段引擎的能力边界" class="headerlink" title="与单阶段引擎的能力边界"></a>与单阶段引擎的能力边界</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>查询需求</th>
+<th>推荐引擎</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基础过滤/聚合</td>
+<td>单阶段</td>
+<td>开销最低</td>
+</tr>
+<tr>
+<td>JOIN/窗口/子查询</td>
+<td>多阶段</td>
+<td>必须用 MSE</td>
+</tr>
+<tr>
+<td>大规模全表扫描</td>
+<td>外部引擎</td>
+<td>MSE 内存执行会 OOM</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="版本演进"><a href="#版本演进" class="headerlink" title="版本演进"></a>版本演进</h3><ul>
+<li><strong>1.2（2024-08）</strong>：逻辑数据库（namespace 隔离）、Upsert 一致性模式、JSON 索引增强</li>
+<li><strong>1.3（2025-02）</strong>：实验性时序查询引擎（PromQL/M3QL）、游标分页、多流摄入</li>
+<li><strong>1.4（2025-09）</strong>：时序引擎转 Beta、Pauseless Consumption（最小化摄入延迟）、逻辑表</li>
+</ul>
+<p>💡 Uber 生产实践是 MSE 走向生产的关键信号：Uber 此前用内部 Presto fork 代理 Pinot 查询，日服务 5 亿+ 次。2024-2025 年重构为直接对接 Pinot Broker，逐步退役代理层。Uber 还基于 Pinot 1.3 时序引擎支撑 10 万+ 自动告警。</p>
+<h2 id="网络流量分析案例"><a href="#网络流量分析案例" class="headerlink" title="网络流量分析案例"></a>网络流量分析案例</h2><p>LinkedIn InFlow 基于 Pinot 构建网络流量观测平台：</p>
+<ul>
+<li>从 100+ 台骨干/边缘网络设备接收 5 万/秒 sFlow/IPFIX 流量</li>
+<li>50+ 维度、30 天保留、数十 TB 存储</li>
+<li>数据新鲜度从 15 分钟提升至 1 分钟</li>
+<li>查询延迟降低 95%（部分昂贵查询从 Presto 6 分钟降至 Pinot 4 秒）</li>
+</ul>
+<p>该案例与网络性能指标/告警场景高度同构，是评估 Pinot 适用性的最直接参照。</p>
+<h2 id="与-Druid-对比"><a href="#与-Druid-对比" class="headerlink" title="与 Druid 对比"></a>与 Druid 对比</h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Apache Pinot（1.4）</th>
+<th>Apache Druid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>预聚合</td>
+<td>Star-Tree 索引层，原始行保留</td>
+<td>摄入时 Roll-up，原始行丢失</td>
+</tr>
+<tr>
+<td>实时 Upsert</td>
+<td>原生支持（0.6.x 起）</td>
+<td>无逐行 Upsert，仅段级覆盖</td>
+</tr>
+<tr>
+<td>摄入新鲜度</td>
+<td>秒级可见（典型 &lt; 5s）</td>
+<td>段 handoff 延迟 30-90s</td>
+</tr>
+<tr>
+<td>索引多样性</td>
+<td>Star-Tree/倒排/范围/JSON/文本/向量</td>
+<td>Bitmap/字典/倒排/范围</td>
+</tr>
+<tr>
+<td>时序查询语言</td>
+<td>1.3 起支持 PromQL/M3QL</td>
+<td>原生 SQL，无时序 DSL</td>
+</tr>
+<tr>
+<td>多租户</td>
+<td>tag-based 分组</td>
+<td>lane-based 路由</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>📌 关键差异点：</p>
+<ul>
+<li><strong>预聚合机制</strong>：Pinot 索引层预聚合保留原始行 vs Druid 摄入时破坏性聚合</li>
+<li><strong>实时 Upsert</strong>：Pinot 原生支持 vs Druid 不支持</li>
+<li><strong>摄入新鲜度</strong>：Pinot 秒级 vs Druid 30-90s 段 handoff</li>
+</ul>
+<p><strong>核心结论：</strong></p>
+<p>✅ Druid 选型合理性成立：核心场景是时序数据的实时摄入与查询，Druid 的 Roll-up、HLL/Theta sketch（近似去重算法）、段模型在”高聚合度时序 + 长保留 + 高并发扫描”场景结构性占优。当前无”逐行 Upsert”或”明细下钻 + 聚合加速同表”的强需求。</p>
+<p>✅ Pinot 的 Star-Tree 思路值得借鉴，但不需要引入 Pinot。可在 Druid 侧验证等效预聚合路径（Roll-up 与原始行双写、或物化视图）。</p>
+<p>✅ Druid 段 handoff 30-90s 延迟是结构性约束。若”最近 10 秒”类查询不满足，应优先调优 Druid 实时段参数，而非迁移到 Pinot。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li><p>Pinot 与 Druid 是实时 OLAP 领域两条均被规模化验证的路径，差异化集中在预聚合机制、实时 Upsert 和摄入新鲜度。现有核心场景属于 Druid 结构性占优区间，选型合理。</p>
+</li>
+<li><p>Pinot 的 Star-Tree 索引思路（索引层预聚合 + 原始行保留）值得借鉴，但可在 Druid 侧验证等效机制，无需迁移引擎。前提是确认是否真实存在”既要聚合加速又要明细下钻同表”的场景。</p>
+</li>
+<li><p>Pinot 1.3 引入的时序查询引擎（PromQL/M3QL）是值得长期观察的能力，Uber已用于 10 万+ 告警。但当前仍处 Beta，不宜作为短期切换依据。</p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>DuckDB嵌入式分析数据库洞察——轻量级OLAP的AI原生查询与边缘场景适配</title>
     <url>/2026/07/16/DuckDB-%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%88%86%E6%9E%90%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B4%9E%E5%AF%9F/</url>
     <content><![CDATA[<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>DuckDB 是”分析界的 SQLite”——无需独立服务进程，直接嵌入应用程序运行，特别适合边缘设备轻量分析和 AI 查询工具场景。</p>
@@ -1721,6 +2167,134 @@
 <p><strong>一、Iceberg + Trino 的核心价值在开放标准对接，而非执行引擎替换。</strong> Iceberg 已被 20+ 引擎支持，Polaris 已毕业顶级项目，开放湖仓三件套具备生产成熟度。但 Trino 在 TPC-DS 1TB Iceberg 上较 StarRocks 慢 5.54 倍。应保持 StarRocks 作为执行引擎，将 Iceberg + Polaris 作为开放标准层对接。</p>
 <p><strong>二、两种跨库查询方案各有适用边界。</strong> Trino 的优势在跨源 JOIN（单 SQL 跨多源），SQL 转换的优势在方言覆盖广。Druid 报文场景的等价函数依赖失败是方言兼容性问题，解决方案是在语义层增加引擎能力元数据，让 AI 生成时感知目标库能力直接生成对应 SQL。</p>
 <p><strong>三、Apache Polaris 是低风险高回报的布局项。</strong> StarRocks 已原生支持 Polaris 对接，下一步应推进对接验证，建立”一份 Iceberg 数据 + 一个 Polaris 目录 + 多引擎并发”拓扑，为未来多引擎协作打基础。同时需提前布局 Iceberg 维护操作自动化能力，避免小文件积累拖垮查询性能。</p>
+]]></content>
+      <categories>
+        <category>学习</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SingleStore HTAP实时统一数据平台洞察——事务+分析一体化查询与AI实时推理</title>
+    <url>/2026/07/16/SingleStore-HTAP%E5%AE%9E%E6%97%B6%E7%BB%9F%E4%B8%80%E6%95%B0%E6%8D%AE%E5%B9%B3%E5%8F%B0%E6%B4%9E%E5%AF%9F/</url>
+    <content><![CDATA[<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>SingleStore 用一个引擎同时跑事务、分析和向量搜索，在电信场景验证了 6-100 倍查询加速——但它的价值在于”统一可行”的思路借鉴，而非立即迁移。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>现有架构采用 GaussDB（事务）+ StarRocks（分析）+ Druid（实时 OLAP）多引擎分离方案。这种架构已暴露 SQL 方言转换的风险。</p>
+<p>SingleStore 以”一个引擎同时跑事务 + 分析 + 向量”为核心理念，是另一种架构路线。本文评估其适用边界与对架构演进的启示。</p>
+<p>电信场景已有可追溯案例：全球 Top 10 电信运营商以 SingleStore 替换 Oracle Exadata，500+ 节点支撑 1.4 亿用户、1.8 万个 KPI，查询性能 6-100 倍提升、年节省 540 万美元。</p>
+<h2 id="关键竞争力"><a href="#关键竞争力" class="headerlink" title="关键竞争力"></a>关键竞争力</h2><p>SingleStore 的竞争力来自三个方面。</p>
+<h3 id="HTAP-统一引擎"><a href="#HTAP-统一引擎" class="headerlink" title="HTAP 统一引擎"></a>HTAP 统一引擎</h3><p>HTAP（混合事务分析处理，一个数据库同时做交易和分析）。SingleStore 在单一表存储内同时支持列存扫描性能与行存点查性能，数据无需在不同布局间复制。</p>
+<p>其本质是”列存为体、行存为缓存”——内存行存作为写回缓存承载最近写入与点查，磁盘列存承载分析与历史数据。这与传统 HTAP”行存一份 + 列存一份”的双副本路径不同，是 SingleStore 的核心专利路线。</p>
+<h3 id="原生向量与混合搜索"><a href="#原生向量与混合搜索" class="headerlink" title="原生向量与混合搜索"></a>原生向量与混合搜索</h3><p>SingleStore 自 2017 年支持向量数据类型，提供 HNSW、IVF、IVF_PQFS 等多种索引，可在同一列上为不同查询场景创建不同索引。</p>
+<p>关键差异化在于”单次检索”——一条 SQL 内同时执行向量相似、BM25 全文匹配、JSON 提取、SQL 聚合与 JOIN，无需多系统拼接。</p>
+<p>性能上，HNSW 索引下达 Milvus QPS 的 81.8-94.7%，较 pgvector 快 1.7-2.6 倍；IVF_PQFS 较 pgvector 快 47-100 倍。</p>
+<h3 id="实时摄入与-AI-推理一体化"><a href="#实时摄入与-AI-推理一体化" class="headerlink" title="实时摄入与 AI 推理一体化"></a>实时摄入与 AI 推理一体化</h3><p>SingleStore Pipelines 原生对接 Kafka、S3 实现流式摄入。2025 年 6 月推出 Aura——GPU 感知的 serverless（无服务器）计算服务嵌入数据平面，支持模型托管、Cloud Functions、Python UDF。</p>
+<p>这使 AI 推理与数据查询在同一平面完成，避免跨网络 GPU 往返。</p>
+<h2 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h2><p>SingleStore 是 shared-nothing（无共享）分布式数据库，集群由 aggregator 节点（查询协调）与 leaf 节点（数据分片 + 计算）组成。</p>
+<p>关键架构特征：</p>
+<ul>
+<li><strong>三层存储</strong>：内存行存（热数据 + 点查）→ 本地 SSD 列存（温数据 + 分析）→ 对象存储（冷数据 + 无限扩展）</li>
+<li><strong>存算分离</strong>：云服务将元数据、调度、计算、存储解耦，支持工作负载隔离</li>
+<li><strong>MySQL 协议兼容</strong>：应用侧可沿用 MySQL 驱动，降低迁移成本</li>
+<li><strong>LLVM 代码生成</strong>：查询编译为本机码，启用函数内联、循环展开、向量化优化</li>
+<li><strong>encoded execution</strong>：延迟物化，只解码命中列，部分操作直接在压缩数据上执行</li>
+</ul>
+<p>📌 与现有架构的根本差异：SingleStore 是”一个引擎跑所有负载”，现有架构是”多个引擎各跑一类负载”。前者优势是无需 SQL 方言翻译、数据无需复制；后者优势是每个引擎在专长场景性能极致、可独立演进。</p>
+<h2 id="Universal-Storage-统一存储"><a href="#Universal-Storage-统一存储" class="headerlink" title="Universal Storage 统一存储"></a>Universal Storage 统一存储</h2><h3 id="列存为体、行存为缓存"><a href="#列存为体、行存为缓存" class="headerlink" title="列存为体、行存为缓存"></a>列存为体、行存为缓存</h3><p>列存数据按 segment 组织（每个 segment 存一行子集、按列分别压缩）。segment 元数据持久化在内存行存表内，可在内存中做 segment 消除（跳过不相关的数据块）。</p>
+<p>最近写入先入内存行存，后台周期性将行存转为列存 segment，维持对数级有序结构。</p>
+<h3 id="五大事务能力"><a href="#五大事务能力" class="headerlink" title="五大事务能力"></a>五大事务能力</h3><p>当前 Universal Storage 在列存上提供：</p>
+<ul>
+<li>hash 索引（可选唯一约束）</li>
+<li>细粒度行列读取</li>
+<li>行级锁</li>
+<li>选择性过滤 JOIN</li>
+<li>UPSERT（更新或插入）</li>
+</ul>
+<p>列存为默认表类型，压缩比可达 10:1 至 100:1。</p>
+<p>💡 与 StarRocks 对比：StarRocks 是纯列存 MPP 分析引擎，不承载事务。SingleStore 将事务与分析压到一个引擎内，去除了双系统间的数据同步与方言翻译。但代价是：纯分析场景未必胜过专用 OLAP，且生态规模低于 StarRocks。</p>
+<h2 id="原生向量与混合搜索-1"><a href="#原生向量与混合搜索-1" class="headerlink" title="原生向量与混合搜索"></a>原生向量与混合搜索</h2><h3 id="VECTOR-类型与多索引"><a href="#VECTOR-类型与多索引" class="headerlink" title="VECTOR 类型与多索引"></a>VECTOR 类型与多索引</h3><p>SingleStore 提供原生 VECTOR 数据类型，同一列可创建多个不同类型索引以适配不同场景。新插入向量立即可查，无异步索引构建延迟。</p>
+<p>索引类型包括 HNSW（高召回、高维度）、IVF（低构建时间）、IVF_PQFS（低内存、快构建）；距离函数支持点积、欧几里得距离、余弦相似度，基于 Intel SIMD 指令加速。</p>
+<h3 id="Top-算子下推"><a href="#Top-算子下推" class="headerlink" title="Top() 算子下推"></a>Top() 算子下推</h3><p>VLDB 2024 论文引入 Top() 物理算子，将 top-k 向量搜索下推到表扫描，使向量搜索作为 filter 接入 SQL 执行流水线。</p>
+<p>设计要点：</p>
+<ul>
+<li>每个 segment 独立索引，merger 构建跨 segment 大索引</li>
+<li>根据用户需求自动选择索引算法与参数</li>
+<li>向量索引与表存储一致，支持 ACID 事务</li>
+</ul>
+<h3 id="混合搜索单-SQL-多路检索"><a href="#混合搜索单-SQL-多路检索" class="headerlink" title="混合搜索单 SQL 多路检索"></a>混合搜索单 SQL 多路检索</h3><p>一条 SQL 内同时执行向量相似、BM25 全文匹配、JSON 提取、SQL 聚合与 JOIN，并可加权融合得分：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> title,</span><br><span class="line">       DOT_PRODUCT(embedding, <span class="string">'[...]'</span>) <span class="keyword">AS</span> v_score,</span><br><span class="line">       <span class="keyword">MATCH</span>(<span class="keyword">TABLE</span> <span class="keyword">content</span>) AGAINST(<span class="string">'body:database'</span>) <span class="keyword">AS</span> ft_score,</span><br><span class="line">       (DOT_PRODUCT(embedding, <span class="string">'...'</span>) * <span class="number">0.7</span> +</span><br><span class="line">        <span class="keyword">MATCH</span>(<span class="keyword">TABLE</span> <span class="keyword">content</span>) AGAINST(<span class="string">'...'</span>) * <span class="number">0.3</span>) <span class="keyword">AS</span> combined_score</span><br><span class="line"><span class="keyword">FROM</span> documents</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">category</span> = <span class="string">'Technical'</span></span><br><span class="line">  <span class="keyword">AND</span> combined_score &gt; <span class="number">0.5</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> combined_score <span class="keyword">DESC</span> <span class="keyword">LIMIT</span> <span class="number">10</span>;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>💡 在 45466 条电影记录、768 维向量的基准中，SingleStore 查询约 70ms，ClickHouse 冷缓存 2+ 秒。并发场景下 SingleStore 延迟方差更小，使用一半 vCPU。</p>
+<h3 id="Aura-GPU-感知服务"><a href="#Aura-GPU-感知服务" class="headerlink" title="Aura GPU 感知服务"></a>Aura GPU 感知服务</h3><p>Aura 覆盖五项能力：模型托管（LLM/embedding 推理端点）、Cloud Functions（Lambda 式函数）、Python UDF（SQL 内调用）。生态集成 OpenAI、Hugging Face、LangChain 等。</p>
+<h3 id="MongoDB-兼容-API"><a href="#MongoDB-兼容-API" class="headerlink" title="MongoDB 兼容 API"></a>MongoDB 兼容 API</h3><p>SingleStore Kai 提供 MongoDB 协议兼容 API，MongoDB 应用无需改代码即可切换，并获 100 倍分析加速。</p>
+<p>📌 与 StarRocks 向量能力对比：StarRocks 3.0+ 已具备原生向量类型、HNSW 索引、距离函数，并在阿里 EMR 上落地了”全文 + 标量 + 向量”三路融合检索，recall 较单路提升 30%、成本降 60%。两者能力已趋同，无需为向量能力引入 SingleStore。</p>
+<h2 id="与现有架构对比"><a href="#与现有架构对比" class="headerlink" title="与现有架构对比"></a>与现有架构对比</h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>SingleStore</th>
+<th>现有架构</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>引擎数</td>
+<td>单一 HTAP 引擎</td>
+<td>多引擎分离</td>
+</tr>
+<tr>
+<td>事务能力</td>
+<td>ACID（行存+列存统一）</td>
+<td>GaussDB 承担</td>
+</tr>
+<tr>
+<td>分析能力</td>
+<td>列存向量化 + 编码执行</td>
+<td>StarRocks 向量化 + CBO</td>
+</tr>
+<tr>
+<td>向量搜索</td>
+<td>原生多索引</td>
+<td>StarRocks 3.0+ HNSW</td>
+</tr>
+<tr>
+<td>混合搜索</td>
+<td>单 SQL 多路检索</td>
+<td>StarRocks 三路融合</td>
+</tr>
+<tr>
+<td>AI 推理</td>
+<td>Aura GPU serverless</td>
+<td>外部模型服务</td>
+</tr>
+<tr>
+<td>联邦下推</td>
+<td>弱（数据需入库）</td>
+<td>支持（实时下推多库）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>📌 核心结论：</p>
+<p>✅ 可借鉴：Universal Storage 三层架构与”行存为缓存”思路对 StarRocks 冷热分层有参考价值；Aura 的”计算在数据平面内”理念对 AI 推理架构有启发。</p>
+<p>✅ 不可借鉴：SingleStore 的单引擎路径要求放弃现有多引擎生态与运维投入，迁移成本高。现有架构已分摊负载，强行统一可能在专长场景性能回退。</p>
+<p>✅ 根本差异：SingleStore 聚焦”数据已入库”后的统一处理；现有架构的核心差异化在于”数据分布在多库、实时下推”的联邦能力——这是 SingleStore 不擅长的领域。</p>
+<h2 id="电信案例详情"><a href="#电信案例详情" class="headerlink" title="电信案例详情"></a>电信案例详情</h2><p>全球 Top 10 电信运营商替换 Oracle Exadata 的关键数据：</p>
+<ul>
+<li>500+ 节点支撑 1.4 亿用户、1.8 万个 KPI</li>
+<li>查询性能 6-100 倍提升、年节省 540 万美元</li>
+<li>使用场景包括网络健康实时查询和基站故障工单系统</li>
+<li>5G 带来数据量 20 倍增长，Oracle RAC 无法横向扩展是替换根本动机</li>
+<li>预期 5G 落地后 KPI 数量将增至 9 万</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li><p>SingleStore 的 HTAP 统一在电信场景已验证（6-100 倍加速、540 万美元年节省），但该案例是替换 Oracle Exadata 这一传统架构，并非从 StarRocks/Druid 现代多引擎架构迁移。启示在于”HTAP 统一可行”，而非”应立即迁移”。</p>
+</li>
+<li><p>SingleStore 的三层存储架构和”计算在数据平面内”理念值得借鉴——前者对 StarRocks 冷热分层有参考价值，后者对 AI 推理架构（当前跨网络 GPU 往返）有启发，可在数据平面内嵌轻量推理。</p>
+</li>
+<li><p>现有多引擎分离架构当前仍适合多场景需求，HTAP 统一是观察方向而非短期行动。核心判断依据是：现有架构的联邦下推能力是 SingleStore 等单引擎方案不擅长的领域。短期重点应在 StarRocks 上扩展向量与混合搜索能力。</p>
+</li>
+</ol>
 ]]></content>
       <categories>
         <category>学习</category>
@@ -1999,134 +2573,6 @@
 <li><p><strong>Neo4j 提供最完整的图查询能力，RelationalAI 的”SQL CALL 图算法”思路更轻量。</strong> BT Group 1000 倍性能提升与 Sopra Steria 1 周到秒级验证了电信场景工程可行性，但 Neo4j 需解决数据同步问题；RelationalAI 运维开销最低，其设计思路可借鉴。</p>
 </li>
 <li><p><strong>GraphRAG 代表了图查询与 AI 集成的前沿方向。</strong> AI 生成 SQL 的架构可扩展为”AI 生成 SQL + 图查询调用”的混合模式，图查询作为 AI Agent 的可调用工具。</p>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>学习</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SingleStore HTAP实时统一数据平台洞察——事务+分析一体化查询与AI实时推理</title>
-    <url>/2026/07/16/SingleStore-HTAP%E5%AE%9E%E6%97%B6%E7%BB%9F%E4%B8%80%E6%95%B0%E6%8D%AE%E5%B9%B3%E5%8F%B0%E6%B4%9E%E5%AF%9F/</url>
-    <content><![CDATA[<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>SingleStore 用一个引擎同时跑事务、分析和向量搜索，在电信场景验证了 6-100 倍查询加速——但它的价值在于”统一可行”的思路借鉴，而非立即迁移。</p>
-<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>现有架构采用 GaussDB（事务）+ StarRocks（分析）+ Druid（实时 OLAP）多引擎分离方案。这种架构已暴露 SQL 方言转换的风险。</p>
-<p>SingleStore 以”一个引擎同时跑事务 + 分析 + 向量”为核心理念，是另一种架构路线。本文评估其适用边界与对架构演进的启示。</p>
-<p>电信场景已有可追溯案例：全球 Top 10 电信运营商以 SingleStore 替换 Oracle Exadata，500+ 节点支撑 1.4 亿用户、1.8 万个 KPI，查询性能 6-100 倍提升、年节省 540 万美元。</p>
-<h2 id="关键竞争力"><a href="#关键竞争力" class="headerlink" title="关键竞争力"></a>关键竞争力</h2><p>SingleStore 的竞争力来自三个方面。</p>
-<h3 id="HTAP-统一引擎"><a href="#HTAP-统一引擎" class="headerlink" title="HTAP 统一引擎"></a>HTAP 统一引擎</h3><p>HTAP（混合事务分析处理，一个数据库同时做交易和分析）。SingleStore 在单一表存储内同时支持列存扫描性能与行存点查性能，数据无需在不同布局间复制。</p>
-<p>其本质是”列存为体、行存为缓存”——内存行存作为写回缓存承载最近写入与点查，磁盘列存承载分析与历史数据。这与传统 HTAP”行存一份 + 列存一份”的双副本路径不同，是 SingleStore 的核心专利路线。</p>
-<h3 id="原生向量与混合搜索"><a href="#原生向量与混合搜索" class="headerlink" title="原生向量与混合搜索"></a>原生向量与混合搜索</h3><p>SingleStore 自 2017 年支持向量数据类型，提供 HNSW、IVF、IVF_PQFS 等多种索引，可在同一列上为不同查询场景创建不同索引。</p>
-<p>关键差异化在于”单次检索”——一条 SQL 内同时执行向量相似、BM25 全文匹配、JSON 提取、SQL 聚合与 JOIN，无需多系统拼接。</p>
-<p>性能上，HNSW 索引下达 Milvus QPS 的 81.8-94.7%，较 pgvector 快 1.7-2.6 倍；IVF_PQFS 较 pgvector 快 47-100 倍。</p>
-<h3 id="实时摄入与-AI-推理一体化"><a href="#实时摄入与-AI-推理一体化" class="headerlink" title="实时摄入与 AI 推理一体化"></a>实时摄入与 AI 推理一体化</h3><p>SingleStore Pipelines 原生对接 Kafka、S3 实现流式摄入。2025 年 6 月推出 Aura——GPU 感知的 serverless（无服务器）计算服务嵌入数据平面，支持模型托管、Cloud Functions、Python UDF。</p>
-<p>这使 AI 推理与数据查询在同一平面完成，避免跨网络 GPU 往返。</p>
-<h2 id="软件架构"><a href="#软件架构" class="headerlink" title="软件架构"></a>软件架构</h2><p>SingleStore 是 shared-nothing（无共享）分布式数据库，集群由 aggregator 节点（查询协调）与 leaf 节点（数据分片 + 计算）组成。</p>
-<p>关键架构特征：</p>
-<ul>
-<li><strong>三层存储</strong>：内存行存（热数据 + 点查）→ 本地 SSD 列存（温数据 + 分析）→ 对象存储（冷数据 + 无限扩展）</li>
-<li><strong>存算分离</strong>：云服务将元数据、调度、计算、存储解耦，支持工作负载隔离</li>
-<li><strong>MySQL 协议兼容</strong>：应用侧可沿用 MySQL 驱动，降低迁移成本</li>
-<li><strong>LLVM 代码生成</strong>：查询编译为本机码，启用函数内联、循环展开、向量化优化</li>
-<li><strong>encoded execution</strong>：延迟物化，只解码命中列，部分操作直接在压缩数据上执行</li>
-</ul>
-<p>📌 与现有架构的根本差异：SingleStore 是”一个引擎跑所有负载”，现有架构是”多个引擎各跑一类负载”。前者优势是无需 SQL 方言翻译、数据无需复制；后者优势是每个引擎在专长场景性能极致、可独立演进。</p>
-<h2 id="Universal-Storage-统一存储"><a href="#Universal-Storage-统一存储" class="headerlink" title="Universal Storage 统一存储"></a>Universal Storage 统一存储</h2><h3 id="列存为体、行存为缓存"><a href="#列存为体、行存为缓存" class="headerlink" title="列存为体、行存为缓存"></a>列存为体、行存为缓存</h3><p>列存数据按 segment 组织（每个 segment 存一行子集、按列分别压缩）。segment 元数据持久化在内存行存表内，可在内存中做 segment 消除（跳过不相关的数据块）。</p>
-<p>最近写入先入内存行存，后台周期性将行存转为列存 segment，维持对数级有序结构。</p>
-<h3 id="五大事务能力"><a href="#五大事务能力" class="headerlink" title="五大事务能力"></a>五大事务能力</h3><p>当前 Universal Storage 在列存上提供：</p>
-<ul>
-<li>hash 索引（可选唯一约束）</li>
-<li>细粒度行列读取</li>
-<li>行级锁</li>
-<li>选择性过滤 JOIN</li>
-<li>UPSERT（更新或插入）</li>
-</ul>
-<p>列存为默认表类型，压缩比可达 10:1 至 100:1。</p>
-<p>💡 与 StarRocks 对比：StarRocks 是纯列存 MPP 分析引擎，不承载事务。SingleStore 将事务与分析压到一个引擎内，去除了双系统间的数据同步与方言翻译。但代价是：纯分析场景未必胜过专用 OLAP，且生态规模低于 StarRocks。</p>
-<h2 id="原生向量与混合搜索-1"><a href="#原生向量与混合搜索-1" class="headerlink" title="原生向量与混合搜索"></a>原生向量与混合搜索</h2><h3 id="VECTOR-类型与多索引"><a href="#VECTOR-类型与多索引" class="headerlink" title="VECTOR 类型与多索引"></a>VECTOR 类型与多索引</h3><p>SingleStore 提供原生 VECTOR 数据类型，同一列可创建多个不同类型索引以适配不同场景。新插入向量立即可查，无异步索引构建延迟。</p>
-<p>索引类型包括 HNSW（高召回、高维度）、IVF（低构建时间）、IVF_PQFS（低内存、快构建）；距离函数支持点积、欧几里得距离、余弦相似度，基于 Intel SIMD 指令加速。</p>
-<h3 id="Top-算子下推"><a href="#Top-算子下推" class="headerlink" title="Top() 算子下推"></a>Top() 算子下推</h3><p>VLDB 2024 论文引入 Top() 物理算子，将 top-k 向量搜索下推到表扫描，使向量搜索作为 filter 接入 SQL 执行流水线。</p>
-<p>设计要点：</p>
-<ul>
-<li>每个 segment 独立索引，merger 构建跨 segment 大索引</li>
-<li>根据用户需求自动选择索引算法与参数</li>
-<li>向量索引与表存储一致，支持 ACID 事务</li>
-</ul>
-<h3 id="混合搜索单-SQL-多路检索"><a href="#混合搜索单-SQL-多路检索" class="headerlink" title="混合搜索单 SQL 多路检索"></a>混合搜索单 SQL 多路检索</h3><p>一条 SQL 内同时执行向量相似、BM25 全文匹配、JSON 提取、SQL 聚合与 JOIN，并可加权融合得分：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> title,</span><br><span class="line">       DOT_PRODUCT(embedding, <span class="string">'[...]'</span>) <span class="keyword">AS</span> v_score,</span><br><span class="line">       <span class="keyword">MATCH</span>(<span class="keyword">TABLE</span> <span class="keyword">content</span>) AGAINST(<span class="string">'body:database'</span>) <span class="keyword">AS</span> ft_score,</span><br><span class="line">       (DOT_PRODUCT(embedding, <span class="string">'...'</span>) * <span class="number">0.7</span> +</span><br><span class="line">        <span class="keyword">MATCH</span>(<span class="keyword">TABLE</span> <span class="keyword">content</span>) AGAINST(<span class="string">'...'</span>) * <span class="number">0.3</span>) <span class="keyword">AS</span> combined_score</span><br><span class="line"><span class="keyword">FROM</span> documents</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">category</span> = <span class="string">'Technical'</span></span><br><span class="line">  <span class="keyword">AND</span> combined_score &gt; <span class="number">0.5</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> combined_score <span class="keyword">DESC</span> <span class="keyword">LIMIT</span> <span class="number">10</span>;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<p>💡 在 45466 条电影记录、768 维向量的基准中，SingleStore 查询约 70ms，ClickHouse 冷缓存 2+ 秒。并发场景下 SingleStore 延迟方差更小，使用一半 vCPU。</p>
-<h3 id="Aura-GPU-感知服务"><a href="#Aura-GPU-感知服务" class="headerlink" title="Aura GPU 感知服务"></a>Aura GPU 感知服务</h3><p>Aura 覆盖五项能力：模型托管（LLM/embedding 推理端点）、Cloud Functions（Lambda 式函数）、Python UDF（SQL 内调用）。生态集成 OpenAI、Hugging Face、LangChain 等。</p>
-<h3 id="MongoDB-兼容-API"><a href="#MongoDB-兼容-API" class="headerlink" title="MongoDB 兼容 API"></a>MongoDB 兼容 API</h3><p>SingleStore Kai 提供 MongoDB 协议兼容 API，MongoDB 应用无需改代码即可切换，并获 100 倍分析加速。</p>
-<p>📌 与 StarRocks 向量能力对比：StarRocks 3.0+ 已具备原生向量类型、HNSW 索引、距离函数，并在阿里 EMR 上落地了”全文 + 标量 + 向量”三路融合检索，recall 较单路提升 30%、成本降 60%。两者能力已趋同，无需为向量能力引入 SingleStore。</p>
-<h2 id="与现有架构对比"><a href="#与现有架构对比" class="headerlink" title="与现有架构对比"></a>与现有架构对比</h2><div class="table-container">
-<table>
-<thead>
-<tr>
-<th>维度</th>
-<th>SingleStore</th>
-<th>现有架构</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>引擎数</td>
-<td>单一 HTAP 引擎</td>
-<td>多引擎分离</td>
-</tr>
-<tr>
-<td>事务能力</td>
-<td>ACID（行存+列存统一）</td>
-<td>GaussDB 承担</td>
-</tr>
-<tr>
-<td>分析能力</td>
-<td>列存向量化 + 编码执行</td>
-<td>StarRocks 向量化 + CBO</td>
-</tr>
-<tr>
-<td>向量搜索</td>
-<td>原生多索引</td>
-<td>StarRocks 3.0+ HNSW</td>
-</tr>
-<tr>
-<td>混合搜索</td>
-<td>单 SQL 多路检索</td>
-<td>StarRocks 三路融合</td>
-</tr>
-<tr>
-<td>AI 推理</td>
-<td>Aura GPU serverless</td>
-<td>外部模型服务</td>
-</tr>
-<tr>
-<td>联邦下推</td>
-<td>弱（数据需入库）</td>
-<td>支持（实时下推多库）</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>📌 核心结论：</p>
-<p>✅ 可借鉴：Universal Storage 三层架构与”行存为缓存”思路对 StarRocks 冷热分层有参考价值；Aura 的”计算在数据平面内”理念对 AI 推理架构有启发。</p>
-<p>✅ 不可借鉴：SingleStore 的单引擎路径要求放弃现有多引擎生态与运维投入，迁移成本高。现有架构已分摊负载，强行统一可能在专长场景性能回退。</p>
-<p>✅ 根本差异：SingleStore 聚焦”数据已入库”后的统一处理；现有架构的核心差异化在于”数据分布在多库、实时下推”的联邦能力——这是 SingleStore 不擅长的领域。</p>
-<h2 id="电信案例详情"><a href="#电信案例详情" class="headerlink" title="电信案例详情"></a>电信案例详情</h2><p>全球 Top 10 电信运营商替换 Oracle Exadata 的关键数据：</p>
-<ul>
-<li>500+ 节点支撑 1.4 亿用户、1.8 万个 KPI</li>
-<li>查询性能 6-100 倍提升、年节省 540 万美元</li>
-<li>使用场景包括网络健康实时查询和基站故障工单系统</li>
-<li>5G 带来数据量 20 倍增长，Oracle RAC 无法横向扩展是替换根本动机</li>
-<li>预期 5G 落地后 KPI 数量将增至 9 万</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
-<li><p>SingleStore 的 HTAP 统一在电信场景已验证（6-100 倍加速、540 万美元年节省），但该案例是替换 Oracle Exadata 这一传统架构，并非从 StarRocks/Druid 现代多引擎架构迁移。启示在于”HTAP 统一可行”，而非”应立即迁移”。</p>
-</li>
-<li><p>SingleStore 的三层存储架构和”计算在数据平面内”理念值得借鉴——前者对 StarRocks 冷热分层有参考价值，后者对 AI 推理架构（当前跨网络 GPU 往返）有启发，可在数据平面内嵌轻量推理。</p>
-</li>
-<li><p>现有多引擎分离架构当前仍适合多场景需求，HTAP 统一是观察方向而非短期行动。核心判断依据是：现有架构的联邦下推能力是 SingleStore 等单引擎方案不擅长的领域。短期重点应在 StarRocks 上扩展向量与混合搜索能力。</p>
 </li>
 </ol>
 ]]></content>
@@ -2733,6 +3179,61 @@
       </tags>
   </entry>
   <entry>
+    <title>孙杨抗检事件</title>
+    <url>/2020/03/23/%E5%AD%99%E6%9D%A8%E6%8A%97%E6%A3%80%E4%BA%8B%E4%BB%B6/</url>
+    <content><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>【2018 年】</p>
+<ul>
+<li>孙杨质疑兴奋剂检测程序不合规。</li>
+<li>电话咨询领导后，在世界反兴奋剂机构人员默许下，破坏已取样的血液。</li>
+<li>国际泳联裁决孙杨行为合法。</li>
+</ul>
+<p>【2019 年】</p>
+<ul>
+<li>世界反兴奋剂机构上诉至国际体育仲裁法庭。</li>
+<li>国际体育仲裁法庭裁决孙杨行为不合法，禁赛八年。</li>
+</ul>
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>【历史兴奋剂检测】</p>
+<ul>
+<li>6000 次检测无异常。</li>
+<li>事件两天前检测无异常。</li>
+</ul>
+<p>【孙杨黑历史】</p>
+<ul>
+<li>13 年多次无证驾驶被刑拘（个人品德问题）。</li>
+<li>14 年被检测兴奋剂阳性（孙杨团队业务问题，国际泳联错误禁止心脏病药品）。</li>
+<li>16 年里约奥运肘击巴西女运动员（个人品德问题）。</li>
+<li>18 年 8 月雅加达亚运会穿违规领奖服（个人品德问题）。</li>
+<li>18 年 9 月破坏血样（复杂事件，存在国际检测组织下套、保护血样不被掉包等可能性）。</li>
+</ul>
+<p>【社会背景】</p>
+<ul>
+<li>中美贸易战。</li>
+<li>18 年金融危机。</li>
+<li>中国威胁论。</li>
+<li>中国兴奋剂检测机构弄虚作假严重，不被国际信任。</li>
+<li>中国体育团队兴奋剂使用严重，不被国际信任。</li>
+<li>种族歧视：国际体育仲裁法庭和世界反兴奋剂机构对有色人种的检查次数明显偏多且更严格。</li>
+</ul>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><ul>
+<li>孙杨个人品德存在问题（与本事件无关）。</li>
+<li>孙杨在兴奋剂检测过程中的行为不合规。</li>
+</ul>
+<h1 id="引申"><a href="#引申" class="headerlink" title="引申"></a>引申</h1><ul>
+<li>国家间的敌对与歧视是普遍存在的。</li>
+<li>种族间的敌对与歧视是普遍存在的。</li>
+<li>中国较弱的法治意识与国外较强的法治意识存在矛盾。</li>
+<li>弱法治意识导致社会特权阶级无法被有效管控，无序的事务处理方式不被国际接纳。</li>
+<li>强法治意识导致社会特权阶级垄断法律武器，多数人的法律偏向被掩盖，形成阶级矛盾。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>生活</category>
+      </categories>
+      <tags>
+        <tag>社会</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>基于统一SQL的大模型友好查询洞察分享</title>
     <url>/2026/07/15/%E5%9F%BA%E4%BA%8E%E7%BB%9F%E4%B8%80SQL%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8F%8B%E5%A5%BD%E6%9F%A5%E8%AF%A2%E6%B4%9E%E5%AF%9F%E5%88%86%E4%BA%AB/</url>
     <content><![CDATA[<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>业界跨库 SQL 适配有三条成熟路线（联邦引擎、语义层、引擎统一），均不依赖事后 SQL 方言转换（将统一 SQL 中的函数改写为各库兼容的写法）。当前”统一 SQL + 方言转换”方案存在等价函数依赖的结构性风险，应向语义层直接生成各库 SQL 演进。</p>
@@ -2876,61 +3377,6 @@
       </categories>
       <tags>
         <tag>AI</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>孙杨抗检事件</title>
-    <url>/2020/03/23/%E5%AD%99%E6%9D%A8%E6%8A%97%E6%A3%80%E4%BA%8B%E4%BB%B6/</url>
-    <content><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>【2018 年】</p>
-<ul>
-<li>孙杨质疑兴奋剂检测程序不合规。</li>
-<li>电话咨询领导后，在世界反兴奋剂机构人员默许下，破坏已取样的血液。</li>
-<li>国际泳联裁决孙杨行为合法。</li>
-</ul>
-<p>【2019 年】</p>
-<ul>
-<li>世界反兴奋剂机构上诉至国际体育仲裁法庭。</li>
-<li>国际体育仲裁法庭裁决孙杨行为不合法，禁赛八年。</li>
-</ul>
-<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>【历史兴奋剂检测】</p>
-<ul>
-<li>6000 次检测无异常。</li>
-<li>事件两天前检测无异常。</li>
-</ul>
-<p>【孙杨黑历史】</p>
-<ul>
-<li>13 年多次无证驾驶被刑拘（个人品德问题）。</li>
-<li>14 年被检测兴奋剂阳性（孙杨团队业务问题，国际泳联错误禁止心脏病药品）。</li>
-<li>16 年里约奥运肘击巴西女运动员（个人品德问题）。</li>
-<li>18 年 8 月雅加达亚运会穿违规领奖服（个人品德问题）。</li>
-<li>18 年 9 月破坏血样（复杂事件，存在国际检测组织下套、保护血样不被掉包等可能性）。</li>
-</ul>
-<p>【社会背景】</p>
-<ul>
-<li>中美贸易战。</li>
-<li>18 年金融危机。</li>
-<li>中国威胁论。</li>
-<li>中国兴奋剂检测机构弄虚作假严重，不被国际信任。</li>
-<li>中国体育团队兴奋剂使用严重，不被国际信任。</li>
-<li>种族歧视：国际体育仲裁法庭和世界反兴奋剂机构对有色人种的检查次数明显偏多且更严格。</li>
-</ul>
-<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><ul>
-<li>孙杨个人品德存在问题（与本事件无关）。</li>
-<li>孙杨在兴奋剂检测过程中的行为不合规。</li>
-</ul>
-<h1 id="引申"><a href="#引申" class="headerlink" title="引申"></a>引申</h1><ul>
-<li>国家间的敌对与歧视是普遍存在的。</li>
-<li>种族间的敌对与歧视是普遍存在的。</li>
-<li>中国较弱的法治意识与国外较强的法治意识存在矛盾。</li>
-<li>弱法治意识导致社会特权阶级无法被有效管控，无序的事务处理方式不被国际接纳。</li>
-<li>强法治意识导致社会特权阶级垄断法律武器，多数人的法律偏向被掩盖，形成阶级矛盾。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>生活</category>
-      </categories>
-      <tags>
-        <tag>社会</tag>
       </tags>
   </entry>
   <entry>
