@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 4.2.1">
@@ -45,6 +45,9 @@
     lang   : 'zh-CN'
   };
 </script>
+
+
+<meta name="robots" content="noindex,nofollow">
 
 <script type="application/ld+json">
 {
@@ -112,11 +115,11 @@
   </style>
 </noscript>
 
-<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+  <div class="container use-motion">
     <div class="headband"></div>
 
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -310,18 +313,21 @@
 <ul>
 <li>等级 1：错误报告</li>
 </ul>
-<p>HTTP 200/520，接口失败时返回具体错误码。</p>
+<p>HTTP 200&#x2F;520，接口失败时返回具体错误码。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 不忽略已查异常</span><br><span class="line">2. 不捕获未查异常</span><br><span class="line">3. 转抛异常时不记录日志</span><br><span class="line">4. 最外层捕获所有异常</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>等级 2：状态恢复</li>
 </ul>
 <p>错误处理、资源释放。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. 向后恢复：撤销操作、恢复原数据</span><br><span class="line">2. 内存清理、资源释放</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>等级 3：行为恢复</li>
 </ul>
 <p>异常时执行备用逻辑。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 缺陷处理：诊断、隔离、重新配置、重新初始化</span><br><span class="line">2. 重试</span><br><span class="line">3. 向前恢复：使用备用数据再次处理、使用备用逻辑继续处理</span><br></pre></td></tr></table></figure>
+
 <h1 id="异常设计"><a href="#异常设计" class="headerlink" title="异常设计"></a>异常设计</h1><ul>
 <li>异常名称用异常内容表达，比如 NotFoundException。</li>
 <li>低级异常转抛成高级异常。</li>
@@ -337,6 +343,7 @@
 </li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. 批处理</span><br><span class="line">2. 定时任务</span><br></pre></td></tr></table></figure>
+
 <h1 id="异常处理的坏味道"><a href="#异常处理的坏味道" class="headerlink" title="异常处理的坏味道"></a>异常处理的坏味道</h1><ul>
 <li>返回码代替异常。</li>
 <li>忽略已查异常。</li>
@@ -500,12 +507,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">99k</span>
+    <span title="站点总字数">103k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:30</span>
+    <span title="站点阅读时长">1:34</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -536,7 +543,7 @@
 <script src="/js/schemes/muse.js"></script>
 
 
-<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<script src="/js/next-boot.js"></script>
 
 
 

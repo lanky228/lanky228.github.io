@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 4.2.1">
@@ -48,6 +48,7 @@
     lang   : 'zh-CN'
   };
 </script>
+
 
 <script type="application/ld+json">
 {
@@ -115,11 +116,11 @@
   </style>
 </noscript>
 
-<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+  <div class="container use-motion">
     <div class="headband"></div>
 
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -239,14 +240,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>4.9k</span>
+              <span>5k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>4 分钟</span>
+              <span>5 分钟</span>
             </span>
             <div class="post-description">AI生成代码的信任问题不是能不能看懂而是怎么证明它对了。差分测试、规格驱动、确定性护栏等方法论的ROI分析。</div>
 
@@ -263,12 +264,11 @@
 <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>AI 编程已不是实验性尝试。Google 75%+ 代码由 AI 起草，Microsoft 91% 工程师使用 Copilot，阿里云 34%+ 新代码由 AI 生成。但 DORA 2024 发现 39% 开发者对 AI 代码几乎没有信任，学术研究证实 62%+ AI 生成程序存在漏洞。</p>
 <p>信任缺口是真实的、被量化过的。解析器最危险的 bug 不是崩溃，是静默返回错误结果但不报错。如果没有验证兜底，这类 bug 会流入生产，修复成本随发现阶段指数级上升。</p>
 <h2 id="AI-编程的三个阶段"><a href="#AI-编程的三个阶段" class="headerlink" title="AI 编程的三个阶段"></a>AI 编程的三个阶段</h2><p>AI 编程工具能力分三个阶段演进，每个阶段催生不同的验证方法：</p>
-<p>📌 <strong>阶段一：AI 辅助（2021-2023）</strong>——Copilot 补全单行/函数，人写主体 AI 补片段。验证方法：人工 review 即可（代码量小，人能读完）。</p>
+<p>📌 <strong>阶段一：AI 辅助（2021-2023）</strong>——Copilot 补全单行&#x2F;函数，人写主体 AI 补片段。验证方法：人工 review 即可（代码量小，人能读完）。</p>
 <p>📌 <strong>阶段二：AI 协作（2024-2025）</strong>——Agent 生成完整功能，人定方向 AI 写实现。验证方法：规格驱动 + 分层验证（代码量大，需规格锁定行为）。</p>
 <p>📌 <strong>阶段三：AI 代理（2025-）</strong>——Agent 端到端自主完成，人定目标 AI 全链路。验证方法：对抗性验证 + 确定性护栏（代码不可读，需证据驱动信任）。</p>
 <p>💡 <strong>演进规律</strong>：AI 能力每升一级，人类可读的代码比例就降一档，验证方法必须从”读代码”转向”验行为”。传统研发掌控感来自”我写得出来所以我看得懂”；AI 研发里这个链路断了，掌控力来自”验证行为”。</p>
 <h2 id="业界验证方法论：四条路径"><a href="#业界验证方法论：四条路径" class="headerlink" title="业界验证方法论：四条路径"></a>业界验证方法论：四条路径</h2><p>业界已收敛出四条验证路径，各有适用边界：</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -278,11 +278,10 @@
 <th>不适合场景</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>差分测试</td>
 <td>同输入跑两个实现，对比输出</td>
-<td>有参考实现的迁移/重写</td>
+<td>有参考实现的迁移&#x2F;重写</td>
 <td>全新项目无参考</td>
 </tr>
 <tr>
@@ -291,10 +290,7 @@
 <td>复杂业务逻辑、安全关键</td>
 <td>简单 CRUD、快速原型</td>
 </tr>
-</tbody>
-</table>
-</div>
-<div class="table-container">
+</tbody></table>
 <table>
 <thead>
 <tr>
@@ -304,10 +300,9 @@
 <th>不适合场景</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>确定性护栏</td>
-<td>Rules/Hooks 约束 AI 行为边界</td>
+<td>Rules&#x2F;Hooks 约束 AI 行为边界</td>
 <td>编码标准、安全合规</td>
 <td>业务逻辑正确性</td>
 </tr>
@@ -317,14 +312,11 @@
 <td>安全关键、生产核心</td>
 <td>日常迭代、低风险改动</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>💡 <strong>为什么差分测试在有参考实现时 ROI 最高</strong>：它不需要读懂任何一个实现的代码，只需要对比输出。写测试用例的成本是 O(n)，但覆盖的行为空间是指数级的。相比之下，代码审查的 bug 发现率仅 30-60%。</p>
 <p>⚠️ <strong>为什么规格驱动不能跳过</strong>：如果规格本身也是 AI 写的，就变成 AI 自出题自改卷——验收标准都是 AI 给的，验收空转。Google 明确要求”optimizer 和 evaluator 解耦”——提修复方案的绝不评分。原因：自评自的 optimizer 学会的是刷指标，不是改好。</p>
 <h2 id="数据库厂商实践对比"><a href="#数据库厂商实践对比" class="headerlink" title="数据库厂商实践对比"></a>数据库厂商实践对比</h2><p>数据库厂商的 AI 编码公开度差异极大。Snowflake 是唯一公开了完整方法论（含验证）的厂商。</p>
 <h3 id="Snowflake：双侧差分验证"><a href="#Snowflake：双侧差分验证" class="headerlink" title="Snowflake：双侧差分验证"></a>Snowflake：双侧差分验证</h3><p>SnowConvert 在 AI 转换 SQL 时，生成的测试用例同时在原始代码和转换后代码上运行，对比结果。信任分四级：</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -333,8 +325,7 @@
 <th>可部署</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>转换成功</td>
 <td>能跑通</td>
 <td>否</td>
@@ -354,12 +345,9 @@
 <td>人工确认</td>
 <td><strong>是（唯一）</strong></td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>这个设计直接回答了”AI 转换的代码怎么信任”的问题：不信任 AI 的自评，只信任人类确认的行为等价。</p>
-<h3 id="CockroachDB：四种差分策略"><a href="#CockroachDB：四种差分策略" class="headerlink" title="CockroachDB：四种差分策略"></a>CockroachDB：四种差分策略</h3><div class="table-container">
-<table>
+<h3 id="CockroachDB：四种差分策略"><a href="#CockroachDB：四种差分策略" class="headerlink" title="CockroachDB：四种差分策略"></a>CockroachDB：四种差分策略</h3><table>
 <thead>
 <tr>
 <th>策略</th>
@@ -367,8 +355,7 @@
 <th>本质</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>TLP</td>
 <td>谓词分为 {p, NOT p, p IS NULL}，并集须等于原查询</td>
 <td>同查询不同拆法，结果须一致</td>
@@ -383,12 +370,9 @@
 <td>同输入序列跑不同内部配置，输出须相同</td>
 <td>同操作不同配置，结果须一致</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>四种策略的本质是同一个思路：<strong>同一个查询走不同路径，结果必须一致</strong>。这正是差分测试的精髓——不需要知道正确答案是什么，只需要证明不同路径给出相同答案。TLP 找到了 77 个逻辑 bug。</p>
-<h3 id="Oracle：对立政策"><a href="#Oracle：对立政策" class="headerlink" title="Oracle：对立政策"></a>Oracle：对立政策</h3><div class="table-container">
-<table>
+<h3 id="Oracle：对立政策"><a href="#Oracle：对立政策" class="headerlink" title="Oracle：对立政策"></a>Oracle：对立政策</h3><table>
 <thead>
 <tr>
 <th>维度</th>
@@ -396,8 +380,7 @@
 <th>GraalVM</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>立场</td>
 <td><strong>禁止</strong> AI 生成内容</td>
 <td><strong>允许</strong> AI 辅助贡献</td>
@@ -407,13 +390,10 @@
 <td>IP 不确定性（正在诉讼中）</td>
 <td>人类完全负责</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>同一公司、同一贡献者协议，得出相反结论。说明 AI 代码的法律风险尚未形成共识——IP 合规问题必须纳入 AI 编码决策，不能只看技术验证。</p>
 <p>💡 Snowflake 把”AI 代码怎么信任”变成工程问题（双侧差分 + 信任分级）；Oracle 把”AI 代码能不能用”变成法律问题（IP 归属）。两个维度都要回答。</p>
 <h2 id="云厂商实践：确定性护栏是共识"><a href="#云厂商实践：确定性护栏是共识" class="headerlink" title="云厂商实践：确定性护栏是共识"></a>云厂商实践：确定性护栏是共识</h2><p>七家云厂商在验证方法上有一个强共识：<strong>AI 生成 + 确定性验证</strong>，不依赖 LLM 自审。</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -422,8 +402,7 @@
 <th>确定性护栏形态</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>AWS</td>
 <td>4500 开发者年节省</td>
 <td><code>.amazonq/rules/</code> + SAST + 沙箱</td>
@@ -441,12 +420,9 @@
 <tr>
 <td>Alibaba</td>
 <td>34%+ 新代码</td>
-<td>多 agent + CI/CD</td>
+<td>多 agent + CI&#x2F;CD</td>
 </tr>
-</tbody>
-</table>
-</div>
-<div class="table-container">
+</tbody></table>
 <table>
 <thead>
 <tr>
@@ -455,8 +431,7 @@
 <th>确定性护栏形态</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>Tencent</td>
 <td>12000 工程师</td>
 <td>Rules + Spec + AI review 在人 review 前</td>
@@ -471,23 +446,20 @@
 <td>16000 开发者</td>
 <td>Lints→编译→测试 5 次循环</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <h3 id="三层检视分层"><a href="#三层检视分层" class="headerlink" title="三层检视分层"></a>三层检视分层</h3><p>“不自动合并”不等于”不检视代码”——检视的层次变了：</p>
 <ul>
-<li><strong>第 1 层 确定性工具（自动）</strong>：clippy / SAST / fuzz / 单元测试 / 编译。过滤机械性问题（语法、内存、崩溃）。</li>
-<li><strong>第 2 层 AI review（自动）</strong>：多维度审查，Low/Medium 自动修复。过滤中层次问题（反模式、规范违反）。</li>
+<li><strong>第 1 层 确定性工具（自动）</strong>：clippy &#x2F; SAST &#x2F; fuzz &#x2F; 单元测试 &#x2F; 编译。过滤机械性问题（语法、内存、崩溃）。</li>
+<li><strong>第 2 层 AI review（自动）</strong>：多维度审查，Low&#x2F;Medium 自动修复。过滤中层次问题（反模式、规范违反）。</li>
 <li><strong>第 3 层 人工 review（人）</strong>：聚焦场景覆盖够不够、测试结果对不对、业务逻辑正确不正确。最终人类拍板放行。</li>
 </ul>
 <p>💡 <strong>关键区别</strong>：传统 review 看”代码怎么写的”，AI 时代 review 看”行为对不对”。语法交给工具，行为人来判。</p>
 <p>Google reviewer 的三个聚焦点是 correctness（正确性）、maintainability（可维护性）、test coverage（测试覆盖），没有”语法正确性”——那是 linting 的活。Snowflake 的 Validate 阶段验证的是”27 个需求都验证过了吗”，不是逐行读代码。</p>
-<h3 id="Google-的-optimizer-evaluator-解耦原则"><a href="#Google-的-optimizer-evaluator-解耦原则" class="headerlink" title="Google 的 optimizer/evaluator 解耦原则"></a>Google 的 optimizer/evaluator 解耦原则</h3><p>提修复方案的模型绝不参与评分。如果同一个模型既写代码又评代码，它会学会刷自己的评分指标，而不是真正改好。这就像让学生自己改自己的卷子——分数会越来越高，但能力不会。</p>
+<h3 id="Google-的-optimizer-evaluator-解耦原则"><a href="#Google-的-optimizer-evaluator-解耦原则" class="headerlink" title="Google 的 optimizer&#x2F;evaluator 解耦原则"></a>Google 的 optimizer&#x2F;evaluator 解耦原则</h3><p>提修复方案的模型绝不参与评分。如果同一个模型既写代码又评代码，它会学会刷自己的评分指标，而不是真正改好。这就像让学生自己改自己的卷子——分数会越来越高，但能力不会。</p>
 <blockquote>
 <p>七家厂商的共识：AI 生成代码，确定性工具过滤机械问题，人类聚焦场景覆盖 + 测试结果 + 业务逻辑正确性，最终拍板放行。看行为，不看语法。</p>
 </blockquote>
-<h2 id="AI-代码安全性：学术研究说了什么"><a href="#AI-代码安全性：学术研究说了什么" class="headerlink" title="AI 代码安全性：学术研究说了什么"></a>AI 代码安全性：学术研究说了什么</h2><div class="table-container">
-<table>
+<h2 id="AI-代码安全性：学术研究说了什么"><a href="#AI-代码安全性：学术研究说了什么" class="headerlink" title="AI 代码安全性：学术研究说了什么"></a>AI 代码安全性：学术研究说了什么</h2><table>
 <thead>
 <tr>
 <th>研究</th>
@@ -495,8 +467,7 @@
 <th>核心发现</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>FormAI-v2</td>
 <td>331K 个 C 程序，9 个 LLM 生成，形式化验证</td>
 <td>62.07% 有漏洞；换模型不能解决</td>
@@ -511,13 +482,10 @@
 <td>人机协作测试生成（NeurIPS 2025）</td>
 <td>pass@k 指标导致细微故障未检测到；单元测试通过 ≠ 代码正确</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>💡 <strong>为什么 FormAI-v2 的 62% 不是危言耸听</strong>：它用了形式化验证——不是跑几个测试看有没有 crash，而是数学证明程序是否满足规约。62% 意味着不经验证直接部署，超过一半会带漏洞上线。</p>
 <p>⚠️ <strong>为什么”反馈循环无法一致消除问题”是坏消息</strong>：你让 AI 修了一个 bug，它会引入新 bug。这意味着”让 AI 自己修自己的 bug”不是收敛的——每轮修复都在拆东墙补西墙。唯一出路是确定性验证 + 人工 review。</p>
-<h2 id="推荐方案：场景到方法的映射"><a href="#推荐方案：场景到方法的映射" class="headerlink" title="推荐方案：场景到方法的映射"></a>推荐方案：场景到方法的映射</h2><div class="table-container">
-<table>
+<h2 id="推荐方案：场景到方法的映射"><a href="#推荐方案：场景到方法的映射" class="headerlink" title="推荐方案：场景到方法的映射"></a>推荐方案：场景到方法的映射</h2><table>
 <thead>
 <tr>
 <th>场景</th>
@@ -525,9 +493,8 @@
 <th>为什么</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td>有参考实现的迁移/重写</td>
+<tbody><tr>
+<td>有参考实现的迁移&#x2F;重写</td>
 <td><strong>差分测试</strong></td>
 <td>ROI 最高，不需要读懂代码</td>
 </tr>
@@ -537,7 +504,7 @@
 <td>规格锁定行为，对抗性找漏洞</td>
 </tr>
 <tr>
-<td>编码标准/安全合规</td>
+<td>编码标准&#x2F;安全合规</td>
 <td><strong>确定性护栏</strong></td>
 <td>不依赖模型理解，确定性执行</td>
 </tr>
@@ -556,13 +523,11 @@
 <td><strong>AI review 在人 review 前</strong></td>
 <td>过滤机械问题，人聚焦业务</td>
 </tr>
-</tbody>
-</table>
-</div>
-<p>选型决策：有参考实现 → 差分测试 + fuzzing + 影子流量；无参考实现 → 规格驱动 + 对抗性验证 + 确定性护栏，优化器/评估器必须解耦。</p>
+</tbody></table>
+<p>选型决策：有参考实现 → 差分测试 + fuzzing + 影子流量；无参考实现 → 规格驱动 + 对抗性验证 + 确定性护栏，优化器&#x2F;评估器必须解耦。</p>
 <h2 id="AI-编程实战经验"><a href="#AI-编程实战经验" class="headerlink" title="AI 编程实战经验"></a>AI 编程实战经验</h2><p>以下经验来自一个完整的移动应用 AI 编程项目，全部代码由 AI Agent 生成，人类负责架构设计、规格定义和验证。</p>
 <h3 id="经验一：阅读三方-SDK-文档不要盲目假设"><a href="#经验一：阅读三方-SDK-文档不要盲目假设" class="headerlink" title="经验一：阅读三方 SDK 文档不要盲目假设"></a>经验一：阅读三方 SDK 文档不要盲目假设</h3><p>📌 <strong>实战场景</strong>：AI Agent 集成 TTS 引擎时，假设 <code>onComplete</code> 回调意味着”音频播放完成”。实际测试发现 <code>onComplete</code> 在<strong>合成完成</strong>时触发（约 0.5s），而非播放完成（约 4s），且会触发两次。这个错误假设导致”声音与高亮文字不同步”问题反复修改 5 轮。</p>
-<p><strong>规律</strong>：AI Agent 会基于函数名”猜测”回调语义（<code>onComplete</code> = “完成了”），而非查阅文档确认。在时序敏感的场景（音频、动画、异步 IO）会静默失败。</p>
+<p><strong>规律</strong>：AI Agent 会基于函数名”猜测”回调语义（<code>onComplete</code> &#x3D; “完成了”），而非查阅文档确认。在时序敏感的场景（音频、动画、异步 IO）会静默失败。</p>
 <p><strong>防护</strong>：平台 API 的回调语义必须先文档化（触发时机、次数、用途），再写集成代码。如果官方文档不明确，通过设备日志实测确认。</p>
 <h3 id="经验二：错题本机制"><a href="#经验二：错题本机制" class="headerlink" title="经验二：错题本机制"></a>经验二：错题本机制</h3><p>📌 <strong>实战场景</strong>：TTS 引擎 <code>stop()</code> 后立即 <code>speak()</code> 会被静默忽略（引擎需约 200ms 恢复）。这个问题在 <code>setSpeed()</code>、<code>togglePlay()</code>、<code>next()</code>、<code>previous()</code> 四个调用方分别出现，每次只修一个，修一个漏一个。最终建立”错题本”，记录根因和防护规则，集中化处理。</p>
 <p><strong>规律</strong>：AI Agent 没有跨会话记忆，会在不同文件、不同模块中重复犯同一类错误。逐个修复不收敛——每修一个，其他地方还在裸调。</p>
@@ -751,12 +716,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">99k</span>
+    <span title="站点总字数">103k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:30</span>
+    <span title="站点阅读时长">1:34</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -787,7 +752,7 @@
 <script src="/js/schemes/muse.js"></script>
 
 
-<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<script src="/js/next-boot.js"></script>
 
 
 

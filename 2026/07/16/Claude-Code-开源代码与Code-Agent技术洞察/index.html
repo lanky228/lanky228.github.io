@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 4.2.1">
@@ -49,6 +49,7 @@
     lang   : 'zh-CN'
   };
 </script>
+
 
 <script type="application/ld+json">
 {
@@ -116,11 +117,11 @@
   </style>
 </noscript>
 
-<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+  <div class="container use-motion">
     <div class="headband"></div>
 
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -240,7 +241,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>6.8k</span>
+              <span>6.9k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -264,7 +265,7 @@
 <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>Code Agent 已从补全工具演进到自主编程代理，技术代际差异显著。</p>
 <ul>
 <li><strong>GitHub Copilot</strong>（2021）：开启 inline 补全，2025 年推出 agent mode 进入工具调用循环</li>
-<li><strong>Cursor</strong>：VS Code fork + 自研 Tab/Composer 模型 + 向量索引，IDE-native 闭源体验</li>
+<li><strong>Cursor</strong>：VS Code fork + 自研 Tab&#x2F;Composer 模型 + 向量索引，IDE-native 闭源体验</li>
 <li><strong>Claude Code</strong>（2025 开源）：TypeScript 实现，119K+ GitHub stars，终端原生 agentic loop</li>
 <li><strong>Devin</strong>：Cognition 推出，planner-executor 分层架构 + 沙箱 VM，定位”自主 AI 软件工程师”</li>
 <li><strong>OpenCode</strong>：多 Provider 开源 Code Agent，187K+ stars，支持 75+ LLM 提供商</li>
@@ -275,7 +276,6 @@
 <p>📌 <strong>第二代 chat + 工具调用</strong>：模型看到整个工作区，通过工具调用循环完成多文件任务（如 Claude Code、Aider）。</p>
 <p>📌 <strong>第三代自主编程代理</strong>：模型在沙箱环境内独立运行数小时，自主规划与验证（如 Devin、Codex Cloud）。</p>
 <p>按部署形态可分为四类：</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -285,8 +285,7 @@
 <th>开源</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>IDE-native</td>
 <td>Cursor、Copilot Agent</td>
 <td>编辑器进程内</td>
@@ -310,9 +309,7 @@
 <td>终端 + IDE 扩展</td>
 <td>MIT</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>SWE-bench Verified（500 个真实 GitHub issue 基准）2026 年 7 月榜单显示分数差异显著：Claude Mythos 5 达 95.5%，Claude Opus 4.7 + Claude Code 约 87.6%，GPT-5.6 约 82.2%，Devin 约 65-70%。</p>
 <p>💡 同一模型在不同框架下分数可摆动 15-20 个百分点，说明”框架即模型能力的一部分”已成为行业共识。</p>
 <h2 id="Claude-Code-开源架构分析"><a href="#Claude-Code-开源架构分析" class="headerlink" title="Claude Code 开源架构分析"></a>Claude Code 开源架构分析</h2><p>Claude Code 是 Anthropic 官方 CLI，TypeScript 实现，使用 Ink（React for terminal）渲染 UI。代码库约 1,900 个源文件、50+ 模块，是当前公开可分析的工业级 Code Agent 中最复杂的实现之一。</p>
@@ -328,10 +325,10 @@
 </ul>
 <p>最小 agent loop 骨架：</p>
 <figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span>* <span class="title">agentLoop</span>(<span class="params">params</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> state = initState(params)</span><br><span class="line">  <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> context = compressIfNeeded(state.messages)</span><br><span class="line">    <span class="keyword">const</span> response = <span class="keyword">await</span> callModel(context)</span><br><span class="line">    <span class="keyword">if</span> (response.error) &#123;</span><br><span class="line">      <span class="keyword">if</span> (canRecover(response.error, state)) &#123;</span><br><span class="line">        state = recoverState(state); <span class="keyword">continue</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> &#123; reason: <span class="string">'error'</span> &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!response.toolCalls.length) <span class="keyword">return</span> &#123; reason: <span class="string">'completed'</span> &#125;</span><br><span class="line">    <span class="keyword">const</span> results = <span class="keyword">await</span> executeTools(response.toolCalls)</span><br><span class="line">    state = &#123; ...state, messages: [...context, response.message, ...results] &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>Claude Code 的所有高级特性（压缩、子代理、错误恢复）都是对这一骨架某一步的扩展。</p>
 <p>💡 用生成器而非回调构建 loop，可获得背压、取消、类型化终止三项”免费”能力。</p>
 <h3 id="工具系统设计"><a href="#工具系统设计" class="headerlink" title="工具系统设计"></a>工具系统设计</h3><p>工具是 Claude Code 的核心抽象——“任何 agent 能做的事情都是工具”。系统内置 40+ 工具，核心 8 个覆盖 90% 日常场景：</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -340,8 +337,7 @@
 <th>关键行为</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>Bash</td>
 <td>执行 shell 命令</td>
 <td>通用适配器，最强大</td>
@@ -349,7 +345,7 @@
 <tr>
 <td>Read</td>
 <td>读文件内容</td>
-<td>最多 2000 行，支持图片/PDF</td>
+<td>最多 2000 行，支持图片&#x2F;PDF</td>
 </tr>
 <tr>
 <td>Edit</td>
@@ -358,13 +354,10 @@
 </tr>
 <tr>
 <td>Write</td>
-<td>创建/覆盖文件</td>
+<td>创建&#x2F;覆盖文件</td>
 <td>已存在文件必须先 Read</td>
 </tr>
-</tbody>
-</table>
-</div>
-<div class="table-container">
+</tbody></table>
 <table>
 <thead>
 <tr>
@@ -373,11 +366,10 @@
 <th>关键行为</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>Grep</td>
 <td>ripgrep 正则搜索</td>
-<td>替代了早期 RAG/embedding 方案</td>
+<td>替代了早期 RAG&#x2F;embedding 方案</td>
 </tr>
 <tr>
 <td>Glob</td>
@@ -387,36 +379,33 @@
 <tr>
 <td>Agent</td>
 <td>派生子代理</td>
-<td>隔离上下文，深度=1 限制</td>
+<td>隔离上下文，深度&#x3D;1 限制</td>
 </tr>
 <tr>
 <td>TodoWrite</td>
 <td>跟踪进度</td>
 <td>一次只能一个 in_progress</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>工具接口自描述——每个工具声明自己的并发安全性、权限要求、渲染行为，而非由中央编排器”知晓”每个工具。添加第 N+1 个工具无需修改现有代码。</p>
 <p>权限模型支持 5 种模式（default 提示审批、acceptEdits 自动批准编辑、plan 只读规划、dontAsk 不提示、bypassPermissions 绕过所有）。只读工具可并发，写状态工具串行。</p>
 <p>💡 Claude Code 早期曾用 embedding 做 RAG 语义代码搜索，后内部基准显示 ripgrep 路径更优且无索引同步开销，已切换为”Search, Don’t Index”哲学。</p>
 <h3 id="上下文管理与压缩策略"><a href="#上下文管理与压缩策略" class="headerlink" title="上下文管理与压缩策略"></a>上下文管理与压缩策略</h3><p>长会话上下文管理是 Code Agent 的核心工程难题。模型有效上下文窗口远小于标称值——超过约 128K token 后注意力开始衰减，85%+ 填充时质量显著退化。</p>
 <p>Claude Code 实现了当前公开方案中最复杂的三层压缩级联：</p>
 <p>📌 <strong>Layer 1 工具结果裁剪</strong>：在任何 LLM 调用前，旧工具结果被替换为紧凑占位符。零成本操作，通常回收 40-60% 已消耗上下文。</p>
-<p>📌 <strong>Layer 2 缓存前缀保留裁剪</strong>：从会话尾部裁剪但保留锚定 prompt cache 的前缀。保留前缀意味着下次请求仍享缓存价（$0.30/MTok vs 未缓存 $3.00/MTok）。</p>
-<p>📌 <strong>Layer 3 LLM 结构化摘要</strong>：约 83.5% 填充时，生成 9 段结构化摘要（主要请求/关键概念/文件和代码/错误和修复/问题解决/所有用户消息/待办任务/当前工作/下一步）。压缩后重读最近 5 个引用文件。</p>
+<p>📌 <strong>Layer 2 缓存前缀保留裁剪</strong>：从会话尾部裁剪但保留锚定 prompt cache 的前缀。保留前缀意味着下次请求仍享缓存价（$0.30&#x2F;MTok vs 未缓存 $3.00&#x2F;MTok）。</p>
+<p>📌 <strong>Layer 3 LLM 结构化摘要</strong>：约 83.5% 填充时，生成 9 段结构化摘要（主要请求&#x2F;关键概念&#x2F;文件和代码&#x2F;错误和修复&#x2F;问题解决&#x2F;所有用户消息&#x2F;待办任务&#x2F;当前工作&#x2F;下一步）。压缩后重读最近 5 个引用文件。</p>
 <p>📌 <strong>兜底</strong>：若压缩调用本身命中 prompt-too-long，确定性头丢弃移除最旧的 API-round 组。</p>
-<h3 id="MCP-协议与工具生态"><a href="#MCP-协议与工具生态" class="headerlink" title="MCP 协议与工具生态"></a>MCP 协议与工具生态</h3><p>MCP（Model Context Protocol，模型上下文协议）是 Anthropic 于 2024-11-25 开源的协议标准，为 LLM 应用与外部数据源/工具之间提供统一集成方式。MCP 借鉴了 LSP（语言服务器协议）的思路——LSP 标准化了编程语言在开发工具中的集成，MCP 标准化了上下文与工具在 AI 应用中的集成。</p>
+<h3 id="MCP-协议与工具生态"><a href="#MCP-协议与工具生态" class="headerlink" title="MCP 协议与工具生态"></a>MCP 协议与工具生态</h3><p>MCP（Model Context Protocol，模型上下文协议）是 Anthropic 于 2024-11-25 开源的协议标准，为 LLM 应用与外部数据源&#x2F;工具之间提供统一集成方式。MCP 借鉴了 LSP（语言服务器协议）的思路——LSP 标准化了编程语言在开发工具中的集成，MCP 标准化了上下文与工具在 AI 应用中的集成。</p>
 <p>核心架构：</p>
 <ul>
-<li><strong>JSON-RPC 2.0 消息格式</strong>，有状态连接，客户端/服务器能力协商</li>
+<li><strong>JSON-RPC 2.0 消息格式</strong>，有状态连接，客户端&#x2F;服务器能力协商</li>
 <li><strong>Client-Host-Server 三方架构</strong>：Host 可运行多个 Client，每个 Client 连接一个 Server</li>
 <li><strong>三种服务器原语</strong>：Tools（可执行函数）、Resources（上下文数据）、Prompts（模板化交互）</li>
 <li><strong>三种客户端原语</strong>：Sampling（请求 LLM 采样）、Elicitation（请求用户输入）、Logging</li>
 </ul>
 <p>MCP 已获 Claude、ChatGPT、VS Code、Cursor、Codex CLI、OpenCode 等广泛采纳，”build once, integrate everywhere”成为现实。</p>
-<h2 id="主流-Code-Agent-技术对比"><a href="#主流-Code-Agent-技术对比" class="headerlink" title="主流 Code Agent 技术对比"></a>主流 Code Agent 技术对比</h2><div class="table-container">
-<table>
+<h2 id="主流-Code-Agent-技术对比"><a href="#主流-Code-Agent-技术对比" class="headerlink" title="主流 Code Agent 技术对比"></a>主流 Code Agent 技术对比</h2><table>
 <thead>
 <tr>
 <th>维度</th>
@@ -426,8 +415,7 @@
 <th>Aider</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>架构</td>
 <td>单 loop AsyncGenerator</td>
 <td>三层 loop</td>
@@ -448,10 +436,7 @@
 <td>闭源</td>
 <td>Apache 2.0</td>
 </tr>
-</tbody>
-</table>
-</div>
-<div class="table-container">
+</tbody></table>
 <table>
 <thead>
 <tr>
@@ -462,8 +447,7 @@
 <th>Aider</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>上下文窗口</td>
 <td>200K</td>
 <td>1M</td>
@@ -491,10 +475,7 @@
 <td>编辑器层</td>
 <td>无</td>
 </tr>
-</tbody>
-</table>
-</div>
-<div class="table-container">
+</tbody></table>
 <table>
 <thead>
 <tr>
@@ -503,8 +484,7 @@
 <th>OpenCode</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>架构</td>
 <td>planner-executor 分层</td>
 <td>单 loop + 双 agent</td>
@@ -519,9 +499,7 @@
 <td>闭源</td>
 <td>MIT</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>对比要点：</p>
 <ul>
 <li><strong>架构哲学差异</strong>：Claude Code 坚持”极简单 loop + 富工具”，Devin 选择”分层 planner-executor”支撑长任务，Cursor 走”多 Agent 并行 + 自研模型”路线</li>
@@ -541,14 +519,13 @@
 <h3 id="Context-Compaction-与记忆管理"><a href="#Context-Compaction-与记忆管理" class="headerlink" title="Context Compaction 与记忆管理"></a>Context Compaction 与记忆管理</h3><p>业界已收敛出三种互补机制：</p>
 <p>📌 <strong>Compaction（压缩）</strong>：全转录 LLM 摘要，有损但覆盖所有上下文增长。Claude Code 在 83.5% 填充时触发 9 段摘要；Devin 用专门微调的小模型做压缩。</p>
 <p>📌 <strong>Tool-result clearing（裁剪）</strong>：子转录机械裁剪，零推理成本。JetBrains Research 显示可降 52% 成本并提升 2.6% 解决率。</p>
-<p>📌 <strong>External memory（外部记忆）</strong>：agent 主动写入持久化外部存储，跨会话存活。Claude Code 三层 memory（项目 CLAUDE.md / 用户级 / 团队级）；Devin 四层。</p>
+<p>📌 <strong>External memory（外部记忆）</strong>：agent 主动写入持久化外部存储，跨会话存活。Claude Code 三层 memory（项目 CLAUDE.md &#x2F; 用户级 &#x2F; 团队级）；Devin 四层。</p>
 <p>关键工程经验：</p>
 <p>⚠️ <strong>预退化阈值而非硬限制</strong>：在有效窗口 70% 触发压缩，而非等上下文耗尽——一旦退化开始，生成的摘要本身也会受损。</p>
 <p>⚠️ <strong>缓存对齐</strong>：每次压缩破坏 prompt cache 前缀，触发全价重读。压缩策略必须与 cache TTL 对齐。</p>
 <h3 id="Planning-Execution-Verification-循环"><a href="#Planning-Execution-Verification-循环" class="headerlink" title="Planning-Execution-Verification 循环"></a>Planning-Execution-Verification 循环</h3><p>Code Agent 的可靠性来自”规划-执行-验证”闭环。Claude Code 的循环隐式内嵌于单 loop；Devin 将其显式分层为独立 LLM 调用。</p>
 <p>💡 <strong>关键洞察：确定性信号优于 critic agent。</strong> Devin 团队公开主张 critic agent（第二个 LLM 审查第一个 LLM 的工作）成本高且很少捕获关键失败，因为关键失败通常涉及外部状态（测试失败、文件不存在、HTTP 500），世界本身已可靠告知。恢复循环依赖测试运行、lint 检查、shell 退出码——而非 LLM critic。</p>
-<h2 id="对研发工具链的启示"><a href="#对研发工具链的启示" class="headerlink" title="对研发工具链的启示"></a>对研发工具链的启示</h2><div class="table-container">
-<table>
+<h2 id="对研发工具链的启示"><a href="#对研发工具链的启示" class="headerlink" title="对研发工具链的启示"></a>对研发工具链的启示</h2><table>
 <thead>
 <tr>
 <th>维度</th>
@@ -557,8 +534,7 @@
 <th>启示</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>编码模式</td>
 <td>传统 IDE + 手工</td>
 <td>agentic loop 自主多步</td>
@@ -594,13 +570,11 @@
 <td>规划-执行-验证循环</td>
 <td>借鉴确定性信号原则</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <h3 id="分层建议"><a href="#分层建议" class="headerlink" title="分层建议"></a>分层建议</h3><p><strong>验证项（短期 0-3 个月）：</strong></p>
 <ul>
 <li>在 1-2 个试点团队引入 Claude Code 或 Aider，测量跨语言迁移与测试用例生成的效率提升</li>
-<li>评估 MCP 协议对内部工具（日志查询、配置管理、CI/CD 触发）的封装可行性——一个 MCP server 可被多个 Code Agent 同时使用</li>
+<li>评估 MCP 协议对内部工具（日志查询、配置管理、CI&#x2F;CD 触发）的封装可行性——一个 MCP server 可被多个 Code Agent 同时使用</li>
 <li>在查询服务原型中实验”agentic loop + tool use”模式：将 NL2SQL 拆为”规划-执行-验证”循环</li>
 </ul>
 <p><strong>观察项（中期 3-12 个月）：</strong></p>
@@ -620,7 +594,7 @@
 <p><strong>Q: Code Agent怎么管理上下文？</strong></p>
 <p>A: 三层压缩级联：Layer 1 工具结果裁剪回收 40-60% 上下文；Layer 2 缓存前缀保留裁剪保留 prompt cache 前缀享缓存价；Layer 3 在 83.5% 填充时生成 9 段结构化摘要。关键是预退化阈值而非硬限制，70% 触发压缩。</p>
 <p><strong>Q: MCP协议是什么？</strong></p>
-<p>A: Model Context Protocol，Anthropic 于 2024-11-25 开源的协议标准，借鉴 LSP 思路。为 LLM 应用与外部数据源/工具提供统一集成方式，采用 JSON-RPC 2.0 和 Client-Host-Server 三方架构，已被 Claude、ChatGPT、VS Code、Cursor 等广泛采纳。</p>
+<p>A: Model Context Protocol，Anthropic 于 2024-11-25 开源的协议标准，借鉴 LSP 思路。为 LLM 应用与外部数据源&#x2F;工具提供统一集成方式，采用 JSON-RPC 2.0 和 Client-Host-Server 三方架构，已被 Claude、ChatGPT、VS Code、Cursor 等广泛采纳。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
 <li><p><strong>Claude Code 的架构模式值得借鉴。</strong> 用异步生成器构建 loop 可获得背压、取消、类型化终止三项能力；自描述工具接口使工具增加线性可扩展；三层上下文压缩级联解决了长会话核心难题。内部研发工具宜按 MCP 协议封装，使任意 Code Agent 均可调用。</p>
 </li>
@@ -630,7 +604,7 @@
 </li>
 </ol>
 
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Claude Code的架构核心是什么？","acceptedAnswer":{"@type":"Answer","text":"A: 一个名为 query() 的异步生成器函数，约 1730 行，承载全部 agentic loop 逻辑。用 AsyncGenerator 而非回调，天然获得背压、清洁取消、类型化终止三项能力。10 种终止状态、7 个恢复位点形成可测试的状态机。"}},{"@type":"Question","name":"Code Agent怎么管理上下文？","acceptedAnswer":{"@type":"Answer","text":"A: 三层压缩级联：Layer 1 工具结果裁剪回收 40-60% 上下文；Layer 2 缓存前缀保留裁剪保留 prompt cache 前缀享缓存价；Layer 3 在 83.5% 填充时生成 9 段结构化摘要。关键是预退化阈值而非硬限制，70% 触发压缩。"}},{"@type":"Question","name":"MCP协议是什么？","acceptedAnswer":{"@type":"Answer","text":"A: Model Context Protocol，Anthropic 于 2024-11-25 开源的协议标准，借鉴 LSP 思路。为 LLM 应用与外部数据源/工具提供统一集成方式，采用 JSON-RPC 2.0 和 Client-Host-Server 三方架构，已被 Claude、ChatGPT、VS Code、Cursor 等广泛采纳。\n总结"}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Claude Code的架构核心是什么？","acceptedAnswer":{"@type":"Answer","text":"A: 一个名为 query() 的异步生成器函数，约 1730 行，承载全部 agentic loop 逻辑。用 AsyncGenerator 而非回调，天然获得背压、清洁取消、类型化终止三项能力。10 种终止状态、7 个恢复位点形成可测试的状态机。"}},{"@type":"Question","name":"Code Agent怎么管理上下文？","acceptedAnswer":{"@type":"Answer","text":"A: 三层压缩级联：Layer 1 工具结果裁剪回收 40-60% 上下文；Layer 2 缓存前缀保留裁剪保留 prompt cache 前缀享缓存价；Layer 3 在 83.5% 填充时生成 9 段结构化摘要。关键是预退化阈值而非硬限制，70% 触发压缩。"}},{"@type":"Question","name":"MCP协议是什么？","acceptedAnswer":{"@type":"Answer","text":"A: Model Context Protocol，Anthropic 于 2024-11-25 开源的协议标准，借鉴 LSP 思路。为 LLM 应用与外部数据源&#x2F;工具提供统一集成方式，采用 JSON-RPC 2.0 和 Client-Host-Server 三方架构，已被 Claude、ChatGPT、VS Code、Cursor 等广泛采纳。\n总结"}}]}</script>
 
     </div>
 
@@ -787,12 +761,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">99k</span>
+    <span title="站点总字数">103k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:30</span>
+    <span title="站点阅读时长">1:34</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -823,7 +797,7 @@
 <script src="/js/schemes/muse.js"></script>
 
 
-<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<script src="/js/next-boot.js"></script>
 
 
 

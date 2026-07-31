@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 4.2.1">
@@ -49,6 +49,7 @@
     lang   : 'zh-CN'
   };
 </script>
+
 
 <script type="application/ld+json">
 {
@@ -116,11 +117,11 @@
   </style>
 </noscript>
 
-<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+  <div class="container use-motion">
     <div class="headband"></div>
 
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -240,7 +241,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.7k</span>
+              <span>3.8k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -263,7 +264,7 @@
         <h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>Apache Pinot 靠 Star-Tree 预聚合索引和原生实时 Upsert，在用户面分析场景比 Druid 低 2-7 倍延迟——但现有 Druid 选型在时序场景仍合理，Pinot 的技术思路值得借鉴而非照搬。</p>
 <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>现有架构用 Apache Druid 作为实时 OLAP（联机分析处理）引擎处理时序数据，包括网络性能指标、告警等。</p>
 <p>Pinot 是 Druid 在实时 OLAP 领域最直接的竞品，两者均源自 LinkedIn 的实时分析需求。需逐维度对比两者差异，验证 Druid 选型是否合理，并识别 Pinot 技术亮点是否值得引入。</p>
-<p>Pinot 不是边缘项目。LinkedIn 内部 50+ 用户面产品、25 万+ QPS、7 亿+成员依赖其服务。Cisco Webex 用其处理 100+ TB/天遥测数据，替代 Elasticsearch，缩减 500+ 节点，查询性能提升 5-150 倍。Uber 有 100+ 实时分析用例、500+ 生产表。</p>
+<p>Pinot 不是边缘项目。LinkedIn 内部 50+ 用户面产品、25 万+ QPS、7 亿+成员依赖其服务。Cisco Webex 用其处理 100+ TB&#x2F;天遥测数据，替代 Elasticsearch，缩减 500+ 节点，查询性能提升 5-150 倍。Uber 有 100+ 实时分析用例、500+ 生产表。</p>
 <h2 id="关键竞争力"><a href="#关键竞争力" class="headerlink" title="关键竞争力"></a>关键竞争力</h2><p>Pinot 的竞争力来自三个方面。</p>
 <h3 id="Star-Tree-预聚合索引"><a href="#Star-Tree-预聚合索引" class="headerlink" title="Star-Tree 预聚合索引"></a>Star-Tree 预聚合索引</h3><p>Star-Tree 是 Pinot 最具辨识度的能力——一种在多列上构建的预聚合索引，能显著降低聚合查询的扫描行数，为给定用例提供查询延迟的硬上界。</p>
 <p>与 Druid 在摄入时做 Roll-up（破坏性聚合，丢失原始行）不同，Star-Tree 是索引层的预聚合，原始行保留，可在同一表上同时支持聚合加速和明细行下钻。</p>
@@ -294,13 +295,12 @@
 <h2 id="多阶段查询引擎"><a href="#多阶段查询引擎" class="headerlink" title="多阶段查询引擎"></a>多阶段查询引擎</h2><h3 id="分阶段执行"><a href="#分阶段执行" class="headerlink" title="分阶段执行"></a>分阶段执行</h3><p>多阶段查询引擎（MSE，又称 v2 引擎）是 Pinot 1.0 起的生产就绪查询引擎，将单阶段 scatter-gather 拆解为多阶段树形执行计划，支持分布式 JOIN、窗口函数、子查询等复杂 SQL。</p>
 <p>三种 stage 类型：</p>
 <ul>
-<li><strong>Leaf Stage</strong>：从表读数据，无 JOIN/聚合</li>
+<li><strong>Leaf Stage</strong>：从表读数据，无 JOIN&#x2F;聚合</li>
 <li><strong>Intermediate Stage</strong>：执行 JOIN、Window 等关系算子</li>
 <li><strong>Root Stage</strong>：在 Broker 上执行，输出最终结果</li>
 </ul>
 <p>⚠️ 关键约束：中间结果内存执行，无 spill-to-disk（溢写到磁盘），超大中间结果会 OOM（内存溢出）。因此 MSE 不适合重型 ETL JOIN，更适合实时 OLAP 范围内的关联查询。</p>
-<h3 id="与单阶段引擎的能力边界"><a href="#与单阶段引擎的能力边界" class="headerlink" title="与单阶段引擎的能力边界"></a>与单阶段引擎的能力边界</h3><div class="table-container">
-<table>
+<h3 id="与单阶段引擎的能力边界"><a href="#与单阶段引擎的能力边界" class="headerlink" title="与单阶段引擎的能力边界"></a>与单阶段引擎的能力边界</h3><table>
 <thead>
 <tr>
 <th>查询需求</th>
@@ -308,14 +308,13 @@
 <th>原因</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td>基础过滤/聚合</td>
+<tbody><tr>
+<td>基础过滤&#x2F;聚合</td>
 <td>单阶段</td>
 <td>开销最低</td>
 </tr>
 <tr>
-<td>JOIN/窗口/子查询</td>
+<td>JOIN&#x2F;窗口&#x2F;子查询</td>
 <td>多阶段</td>
 <td>必须用 MSE</td>
 </tr>
@@ -324,25 +323,22 @@
 <td>外部引擎</td>
 <td>MSE 内存执行会 OOM</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <h3 id="版本演进"><a href="#版本演进" class="headerlink" title="版本演进"></a>版本演进</h3><ul>
 <li><strong>1.2（2024-08）</strong>：逻辑数据库（namespace 隔离）、Upsert 一致性模式、JSON 索引增强</li>
-<li><strong>1.3（2025-02）</strong>：实验性时序查询引擎（PromQL/M3QL）、游标分页、多流摄入</li>
+<li><strong>1.3（2025-02）</strong>：实验性时序查询引擎（PromQL&#x2F;M3QL）、游标分页、多流摄入</li>
 <li><strong>1.4（2025-09）</strong>：时序引擎转 Beta、Pauseless Consumption（最小化摄入延迟）、逻辑表</li>
 </ul>
 <p>💡 Uber 生产实践是 MSE 走向生产的关键信号：Uber 此前用内部 Presto fork 代理 Pinot 查询，日服务 5 亿+ 次。2024-2025 年重构为直接对接 Pinot Broker，逐步退役代理层。Uber 还基于 Pinot 1.3 时序引擎支撑 10 万+ 自动告警。</p>
 <h2 id="网络流量分析案例"><a href="#网络流量分析案例" class="headerlink" title="网络流量分析案例"></a>网络流量分析案例</h2><p>LinkedIn InFlow 基于 Pinot 构建网络流量观测平台：</p>
 <ul>
-<li>从 100+ 台骨干/边缘网络设备接收 5 万/秒 sFlow/IPFIX 流量</li>
+<li>从 100+ 台骨干&#x2F;边缘网络设备接收 5 万&#x2F;秒 sFlow&#x2F;IPFIX 流量</li>
 <li>50+ 维度、30 天保留、数十 TB 存储</li>
 <li>数据新鲜度从 15 分钟提升至 1 分钟</li>
 <li>查询延迟降低 95%（部分昂贵查询从 Presto 6 分钟降至 Pinot 4 秒）</li>
 </ul>
-<p>该案例与网络性能指标/告警场景高度同构，是评估 Pinot 适用性的最直接参照。</p>
-<h2 id="与-Druid-对比"><a href="#与-Druid-对比" class="headerlink" title="与 Druid 对比"></a>与 Druid 对比</h2><div class="table-container">
-<table>
+<p>该案例与网络性能指标&#x2F;告警场景高度同构，是评估 Pinot 适用性的最直接参照。</p>
+<h2 id="与-Druid-对比"><a href="#与-Druid-对比" class="headerlink" title="与 Druid 对比"></a>与 Druid 对比</h2><table>
 <thead>
 <tr>
 <th>维度</th>
@@ -350,8 +346,7 @@
 <th>Apache Druid</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>预聚合</td>
 <td>Star-Tree 索引层，原始行保留</td>
 <td>摄入时 Roll-up，原始行丢失</td>
@@ -368,12 +363,12 @@
 </tr>
 <tr>
 <td>索引多样性</td>
-<td>Star-Tree/倒排/范围/JSON/文本/向量</td>
-<td>Bitmap/字典/倒排/范围</td>
+<td>Star-Tree&#x2F;倒排&#x2F;范围&#x2F;JSON&#x2F;文本&#x2F;向量</td>
+<td>Bitmap&#x2F;字典&#x2F;倒排&#x2F;范围</td>
 </tr>
 <tr>
 <td>时序查询语言</td>
-<td>1.3 起支持 PromQL/M3QL</td>
+<td>1.3 起支持 PromQL&#x2F;M3QL</td>
 <td>原生 SQL，无时序 DSL</td>
 </tr>
 <tr>
@@ -381,9 +376,7 @@
 <td>tag-based 分组</td>
 <td>lane-based 路由</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>📌 关键差异点：</p>
 <ul>
 <li><strong>预聚合机制</strong>：Pinot 索引层预聚合保留原始行 vs Druid 摄入时破坏性聚合</li>
@@ -391,11 +384,11 @@
 <li><strong>摄入新鲜度</strong>：Pinot 秒级 vs Druid 30-90s 段 handoff</li>
 </ul>
 <p><strong>核心结论：</strong></p>
-<p>✅ Druid 选型合理性成立：核心场景是时序数据的实时摄入与查询，Druid 的 Roll-up、HLL/Theta sketch（近似去重算法）、段模型在”高聚合度时序 + 长保留 + 高并发扫描”场景结构性占优。当前无”逐行 Upsert”或”明细下钻 + 聚合加速同表”的强需求。</p>
+<p>✅ Druid 选型合理性成立：核心场景是时序数据的实时摄入与查询，Druid 的 Roll-up、HLL&#x2F;Theta sketch（近似去重算法）、段模型在”高聚合度时序 + 长保留 + 高并发扫描”场景结构性占优。当前无”逐行 Upsert”或”明细下钻 + 聚合加速同表”的强需求。</p>
 <p>✅ Pinot 的 Star-Tree 思路值得借鉴，但不需要引入 Pinot。可在 Druid 侧验证等效预聚合路径（Roll-up 与原始行双写、或物化视图）。</p>
 <p>✅ Druid 段 handoff 30-90s 延迟是结构性约束。若”最近 10 秒”类查询不满足，应优先调优 Druid 实时段参数，而非迁移到 Pinot。</p>
 <h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><p><strong>Q: Pinot和Druid怎么选？</strong></p>
-<p>A: 核心场景是时序数据实时摄入与查询时，Druid 的 Roll-up、HLL/Theta sketch、段模型在”高聚合度时序 + 长保留 + 高并发扫描”结构性占优。有强逐行 Upsert 或”明细下钻 + 聚合加速同表”需求时选 Pinot。</p>
+<p>A: 核心场景是时序数据实时摄入与查询时，Druid 的 Roll-up、HLL&#x2F;Theta sketch、段模型在”高聚合度时序 + 长保留 + 高并发扫描”结构性占优。有强逐行 Upsert 或”明细下钻 + 聚合加速同表”需求时选 Pinot。</p>
 <p><strong>Q: Star-Tree索引是什么？</strong></p>
 <p>A: Pinot 在多列上构建的预聚合索引。与 Druid 摄入时破坏性 Roll-up 不同，Star-Tree 是索引层预聚合，原始行保留，同一张表可同时支持聚合加速和明细下钻，查询命中预聚合文档时提供硬延迟上界。</p>
 <p><strong>Q: Pinot支持Upsert吗？</strong></p>
@@ -405,11 +398,11 @@
 </li>
 <li><p>Pinot 的 Star-Tree 索引思路（索引层预聚合 + 原始行保留）值得借鉴，但可在 Druid 侧验证等效机制，无需迁移引擎。前提是确认是否真实存在”既要聚合加速又要明细下钻同表”的场景。</p>
 </li>
-<li><p>Pinot 1.3 引入的时序查询引擎（PromQL/M3QL）是值得长期观察的能力，Uber已用于 10 万+ 告警。但当前仍处 Beta，不宜作为短期切换依据。</p>
+<li><p>Pinot 1.3 引入的时序查询引擎（PromQL&#x2F;M3QL）是值得长期观察的能力，Uber已用于 10 万+ 告警。但当前仍处 Beta，不宜作为短期切换依据。</p>
 </li>
 </ol>
 
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Pinot和Druid怎么选？","acceptedAnswer":{"@type":"Answer","text":"A: 核心场景是时序数据实时摄入与查询时，Druid 的 Roll-up、HLL/Theta sketch、段模型在”高聚合度时序 + 长保留 + 高并发扫描”结构性占优。有强逐行 Upsert 或”明细下钻 + 聚合加速同表”需求时选 Pinot。"}},{"@type":"Question","name":"Star-Tree索引是什么？","acceptedAnswer":{"@type":"Answer","text":"A: Pinot 在多列上构建的预聚合索引。与 Druid 摄入时破坏性 Roll-up 不同，Star-Tree 是索引层预聚合，原始行保留，同一张表可同时支持聚合加速和明细下钻，查询命中预聚合文档时提供硬延迟上界。"}},{"@type":"Question","name":"Pinot支持Upsert吗？","acceptedAnswer":{"@type":"Answer","text":"A: 自 0.6.x 起支持基于主键的原生实时 Upsert，是首个支持实时 Upsert 的实时 OLAP 系统。Druid 缺乏真正的逐行 Upsert，仅支持段级覆盖，对迟到事件、数据修正、去重场景 Pinot 有结构性优势。\n总结\nPinot 与 Druid 是实时 OLAP 领域两条均被规模化验证的路径，差异化集中在预聚合机制、实时 Upsert 和摄入新鲜度。现有核心场景属于 Druid 结构性占优区间，选型合理。\n\nPinot 的 Star-Tree 索引思路（索引层预聚合 + 原始行保留）值得借鉴，但可在 Druid 侧验证等效机制，无需迁移引擎。前提是确认是否真实存在”既要聚合加速又要明细下钻同表”的场景。\n\nPinot 1.3 引入的时序查询引擎（PromQL/M3QL）是值得长期观察的能力，Uber已用于 10 万+ 告警。但当前仍处 Beta，不宜作为短期切换依据。"}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Pinot和Druid怎么选？","acceptedAnswer":{"@type":"Answer","text":"A: 核心场景是时序数据实时摄入与查询时，Druid 的 Roll-up、HLL&#x2F;Theta sketch、段模型在”高聚合度时序 + 长保留 + 高并发扫描”结构性占优。有强逐行 Upsert 或”明细下钻 + 聚合加速同表”需求时选 Pinot。"}},{"@type":"Question","name":"Star-Tree索引是什么？","acceptedAnswer":{"@type":"Answer","text":"A: Pinot 在多列上构建的预聚合索引。与 Druid 摄入时破坏性 Roll-up 不同，Star-Tree 是索引层预聚合，原始行保留，同一张表可同时支持聚合加速和明细下钻，查询命中预聚合文档时提供硬延迟上界。"}},{"@type":"Question","name":"Pinot支持Upsert吗？","acceptedAnswer":{"@type":"Answer","text":"A: 自 0.6.x 起支持基于主键的原生实时 Upsert，是首个支持实时 Upsert 的实时 OLAP 系统。Druid 缺乏真正的逐行 Upsert，仅支持段级覆盖，对迟到事件、数据修正、去重场景 Pinot 有结构性优势。\n总结\nPinot 与 Druid 是实时 OLAP 领域两条均被规模化验证的路径，差异化集中在预聚合机制、实时 Upsert 和摄入新鲜度。现有核心场景属于 Druid 结构性占优区间，选型合理。\n\nPinot 的 Star-Tree 索引思路（索引层预聚合 + 原始行保留）值得借鉴，但可在 Druid 侧验证等效机制，无需迁移引擎。前提是确认是否真实存在”既要聚合加速又要明细下钻同表”的场景。\n\nPinot 1.3 引入的时序查询引擎（PromQL&#x2F;M3QL）是值得长期观察的能力，Uber已用于 10 万+ 告警。但当前仍处 Beta，不宜作为短期切换依据。"}}]}</script>
 
     </div>
 
@@ -566,12 +559,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">99k</span>
+    <span title="站点总字数">103k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:30</span>
+    <span title="站点阅读时长">1:34</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -602,7 +595,7 @@
 <script src="/js/schemes/muse.js"></script>
 
 
-<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<script src="/js/next-boot.js"></script>
 
 
 

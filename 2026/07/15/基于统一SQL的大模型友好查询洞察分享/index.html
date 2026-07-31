@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 4.2.1">
@@ -49,6 +49,7 @@
     lang   : 'zh-CN'
   };
 </script>
+
 
 <script type="application/ld+json">
 {
@@ -116,11 +117,11 @@
   </style>
 </noscript>
 
-<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+  <div class="container use-motion">
     <div class="headband"></div>
 
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -240,14 +241,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.7k</span>
+              <span>2.8k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
+              <span>3 分钟</span>
             </span>
             <div class="post-description">跨库SQL适配有三条路线（联邦引擎、语义层、引擎统一），统一SQL加方言转换方案存在等价函数结构性风险。</div>
 
@@ -261,7 +262,7 @@
 
       
         <h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>业界跨库 SQL 适配有三条成熟路线（联邦引擎、语义层、引擎统一），均不依赖事后 SQL 方言转换（将统一 SQL 中的函数改写为各库兼容的写法）。当前”统一 SQL + 方言转换”方案存在等价函数依赖的结构性风险，应向语义层直接生成各库 SQL 演进。</p>
-<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>五个子域需要跨 StarRocks/Druid/GaussDB 三个异构数据库查询，AI 需生成一种 SQL 让三库都能执行。当前采用”统一 SQL + 函数映射改写”方案，但已发现 Druid 报文场景查询报错的结构性风险。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>五个子域需要跨 StarRocks&#x2F;Druid&#x2F;GaussDB 三个异构数据库查询，AI 需生成一种 SQL 让三库都能执行。当前采用”统一 SQL + 函数映射改写”方案，但已发现 Druid 报文场景查询报错的结构性风险。</p>
 <p>业界已有多条成熟路线解决跨库 SQL 适配问题，需对比研判正确的演进方向。</p>
 <h2 id="当前方案的问题"><a href="#当前方案的问题" class="headerlink" title="当前方案的问题"></a>当前方案的问题</h2><p>当前流程：AI 生成统一 SQL（不感知目标库）→ 引擎层函数映射改写 → 分别下推各库执行。</p>
 <p>具体表现：</p>
@@ -275,7 +276,7 @@
 <h2 id="业界三种路线"><a href="#业界三种路线" class="headerlink" title="业界三种路线"></a>业界三种路线</h2><h3 id="路线一：联邦引擎——不推-SQL-给源库，引擎层统一执行"><a href="#路线一：联邦引擎——不推-SQL-给源库，引擎层统一执行" class="headerlink" title="路线一：联邦引擎——不推 SQL 给源库，引擎层统一执行"></a>路线一：联邦引擎——不推 SQL 给源库，引擎层统一执行</h3><p>Trino 收到查询请求后，不推 SQL 给源库，而是从各库拉取数据到引擎层统一执行 JOIN 和聚合。</p>
 <p>✅ <strong>为什么不依赖等价函数</strong>：SQL 不在源库执行，源库只需吐数据，不需要支持任何特定函数。</p>
 <p>代表实践：Meta 日处理数千万查询、EB 级数据；Uber 15 集群、5000+ 节点、日 50 万查询。</p>
-<h3 id="路线二：语义层——定义指标一次，感知目标库自动生成该库-SQL"><a href="#路线二：语义层——定义指标一次，感知目标库自动生成该库-SQL" class="headerlink" title="路线二：语义层——定义指标一次，感知目标库自动生成该库 SQL"></a>路线二：语义层——定义指标一次，感知目标库自动生成该库 SQL</h3><p>语义层定义指标（如”CPU 均值 = 按月聚合 CPU 平均值”），感知目标库，自动生成各库专属 SQL。</p>
+<h3 id="路线二：语义层——定义指标一次，感知目标库自动生成该库-SQL"><a href="#路线二：语义层——定义指标一次，感知目标库自动生成该库-SQL" class="headerlink" title="路线二：语义层——定义指标一次，感知目标库自动生成该库 SQL"></a>路线二：语义层——定义指标一次，感知目标库自动生成该库 SQL</h3><p>语义层定义指标（如”CPU 均值 &#x3D; 按月聚合 CPU 平均值”），感知目标库，自动生成各库专属 SQL。</p>
 <ul>
 <li>StarRocks → 生成 StarRocks 方言 SQL → 执行 ✅</li>
 <li>Druid → 生成 Druid 方言 SQL → 执行 ✅</li>
@@ -283,13 +284,12 @@
 </ul>
 <p>✅ <strong>为什么不依赖等价函数</strong>：每个库拿到的是语义层为自己专属生成的 SQL，不存在”映射不了”的问题。</p>
 <p>💡 <strong>对大模型的友好性</strong>：AI 只需声明查什么指标，语义层自动完成方言适配，降低 AI 生成 SQL 的复杂度。</p>
-<p>代表实践：dbt MetricFlow、Cube、Netflix DataJunction、Airbnb Minerva。局限：指标建模投入较大（中型企业数百指标 = 数月建模）。</p>
+<p>代表实践：dbt MetricFlow、Cube、Netflix DataJunction、Airbnb Minerva。局限：指标建模投入较大（中型企业数百指标 &#x3D; 数月建模）。</p>
 <h3 id="路线三：引擎统一——只用一个引擎，消除方言问题"><a href="#路线三：引擎统一——只用一个引擎，消除方言问题" class="headerlink" title="路线三：引擎统一——只用一个引擎，消除方言问题"></a>路线三：引擎统一——只用一个引擎，消除方言问题</h3><p>AI 生成 SQL（只有一种方言，因为只有一个引擎），统一引擎直接执行。</p>
 <p>✅ <strong>为什么不依赖等价函数</strong>：只有一个引擎、一种方言，不存在跨库映射。</p>
 <p>代表实践：Meta 四引擎收敛到 Presto 一个，节省”数十万行代码和数千台机器”；滴滴四引擎收敛到 StarRocks，查询性能 4 倍、总成本降 80%。</p>
 <p>⚠️ <strong>关键教训</strong>：性能问题可以用工程手段解决，但运维复杂度无法用工程手段消除——这是引擎统一的根本驱动力。局限：迁移成本高，已有异构库存量场景不适用。</p>
-<h2 id="三种路线对比与选型"><a href="#三种路线对比与选型" class="headerlink" title="三种路线对比与选型"></a>三种路线对比与选型</h2><div class="table-container">
-<table>
+<h2 id="三种路线对比与选型"><a href="#三种路线对比与选型" class="headerlink" title="三种路线对比与选型"></a>三种路线对比与选型</h2><table>
 <thead>
 <tr>
 <th>维度</th>
@@ -299,8 +299,7 @@
 <th>当前方案</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>适配方式</td>
 <td>不推 SQL 给源库</td>
 <td>感知目标库直接生成</td>
@@ -328,10 +327,7 @@
 <td>不支持</td>
 <td>不支持</td>
 </tr>
-</tbody>
-</table>
-</div>
-<div class="table-container">
+</tbody></table>
 <table>
 <thead>
 <tr>
@@ -342,8 +338,7 @@
 <th>当前方案</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>SQL 下推执行</td>
 <td>否（引擎层执行）</td>
 <td>是</td>
@@ -364,9 +359,7 @@
 <td>❌ 三库功能互补</td>
 <td>当前方案（有风险）</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <h3 id="选型结论"><a href="#选型结论" class="headerlink" title="选型结论"></a>选型结论</h3><p>业界三种路线均不依赖事后 SQL 方言转换，选型如下：</p>
 <ol>
 <li><p><strong>联邦引擎——不采用。</strong> 查询以单数据源为主，不需要跨源 JOIN；联邦引擎拉取数据到引擎层执行，单数据源查询比原生更慢；需额外部署维护 Trino 集群。</p>
@@ -384,7 +377,7 @@
 </ul>
 <p>⚠️ <strong>风险① 等价函数依赖</strong>：每个库必须存在等价函数可替换，否则改写失败。已发生：Druid 报文无等价函数下推，场景失败。</p>
 <p>⚠️ <strong>风险② 语义差异不可处理</strong>：仅能做函数名替换，无法处理 NULL 聚合行为、时区默认值、时间精度等语义级差异。</p>
-<p>⚠️ <strong>风险③ 维护负担</strong>：每个新函数 × 每个新数据库需新增一条映射规则。5 个函数 × 4 个数据源 = 20 条规则，新增 1 个库则变为 25 条。</p>
+<p>⚠️ <strong>风险③ 维护负担</strong>：每个新函数 × 每个新数据库需新增一条映射规则。5 个函数 × 4 个数据源 &#x3D; 20 条规则，新增 1 个库则变为 25 条。</p>
 <p>当前 SQL 方言转换器基于 Apache Calcite 框架实现函数映射。Druid 报文场景失败已验证风险①，风险②③尚未触发但属结构性隐患。</p>
 <h2 id="目标架构"><a href="#目标架构" class="headerlink" title="目标架构"></a>目标架构</h2><p>核心变化：从”不感知底层 → 统一生成 → 事后改写”到”感知底层 → 直接生成该库 SQL”。</p>
 <p>感知机制：语义层维护表-数据库路由映射（metrics 表 → StarRocks、alerts 表 → Druid）。AI 声明指标后，语义层追溯到底层表，查路由映射确定目标库，直接生成该库 SQL。</p>
@@ -556,12 +549,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">99k</span>
+    <span title="站点总字数">103k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:30</span>
+    <span title="站点阅读时长">1:34</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -592,7 +585,7 @@
 <script src="/js/schemes/muse.js"></script>
 
 
-<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<script src="/js/next-boot.js"></script>
 
 
 

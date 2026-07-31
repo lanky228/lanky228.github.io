@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 4.2.1">
@@ -49,6 +49,7 @@
     lang   : 'zh-CN'
   };
 </script>
+
 
 <script type="application/ld+json">
 {
@@ -116,11 +117,11 @@
   </style>
 </noscript>
 
-<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+  <div class="container use-motion">
     <div class="headband"></div>
 
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -305,12 +306,12 @@
 </ul>
 <h3 id="混合搜索单-SQL-多路检索"><a href="#混合搜索单-SQL-多路检索" class="headerlink" title="混合搜索单 SQL 多路检索"></a>混合搜索单 SQL 多路检索</h3><p>一条 SQL 内同时执行向量相似、BM25 全文匹配、JSON 提取、SQL 聚合与 JOIN，并可加权融合得分：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> title,</span><br><span class="line">       DOT_PRODUCT(embedding, <span class="string">'[...]'</span>) <span class="keyword">AS</span> v_score,</span><br><span class="line">       <span class="keyword">MATCH</span>(<span class="keyword">TABLE</span> <span class="keyword">content</span>) AGAINST(<span class="string">'body:database'</span>) <span class="keyword">AS</span> ft_score,</span><br><span class="line">       (DOT_PRODUCT(embedding, <span class="string">'...'</span>) * <span class="number">0.7</span> +</span><br><span class="line">        <span class="keyword">MATCH</span>(<span class="keyword">TABLE</span> <span class="keyword">content</span>) AGAINST(<span class="string">'...'</span>) * <span class="number">0.3</span>) <span class="keyword">AS</span> combined_score</span><br><span class="line"><span class="keyword">FROM</span> documents</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">category</span> = <span class="string">'Technical'</span></span><br><span class="line">  <span class="keyword">AND</span> combined_score &gt; <span class="number">0.5</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> combined_score <span class="keyword">DESC</span> <span class="keyword">LIMIT</span> <span class="number">10</span>;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
 <p>💡 在 45466 条电影记录、768 维向量的基准中，SingleStore 查询约 70ms，ClickHouse 冷缓存 2+ 秒。并发场景下 SingleStore 延迟方差更小，使用一半 vCPU。</p>
-<h3 id="Aura-GPU-感知服务"><a href="#Aura-GPU-感知服务" class="headerlink" title="Aura GPU 感知服务"></a>Aura GPU 感知服务</h3><p>Aura 覆盖五项能力：模型托管（LLM/embedding 推理端点）、Cloud Functions（Lambda 式函数）、Python UDF（SQL 内调用）。生态集成 OpenAI、Hugging Face、LangChain 等。</p>
+<h3 id="Aura-GPU-感知服务"><a href="#Aura-GPU-感知服务" class="headerlink" title="Aura GPU 感知服务"></a>Aura GPU 感知服务</h3><p>Aura 覆盖五项能力：模型托管（LLM&#x2F;embedding 推理端点）、Cloud Functions（Lambda 式函数）、Python UDF（SQL 内调用）。生态集成 OpenAI、Hugging Face、LangChain 等。</p>
 <h3 id="MongoDB-兼容-API"><a href="#MongoDB-兼容-API" class="headerlink" title="MongoDB 兼容 API"></a>MongoDB 兼容 API</h3><p>SingleStore Kai 提供 MongoDB 协议兼容 API，MongoDB 应用无需改代码即可切换，并获 100 倍分析加速。</p>
 <p>📌 与 StarRocks 向量能力对比：StarRocks 3.0+ 已具备原生向量类型、HNSW 索引、距离函数，并在阿里 EMR 上落地了”全文 + 标量 + 向量”三路融合检索，recall 较单路提升 30%、成本降 60%。两者能力已趋同，无需为向量能力引入 SingleStore。</p>
-<h2 id="与现有架构对比"><a href="#与现有架构对比" class="headerlink" title="与现有架构对比"></a>与现有架构对比</h2><div class="table-container">
-<table>
+<h2 id="与现有架构对比"><a href="#与现有架构对比" class="headerlink" title="与现有架构对比"></a>与现有架构对比</h2><table>
 <thead>
 <tr>
 <th>维度</th>
@@ -318,8 +319,7 @@
 <th>现有架构</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>引擎数</td>
 <td>单一 HTAP 引擎</td>
 <td>多引擎分离</td>
@@ -354,9 +354,7 @@
 <td>弱（数据需入库）</td>
 <td>支持（实时下推多库）</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>📌 核心结论：</p>
 <p>✅ 可借鉴：Universal Storage 三层架构与”行存为缓存”思路对 StarRocks 冷热分层有参考价值；Aura 的”计算在数据平面内”理念对 AI 推理架构有启发。</p>
 <p>✅ 不可借鉴：SingleStore 的单引擎路径要求放弃现有多引擎生态与运维投入，迁移成本高。现有架构已分摊负载，强行统一可能在专长场景性能回退。</p>
@@ -376,7 +374,7 @@
 <p><strong>Q: 向量搜索和OLAP能合一吗?</strong></p>
 <p>A: 可以。SingleStore通过Top()算子下推，将top-k向量搜索作为filter接入SQL流水线。一条SQL内同时执行向量相似、BM25全文匹配、JSON提取、聚合与JOIN。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
-<li><p>SingleStore 的 HTAP 统一在电信场景已验证（6-100 倍加速、540 万美元年节省），但该案例是替换 Oracle Exadata 这一传统架构，并非从 StarRocks/Druid 现代多引擎架构迁移。启示在于”HTAP 统一可行”，而非”应立即迁移”。</p>
+<li><p>SingleStore 的 HTAP 统一在电信场景已验证（6-100 倍加速、540 万美元年节省），但该案例是替换 Oracle Exadata 这一传统架构，并非从 StarRocks&#x2F;Druid 现代多引擎架构迁移。启示在于”HTAP 统一可行”，而非”应立即迁移”。</p>
 </li>
 <li><p>SingleStore 的三层存储架构和”计算在数据平面内”理念值得借鉴——前者对 StarRocks 冷热分层有参考价值，后者对 AI 推理架构（当前跨网络 GPU 往返）有启发，可在数据平面内嵌轻量推理。</p>
 </li>
@@ -384,7 +382,7 @@
 </li>
 </ol>
 
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"HTAP是什么?","acceptedAnswer":{"@type":"Answer","text":"A: HTAP（混合事务分析处理）指一个数据库同时承载事务和分析负载。SingleStore在单一表存储内同时支持列存扫描性能与行存点查性能，数据无需在不同布局间复制。"}},{"@type":"Question","name":"SingleStore的统一引擎怎么工作?","acceptedAnswer":{"@type":"Answer","text":"A: 采用”列存为体、行存为缓存”的Universal Storage。内存行存承载最近写入与点查，磁盘列存承载分析与历史数据，三层存储实现冷热分层。"}},{"@type":"Question","name":"向量搜索和OLAP能合一吗?","acceptedAnswer":{"@type":"Answer","text":"A: 可以。SingleStore通过Top()算子下推，将top-k向量搜索作为filter接入SQL流水线。一条SQL内同时执行向量相似、BM25全文匹配、JSON提取、聚合与JOIN。\n总结\nSingleStore 的 HTAP 统一在电信场景已验证（6-100 倍加速、540 万美元年节省），但该案例是替换 Oracle Exadata 这一传统架构，并非从 StarRocks/Druid 现代多引擎架构迁移。启示在于”HTAP 统一可行”，而非”应立即迁移”。\n\nSingleStore 的三层存储架构和”计算在数据平面内”理念值得借鉴——前者对 StarRocks 冷热分层有参考价值，后者对 AI 推理架构（当前跨网络 GPU 往返）有启发，可在数据平面内嵌轻量推理。\n\n现有多引擎分离架构当前仍适合多场景需求，HTAP 统一是观察方向而非短期行动。核心判断依据是：现有架构的联邦下推能力是 SingleStore 等单引擎方案不擅长的领域。短期重点应在 StarRocks 上扩展向量与混合搜索能力。"}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"HTAP是什么?","acceptedAnswer":{"@type":"Answer","text":"A: HTAP（混合事务分析处理）指一个数据库同时承载事务和分析负载。SingleStore在单一表存储内同时支持列存扫描性能与行存点查性能，数据无需在不同布局间复制。"}},{"@type":"Question","name":"SingleStore的统一引擎怎么工作?","acceptedAnswer":{"@type":"Answer","text":"A: 采用”列存为体、行存为缓存”的Universal Storage。内存行存承载最近写入与点查，磁盘列存承载分析与历史数据，三层存储实现冷热分层。"}},{"@type":"Question","name":"向量搜索和OLAP能合一吗?","acceptedAnswer":{"@type":"Answer","text":"A: 可以。SingleStore通过Top()算子下推，将top-k向量搜索作为filter接入SQL流水线。一条SQL内同时执行向量相似、BM25全文匹配、JSON提取、聚合与JOIN。\n总结\nSingleStore 的 HTAP 统一在电信场景已验证（6-100 倍加速、540 万美元年节省），但该案例是替换 Oracle Exadata 这一传统架构，并非从 StarRocks&#x2F;Druid 现代多引擎架构迁移。启示在于”HTAP 统一可行”，而非”应立即迁移”。\n\nSingleStore 的三层存储架构和”计算在数据平面内”理念值得借鉴——前者对 StarRocks 冷热分层有参考价值，后者对 AI 推理架构（当前跨网络 GPU 往返）有启发，可在数据平面内嵌轻量推理。\n\n现有多引擎分离架构当前仍适合多场景需求，HTAP 统一是观察方向而非短期行动。核心判断依据是：现有架构的联邦下推能力是 SingleStore 等单引擎方案不擅长的领域。短期重点应在 StarRocks 上扩展向量与混合搜索能力。"}}]}</script>
 
     </div>
 
@@ -541,12 +539,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">99k</span>
+    <span title="站点总字数">103k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:30</span>
+    <span title="站点阅读时长">1:34</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -577,7 +575,7 @@
 <script src="/js/schemes/muse.js"></script>
 
 
-<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<script src="/js/next-boot.js"></script>
 
 
 

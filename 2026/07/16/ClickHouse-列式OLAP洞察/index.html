@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 4.2.1">
@@ -49,6 +49,7 @@
     lang   : 'zh-CN'
   };
 </script>
+
 
 <script type="application/ld+json">
 {
@@ -116,11 +117,11 @@
   </style>
 </noscript>
 
-<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+  <div class="container use-motion">
     <div class="headband"></div>
 
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -284,6 +285,7 @@
 <h2 id="MergeTree-存储引擎与稀疏索引"><a href="#MergeTree-存储引擎与稀疏索引" class="headerlink" title="MergeTree 存储引擎与稀疏索引"></a>MergeTree 存储引擎与稀疏索引</h2><h3 id="稀疏主索引"><a href="#稀疏主索引" class="headerlink" title="稀疏主索引"></a>稀疏主索引</h3><p>MergeTree 是核心存储引擎。数据按主键排序存储在不可变的”数据块”中。</p>
 <p>稀疏索引的核心机制：主键索引只记录每 8192 行的主键值，而非每行。索引常驻内存，消耗可忽略，支持单服务器万亿行数据。</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> telecom_kpi (</span><br><span class="line">    event_time DateTime,</span><br><span class="line">    ne_id UInt32,</span><br><span class="line">    kpi_value Float64</span><br><span class="line">) <span class="keyword">ENGINE</span> = MergeTree()</span><br><span class="line"><span class="keyword">PARTITION</span> <span class="keyword">BY</span> toYYYYMM(event_time)</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> (event_time, ne_id)</span><br><span class="line"><span class="keyword">SETTINGS</span> index_granularity = <span class="number">8192</span>;</span><br></pre></td></tr></table></figure>
+
 <p>⚠️ 适用边界：稀疏索引不适合高频点查。每次主键查询要读取整 8192 行数据块并解压。如果做精确 ID 查询，StarRocks 的主键表更合适；如果做时间范围扫描加聚合，ClickHouse 优势明显。</p>
 <h3 id="MergeTree-家族变体"><a href="#MergeTree-家族变体" class="headerlink" title="MergeTree 家族变体"></a>MergeTree 家族变体</h3><p>不同合并逻辑派生出多种引擎：</p>
 <ul>
@@ -309,6 +311,7 @@
 <p>⚠️ 仍有限制：需手动创建统计信息，outer join 和子查询覆盖有限。</p>
 <h3 id="物化视图增量聚合"><a href="#物化视图增量聚合" class="headerlink" title="物化视图增量聚合"></a>物化视图增量聚合</h3><p>核心模式是”插入触发器 + 状态聚合”：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 原始报文表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> packets_raw (...)</span><br><span class="line">  <span class="keyword">ENGINE</span> = MergeTree() <span class="keyword">ORDER</span> <span class="keyword">BY</span> (ts, ne_id);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 小时级聚合目标表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> packets_hourly (</span><br><span class="line">    <span class="keyword">hour</span> DateTime, ne_id UInt32,</span><br><span class="line">    bytes_sum AggregateFunction(<span class="keyword">sum</span>, UInt64)</span><br><span class="line">) <span class="keyword">ENGINE</span> = AggregatingMergeTree()</span><br><span class="line">  <span class="keyword">ORDER</span> <span class="keyword">BY</span> (<span class="keyword">hour</span>, ne_id);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
 <p>💡 关键工程经验：</p>
 <ul>
 <li>GROUP BY 列必须与目标表排序键对齐</li>
@@ -335,8 +338,7 @@
 </ul>
 <h3 id="多层缓存"><a href="#多层缓存" class="headerlink" title="多层缓存"></a>多层缓存</h3><p>为弥补对象存储高延迟，构建了三层缓存：本地文件系统缓存、分布式缓存、用户态页缓存。</p>
 <p>还支持多个计算组共享同一对象存储，各自独立扩缩，可实现”读 vs 写”工作负载隔离。</p>
-<h2 id="与-StarRocks-对比"><a href="#与-StarRocks-对比" class="headerlink" title="与 StarRocks 对比"></a>与 StarRocks 对比</h2><div class="table-container">
-<table>
+<h2 id="与-StarRocks-对比"><a href="#与-StarRocks-对比" class="headerlink" title="与 StarRocks 对比"></a>与 StarRocks 对比</h2><table>
 <thead>
 <tr>
 <th>维度</th>
@@ -344,11 +346,10 @@
 <th>StarRocks</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>架构</td>
-<td>shared-nothing / 共享存储</td>
-<td>FE/BE 分离，双模支持</td>
+<td>shared-nothing &#x2F; 共享存储</td>
+<td>FE&#x2F;BE 分离，双模支持</td>
 </tr>
 <tr>
 <td>主索引</td>
@@ -380,9 +381,7 @@
 <td>增量触发器，灵活但需谨慎</td>
 <td>自动刷新 + 查询改写</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>📌 基准数据对比：</p>
 <ul>
 <li><strong>SSB 100GB</strong>：StarRocks 3.5.0 总耗时 992ms，ClickHouse 25.3.3 耗时 1858ms，StarRocks 快 1.87 倍。其中 Q06 差距 2.51 倍、Q13 差距 2.63 倍</li>
@@ -566,12 +565,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">99k</span>
+    <span title="站点总字数">103k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:30</span>
+    <span title="站点阅读时长">1:34</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -602,7 +601,7 @@
 <script src="/js/schemes/muse.js"></script>
 
 
-<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<script src="/js/next-boot.js"></script>
 
 
 

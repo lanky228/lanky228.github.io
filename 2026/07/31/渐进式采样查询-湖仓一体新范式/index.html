@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+  <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
 <meta name="generator" content="Hexo 4.2.1">
@@ -28,7 +28,7 @@
 <meta property="og:description" content="传统数据库追求精确扫描全量数据，这在PB时代不可持续。渐进式采样查询范式将&quot;模糊优先、精确按需&quot;作为默认行为——聚合查询默认走采样获得毫秒级近似结果，详情查询先采样定位再精确获取，通过表格式内建采样能力实现用户无感上车，最终统一湖仓三层数据源。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-07-30T20:30:00.000Z">
-<meta property="article:modified_time" content="2026-07-31T10:06:11.328Z">
+<meta property="article:modified_time" content="2026-07-31T19:44:30.242Z">
 <meta property="article:author" content="Lanky">
 <meta property="article:tag" content="Apache Iceberg">
 <meta property="article:tag" content="HTAP">
@@ -51,6 +51,7 @@
     lang   : 'zh-CN'
   };
 </script>
+
 
 <script type="application/ld+json">
 {
@@ -118,11 +119,11 @@
   </style>
 </noscript>
 
-<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+  <div class="container use-motion">
     <div class="headband"></div>
 
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -216,10 +217,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2026-07-31 04:30:00 / 修改时间：18:06:11" itemprop="dateCreated datePublished" datetime="2026-07-31T04:30:00+08:00">2026-07-31</time>
+              <time title="创建时间：2026-07-31 04:30:00" itemprop="dateCreated datePublished" datetime="2026-07-31T04:30:00+08:00">2026-07-31</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-01 03:44:30" itemprop="dateModified" datetime="2026-08-01T03:44:30+08:00">2026-08-01</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -236,7 +243,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>9.9k</span>
+              <span>10k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -259,7 +266,6 @@
         <p>💡 一句话总结：未来数据库的默认行为不应该是”扫描所有数据给精确答案”，而应该是”先采样给模糊答案，再按需精确”——这像渐进式图片加载一样，先模糊后清晰，让用户在毫秒内获得方向性判断，再决定是否值得等待精确结果。</p>
 <h2 id="核心问题：为什么精确优先的范式已经走到尽头"><a href="#核心问题：为什么精确优先的范式已经走到尽头" class="headerlink" title="核心问题：为什么精确优先的范式已经走到尽头"></a>核心问题：为什么精确优先的范式已经走到尽头</h2><h3 id="传统范式的致命假设"><a href="#传统范式的致命假设" class="headerlink" title="传统范式的致命假设"></a>传统范式的致命假设</h3><p>传统数据库有一个隐含假设：<strong>用户需要精确答案，系统必须扫描全量数据。</strong></p>
 <p>这个假设在数据量小的时候没问题。但当数据量从GB到TB到PB时，这个假设变成了诅咒：</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -268,8 +274,7 @@
 <th>用户真正需要</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>1GB</td>
 <td>100ms</td>
 <td>精确答案</td>
@@ -289,21 +294,17 @@
 <td>28小时</td>
 <td>绝大多数分析只要近似</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p><strong>现实是：绝大多数分析查询不需要精确答案。</strong></p>
 <p>业务方问”上个月GMV是多少”，他要的是”大概3亿还是5亿”的方向性判断，不是”324,782,191.37”的精确数字。但传统数据库为了给出精确数字，要扫描几十GB数据，等待几十秒。</p>
-<h3 id="缓存、物化视图、预聚合为什么不够"><a href="#缓存、物化视图、预聚合为什么不够" class="headerlink" title="缓存、物化视图、预聚合为什么不够"></a>缓存、物化视图、预聚合为什么不够</h3><div class="table-container">
-<table>
+<h3 id="缓存、物化视图、预聚合为什么不够"><a href="#缓存、物化视图、预聚合为什么不够" class="headerlink" title="缓存、物化视图、预聚合为什么不够"></a>缓存、物化视图、预聚合为什么不够</h3><table>
 <thead>
 <tr>
 <th>方案</th>
 <th>问题</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>缓存</td>
 <td>命中率天花板、数据新鲜度问题、缓存失效成本</td>
 </tr>
@@ -316,29 +317,32 @@
 <td>丢失细节、维度爆炸、只能回答预设问题</td>
 </tr>
 <tr>
-<td>Cube/OLAP</td>
+<td>Cube&#x2F;OLAP</td>
 <td>建模重、维度组合爆炸、对新数据源适应性差</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>这些方案都是”提前算好”的思路——预计算所有可能答案。但即席查询的组合是无限的，预计算永远追不上需求。</p>
 <p><strong>需要一种新的范式：不预计算答案，而是减少计算量。</strong></p>
 <h2 id="新范式：渐进式采样查询（Progressive-Sampling-Query）"><a href="#新范式：渐进式采样查询（Progressive-Sampling-Query）" class="headerlink" title="新范式：渐进式采样查询（Progressive Sampling Query）"></a>新范式：渐进式采样查询（Progressive Sampling Query）</h2><h3 id="核心理念"><a href="#核心理念" class="headerlink" title="核心理念"></a>核心理念</h3><p>借鉴渐进式图片加载（Progressive Image Loading）：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">传统： ████████████████████████████ → 30秒后一次性返回精确结果</span><br><span class="line">渐进： ██░░░░░░░░░░░░░░░░░░░░░░░░░ → 50ms返回±5%近似结果</span><br><span class="line">       ████░░░░░░░░░░░░░░░░░░░░░░ → 2秒返回±1%近似结果</span><br><span class="line">       ████████████████████████████ → 30秒返回精确结果（按需）</span><br></pre></td></tr></table></figure>
+
 <p>用户在50毫秒内就能看到”大概3亿”，然后自己决定是否等2秒看”3.05亿”，还是直接用3亿做决策。</p>
 <h3 id="三阶段执行模型"><a href="#三阶段执行模型" class="headerlink" title="三阶段执行模型"></a>三阶段执行模型</h3><p><strong>阶段一：采样快查（Sample Scan）</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 用户写的是普通SQL</span></span><br><span class="line"><span class="keyword">SELECT</span> region, <span class="keyword">SUM</span>(amount) <span class="keyword">FROM</span> orders </span><br><span class="line"><span class="keyword">WHERE</span> <span class="built_in">date</span> &gt; <span class="string">'2026-01-01'</span> </span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> region;</span><br></pre></td></tr></table></figure>
-<p>系统内部自动执行：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 引擎自动改写：1%采样 + 误差估算</span></span><br><span class="line"><span class="keyword">SELECT</span> region, <span class="keyword">SUM</span>(amount) * <span class="number">100</span> <span class="keyword">as</span> estimated_sum</span><br><span class="line"><span class="keyword">FROM</span> orders <span class="keyword">TABLESAMPLE</span>(<span class="number">1</span>%) </span><br><span class="line"><span class="keyword">WHERE</span> <span class="built_in">date</span> &gt; <span class="string">'2026-01-01'</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> region;</span><br><span class="line"><span class="comment">-- 结果：华东≈2.8亿(±5%) 华南≈1.5亿(±5%) 华北≈0.9亿(±5%)</span></span><br><span class="line"><span class="comment">-- 耗时：80ms</span></span><br></pre></td></tr></table></figure></p>
+
+<p>系统内部自动执行：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 引擎自动改写：1%采样 + 误差估算</span></span><br><span class="line"><span class="keyword">SELECT</span> region, <span class="keyword">SUM</span>(amount) * <span class="number">100</span> <span class="keyword">as</span> estimated_sum</span><br><span class="line"><span class="keyword">FROM</span> orders <span class="keyword">TABLESAMPLE</span>(<span class="number">1</span>%) </span><br><span class="line"><span class="keyword">WHERE</span> <span class="built_in">date</span> &gt; <span class="string">'2026-01-01'</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> region;</span><br><span class="line"><span class="comment">-- 结果：华东≈2.8亿(±5%) 华南≈1.5亿(±5%) 华北≈0.9亿(±5%)</span></span><br><span class="line"><span class="comment">-- 耗时：80ms</span></span><br></pre></td></tr></table></figure>
+
 <p>关键：<strong>用户无感知</strong>。他写的是普通SQL，系统自动选择采样策略，返回结果时附带置信区间。</p>
 <p><strong>阶段二：精度提升（Refine）</strong></p>
 <p>如果用户需要更精确的结果（点击”提升精度”或系统判断查询意图需要更高精度）：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 自动扩展到10%采样</span></span><br><span class="line"><span class="keyword">SELECT</span> region, <span class="keyword">SUM</span>(amount) * <span class="number">10</span> <span class="keyword">as</span> estimated_sum</span><br><span class="line"><span class="keyword">FROM</span> orders <span class="keyword">TABLESAMPLE</span>(<span class="number">10</span>%)</span><br><span class="line"><span class="keyword">WHERE</span> <span class="built_in">date</span> &gt; <span class="string">'2026-01-01'</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> region;</span><br><span class="line"><span class="comment">-- 结果：华东≈3.02亿(±1.5%) 华南≈1.48亿(±1.5%) 华北≈0.91亿(±1.5%)</span></span><br><span class="line"><span class="comment">-- 耗时：2.3秒</span></span><br></pre></td></tr></table></figure>
+
 <p><strong>阶段三：精确扫描（Exact）</strong></p>
 <p>只有用户明确要求精确结果时才全量扫描：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 用户显式请求：EXACT MODE</span></span><br><span class="line"><span class="keyword">SELECT</span> region, <span class="keyword">SUM</span>(amount) <span class="keyword">FROM</span> orders</span><br><span class="line"><span class="keyword">WHERE</span> <span class="built_in">date</span> &gt; <span class="string">'2026-01-01'</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> region EXACT;</span><br><span class="line"><span class="comment">-- 结果：华东=301,982,473 华南=148,237,891 华北=91,043,567</span></span><br><span class="line"><span class="comment">-- 耗时：28秒</span></span><br></pre></td></tr></table></figure>
+
 <h3 id="查询意图自动识别"><a href="#查询意图自动识别" class="headerlink" title="查询意图自动识别"></a>查询意图自动识别</h3><p>系统根据SQL模式自动判断走哪条路径：</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -348,9 +352,8 @@
 <th>示例</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td>SUM/AVG/COUNT + GROUP BY</td>
+<tbody><tr>
+<td>SUM&#x2F;AVG&#x2F;COUNT + GROUP BY</td>
 <td>汇总分析</td>
 <td>采样快查</td>
 <td>各地区GMV</td>
@@ -368,7 +371,7 @@
 <td>总用户数</td>
 </tr>
 <tr>
-<td>SELECT * WHERE id = ?</td>
+<td>SELECT * WHERE id &#x3D; ?</td>
 <td>精确点查</td>
 <td>索引直查（不走采样）</td>
 <td>查某订单详情</td>
@@ -385,32 +388,35 @@
 <td>采样快查（双侧采样）</td>
 <td>关联用户和订单分析</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <h3 id="明细查询的采样范式"><a href="#明细查询的采样范式" class="headerlink" title="明细查询的采样范式"></a>明细查询的采样范式</h3><p>用户说”我要看华东地区的大额订单”——这本质上是明细查询，传统方式要扫描全表过滤。新范式：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">第一步：采样返回20条样本（50ms）</span><br><span class="line">  → 用户看到数据分布：金额范围、时间分布、商品类别</span><br><span class="line">  </span><br><span class="line">第二步：用户基于样本缩小范围</span><br><span class="line">  → &quot;我只要金额&gt;10万的，按时间倒序&quot;</span><br><span class="line">  </span><br><span class="line">第三步：精确扫描（缩小后的范围）</span><br><span class="line">  → 范围已经从&quot;华东所有订单&quot;缩小到&quot;华东&gt;10万&quot;的几百条</span><br><span class="line">  → 精确扫描只需扫描1000行而非1亿行</span><br></pre></td></tr></table></figure>
+
 <p><strong>关键洞察：采样不是替代精确查询，而是帮助用户快速缩小精确查询的范围。</strong> 这就是”指数下降后再精确获取”的精髓——采样让搜索空间从1亿行指数级缩小到几千行，然后精确查询成本就微不足道了。</p>
 <h2 id="技术实现：表格式内建采样"><a href="#技术实现：表格式内建采样" class="headerlink" title="技术实现：表格式内建采样"></a>技术实现：表格式内建采样</h2><h3 id="Iceberg表格式扩展"><a href="#Iceberg表格式扩展" class="headerlink" title="Iceberg表格式扩展"></a>Iceberg表格式扩展</h3><p>采样不应该是外挂式的，而应该内建到表格式中——让采样成为表的一等公民：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Iceberg Table Properties 扩展</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SamplingSpec</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 采样级别：系统自动维护多级采样</span></span><br><span class="line">    <span class="keyword">private</span> Map&lt;Double, SamplingLevel&gt; levels;  <span class="comment">// 0.1%, 1%, 5%, 10%</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 每个级别的实现方式</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">SamplingLevel</span> </span>&#123;</span><br><span class="line">        <span class="keyword">double</span> percentage;           <span class="comment">// 采样率</span></span><br><span class="line">        SamplingMethod method;       <span class="comment">// 采样方法</span></span><br><span class="line">        FileGroup sampleFiles;       <span class="comment">// 采样子集文件</span></span><br><span class="line">        Statistics statistics;       <span class="comment">// 采样统计信息</span></span><br><span class="line">        <span class="keyword">long</span> lastRefreshTime;        <span class="comment">// 最后刷新时间</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 采样方法</span></span><br><span class="line">    <span class="keyword">enum</span> SamplingMethod &#123;</span><br><span class="line">        SYSTEM,        <span class="comment">// 系统采样（按文件块随机选取）</span></span><br><span class="line">        BERNOULLI,     <span class="comment">// 伯努利采样（按行随机选取）</span></span><br><span class="line">        STRATIFIED,    <span class="comment">// 分层采样（按分组列分层）</span></span><br><span class="line">        RESERVOIR,     <span class="comment">// 蓄水池采样（流式数据）</span></span><br><span class="line">        INDEXED        <span class="comment">// 索引采样（基于索引列选取）</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h3 id="自描述采样（Self-Describing-Sampling）"><a href="#自描述采样（Self-Describing-Sampling）" class="headerlink" title="自描述采样（Self-Describing Sampling）"></a>自描述采样（Self-Describing Sampling）</h3><p>表格式自带采样元数据，任何引擎都能读取：</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Iceberg manifest 中的采样描述</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"table"</span>: <span class="string">"orders"</span>,</span><br><span class="line">  <span class="attr">"sampling"</span>: &#123;</span><br><span class="line">    <span class="attr">"levels"</span>: [</span><br><span class="line">      &#123;<span class="attr">"rate"</span>: <span class="number">0.01</span>, <span class="attr">"files"</span>: [<span class="string">"file_001.parquet"</span>, <span class="string">"file_042.parquet"</span>, ...], <span class="attr">"rows"</span>: <span class="number">100000</span>&#125;,</span><br><span class="line">      &#123;<span class="attr">"rate"</span>: <span class="number">0.05</span>, <span class="attr">"files"</span>: [<span class="string">"file_001.parquet"</span>, ...], <span class="attr">"rows"</span>: <span class="number">500000</span>&#125;,</span><br><span class="line">      &#123;<span class="attr">"rate"</span>: <span class="number">0.10</span>, <span class="attr">"files"</span>: [<span class="string">"file_001.parquet"</span>, ...], <span class="attr">"rows"</span>: <span class="number">1000000</span>&#125;</span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"method"</span>: <span class="string">"system"</span>,</span><br><span class="line">    <span class="attr">"confidence"</span>: <span class="number">0.95</span>,</span><br><span class="line">    <span class="attr">"auto_refresh"</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="attr">"refresh_strategy"</span>: <span class="string">"incremental"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p><strong>关键优势</strong>：任何支持Iceberg的引擎（Trino、Spark、Flink、DuckDB）都能透明地使用采样数据，不需要额外配置。</p>
 <h3 id="增量采样维护"><a href="#增量采样维护" class="headerlink" title="增量采样维护"></a>增量采样维护</h3><p>数据写入时自动维护采样：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">新数据写入 → 触发增量采样</span><br><span class="line">  ├── 1%采样池：每100行取1行（概率采样）</span><br><span class="line">  ├── 5%采样池：每20行取1行</span><br><span class="line">  └── 10%采样池：每10行取1行</span><br><span class="line"></span><br><span class="line">效果：采样数据与主数据秒级同步，不是独立的第二份数据</span><br></pre></td></tr></table></figure>
+
 <p>这不是维护独立的采样表，而是通过<strong>文件级别的元数据标记</strong>实现——主数据文件中哪些block属于哪个采样级别，查询时直接选择对应block读取。</p>
 <h3 id="Zone-Maps-采样的协同"><a href="#Zone-Maps-采样的协同" class="headerlink" title="Zone Maps + 采样的协同"></a>Zone Maps + 采样的协同</h3><p>采样和Zone Maps是天然互补的：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">全表：100个文件，每个文件1000个block</span><br><span class="line">  → Zone Maps过滤后：剩余10个文件，每个100个block &#x3D; 1000个block</span><br><span class="line">  </span><br><span class="line">采样1%：</span><br><span class="line">  → 从1000个block中取10个block &#x3D; 10个block</span><br><span class="line">  → 实际扫描：全表的 0.01%</span><br><span class="line">  </span><br><span class="line">效果：Zone Maps 90% + 采样 99% &#x3D; 总体减少 99.9% 的I&#x2F;O</span><br></pre></td></tr></table></figure>
+
 <p><strong>这就是”让大数据变成小数据”的数学证明——Zone Maps减少一个数量级，采样再减少两个数量级，三次叠加后1PB数据变成1GB扫描量。</strong></p>
 <h2 id="大一统：湖仓一体的破局点"><a href="#大一统：湖仓一体的破局点" class="headerlink" title="大一统：湖仓一体的破局点"></a>大一统：湖仓一体的破局点</h2><h3 id="当前数据架构的三难困境"><a href="#当前数据架构的三难困境" class="headerlink" title="当前数据架构的三难困境"></a>当前数据架构的三难困境</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HTAP(事务分析一体)       湖仓一体(Lakehouse)        数据湖联邦(Federation)</span><br><span class="line">TP + AP 统一             结构化 + 半结构化统一       多源跨平台统一</span><br><span class="line">↑                        ↑                        ↑</span><br><span class="line">|    各自为政，互不兼容，查询体验割裂              |</span><br></pre></td></tr></table></figure>
+
 <p>用户要跨TP数据库、数据湖、外部数据源做分析？传统方案：</p>
 <ul>
-<li>联邦查询（Trino/Presto）：能跨源但速度慢（全量扫描远程数据源）</li>
+<li>联邦查询（Trino&#x2F;Presto）：能跨源但速度慢（全量扫描远程数据源）</li>
 <li>数据搬运（ETL）：延迟大、成本高</li>
-<li>数据共享（Iceberg/Delta）：只解决湖内共享，不解决TP和湖之间的鸿沟</li>
+<li>数据共享（Iceberg&#x2F;Delta）：只解决湖内共享，不解决TP和湖之间的鸿沟</li>
 </ul>
 <h3 id="采样范式为什么能统一三层"><a href="#采样范式为什么能统一三层" class="headerlink" title="采样范式为什么能统一三层"></a>采样范式为什么能统一三层</h3><p><strong>因为采样归一化了不同数据源的查询速度：</strong></p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -420,8 +426,7 @@
 <th>速度差异</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>TP行存（NVMe）</td>
 <td>10秒</td>
 <td>0.1秒</td>
@@ -434,7 +439,7 @@
 <td>100x</td>
 </tr>
 <tr>
-<td>数据湖（S3/OSS）</td>
+<td>数据湖（S3&#x2F;OSS）</td>
 <td>5分钟</td>
 <td>3秒</td>
 <td>100x</td>
@@ -445,16 +450,15 @@
 <td>6秒</td>
 <td>100x</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p>全量扫描时，TP和S3的速度差30倍——用户体验割裂。但1%采样后，TP是0.1秒，S3是3秒——<strong>都在”可接受”范围内，用户体验统一。</strong></p>
 <h3 id="统一查询接口"><a href="#统一查询接口" class="headerlink" title="统一查询接口"></a>统一查询接口</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 用户写一条SQL，透明跨源</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">  o.region,</span><br><span class="line">  <span class="keyword">SUM</span>(o.amount) <span class="keyword">as</span> gmv,</span><br><span class="line">  <span class="keyword">AVG</span>(u.age) <span class="keyword">as</span> avg_age,</span><br><span class="line">  <span class="keyword">COUNT</span>(<span class="keyword">DISTINCT</span> u.user_id) <span class="keyword">as</span> <span class="keyword">users</span></span><br><span class="line"><span class="keyword">FROM</span> mysql.orders o           <span class="comment">-- TP行存（热数据）</span></span><br><span class="line"><span class="keyword">JOIN</span> lake.user_profile u       <span class="comment">-- 数据湖Iceberg（温数据）  </span></span><br><span class="line">  <span class="keyword">ON</span> o.user_id = u.user_id</span><br><span class="line"><span class="keyword">JOIN</span> ext_crm.customer_tags c   <span class="comment">-- 外部JDBC（冷数据）</span></span><br><span class="line">  <span class="keyword">ON</span> u.user_id = c.user_id</span><br><span class="line"><span class="keyword">WHERE</span> o.date &gt; <span class="string">'2026-01-01'</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> o.region;</span><br></pre></td></tr></table></figure>
+
 <p>系统内部执行计划：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">阶段一（50ms-3s）：全局采样</span><br><span class="line">  ├── mysql.orders: 1%采样（0.1s）→ gmv≈3亿(±5%)</span><br><span class="line">  ├── lake.user_profile: 1%采样（0.3s）→ avg_age≈28(±3%)</span><br><span class="line">  ├── ext_crm.customer_tags: 1%采样（6s）→ users≈50万(±5%)</span><br><span class="line">  └── JOIN在采样集上执行（小数据量快速JOIN）</span><br><span class="line"></span><br><span class="line">阶段二（3-30s）：精度提升</span><br><span class="line">  ├── 扩大到5%采样</span><br><span class="line">  └── 误差降到±1.5%</span><br><span class="line"></span><br><span class="line">阶段三（30s+）：精确扫描（按需）</span><br><span class="line">  ├── 全量JOIN</span><br><span class="line">  └── 精确结果</span><br></pre></td></tr></table></figure>
-<p><strong>关键：联邦查询的瓶颈永远是最慢的数据源。全量扫描时S3/JDBC拖慢整体；采样后各源速度差缩小，联邦查询变得可行。</strong></p>
+
+<p><strong>关键：联邦查询的瓶颈永远是最慢的数据源。全量扫描时S3&#x2F;JDBC拖慢整体；采样后各源速度差缩小，联邦查询变得可行。</strong></p>
 <h3 id="外部数据目录兼容"><a href="#外部数据目录兼容" class="headerlink" title="外部数据目录兼容"></a>外部数据目录兼容</h3><p>采样范式的另一个优势——<strong>外部数据源不需要改表格式就能受益</strong>：</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -463,14 +467,13 @@
 <th>用户感知</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>Iceberg原生表</td>
 <td>内建采样元数据，零开销</td>
 <td>最优体验</td>
 </tr>
 <tr>
-<td>Parquet/ORC文件</td>
+<td>Parquet&#x2F;ORC文件</td>
 <td>文件级系统采样（随机选文件）</td>
 <td>接近最优</td>
 </tr>
@@ -485,36 +488,41 @@
 <td>可用</td>
 </tr>
 <tr>
-<td>API/REST数据源</td>
+<td>API&#x2F;REST数据源</td>
 <td>应用层采样 + 缓存</td>
 <td>基本可用</td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <p><strong>Iceberg原生表格式数据达到最优</strong>——因为采样元数据内建在表中，引擎可以直接定位采样文件，零额外开销。外部数据源通过适配层实现采样，性能稍逊但仍然可用。</p>
 <h2 id="采样质量控制"><a href="#采样质量控制" class="headerlink" title="采样质量控制"></a>采样质量控制</h2><h3 id="误差保证"><a href="#误差保证" class="headerlink" title="误差保证"></a>误差保证</h3><p>不是随机采样就完事——必须给出统计保证：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">置信区间 &#x3D; 点估计 ± Z * (σ &#x2F; √n)</span><br><span class="line"></span><br><span class="line">Z &#x3D; 1.96（95%置信度）</span><br><span class="line">σ &#x3D; 样本标准差</span><br><span class="line">n &#x3D; 样本量</span><br><span class="line"></span><br><span class="line">示例：</span><br><span class="line">  1%采样，100万行 → 样本1万行</span><br><span class="line">  SUM(amount) &#x3D; 3,000,000</span><br><span class="line">  σ &#x3D; 500</span><br><span class="line">  置信区间 &#x3D; 3,000,000 ± 1.96 * (500&#x2F;√10000) &#x3D; 3,000,000 ± 9.8</span><br><span class="line">  误差 &lt; 0.001%</span><br></pre></td></tr></table></figure>
+
 <p>系统自动计算并展示：</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"result"</span>: &#123;<span class="attr">"华东"</span>: <span class="number">280000000</span>, <span class="attr">"华南"</span>: <span class="number">150000000</span>, <span class="attr">"华北"</span>: <span class="number">90000000</span>&#125;,</span><br><span class="line">  <span class="attr">"confidence"</span>: <span class="number">0.95</span>,</span><br><span class="line">  <span class="attr">"error_margin"</span>: &#123;<span class="attr">"华东"</span>: <span class="string">"±5.2%"</span>, <span class="attr">"华南"</span>: <span class="string">"±4.8%"</span>, <span class="attr">"华北"</span>: <span class="string">"±6.1%"</span>&#125;,</span><br><span class="line">  <span class="attr">"sample_size"</span>: <span class="number">10000</span>,</span><br><span class="line">  <span class="attr">"execution_time"</span>: <span class="string">"80ms"</span>,</span><br><span class="line">  <span class="attr">"full_scan_estimated_time"</span>: <span class="string">"28s"</span>,</span><br><span class="line">  <span class="attr">"refine_available"</span>: <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h3 id="自适应采样率"><a href="#自适应采样率" class="headerlink" title="自适应采样率"></a>自适应采样率</h3><p>不同查询需要不同采样率——系统自动选择：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">目标误差 &lt; 5%  → 1%采样即可（快）</span><br><span class="line">目标误差 &lt; 1%  → 5%采样（中速）</span><br><span class="line">目标误差 &lt; 0.1% → 20%采样（较慢）</span><br><span class="line">目标误差 &#x3D; 0    → 全量扫描（慢）</span><br><span class="line"></span><br><span class="line">决策因素：</span><br><span class="line">  数据分布方差（方差大需要更多样本）</span><br><span class="line">  查询复杂度（JOIN需要双侧采样）</span><br><span class="line">  用户设置（默认误差容忍度）</span><br><span class="line">  时间预算（用户可接受的等待时间）</span><br></pre></td></tr></table></figure>
+
 <h3 id="分层采样处理数据倾斜"><a href="#分层采样处理数据倾斜" class="headerlink" title="分层采样处理数据倾斜"></a>分层采样处理数据倾斜</h3><p>数据不均匀时，简单随机采样效果差。分层采样：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">orders表按地区分布：</span><br><span class="line">  华东: 60% 数据</span><br><span class="line">  华南: 25% 数据  </span><br><span class="line">  华北: 10% 数据</span><br><span class="line">  西部: 5% 数据</span><br><span class="line"></span><br><span class="line">简单随机1%采样：</span><br><span class="line">  西部可能只有50行 → 误差极大</span><br><span class="line"></span><br><span class="line">分层采样1%：</span><br><span class="line">  华东取60% * 1% &#x3D; 0.6%的行</span><br><span class="line">  华南取25% * 1% &#x3D; 0.25%的行</span><br><span class="line">  华北取10% * 1% &#x3D; 0.1%的行</span><br><span class="line">  西部取5% * 1% &#x3D; 0.05%的行（但保底至少100行）</span><br><span class="line">  </span><br><span class="line">  → 各层都有足够样本，误差均匀</span><br></pre></td></tr></table></figure>
+
 <h2 id="用户无感上车策略"><a href="#用户无感上车策略" class="headerlink" title="用户无感上车策略"></a>用户无感上车策略</h2><h3 id="为什么”无感”是成功的关键"><a href="#为什么”无感”是成功的关键" class="headerlink" title="为什么”无感”是成功的关键"></a>为什么”无感”是成功的关键</h3><p>技术再好，如果要求用户改SQL、改应用、学新语法——大概率推不动。采样范式要成功，必须<strong>零改动上车</strong>。</p>
 <h3 id="四层无感设计"><a href="#四层无感设计" class="headerlink" title="四层无感设计"></a>四层无感设计</h3><p><strong>第一层：SQL零改动</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 用户写的SQL（完全标准）</span></span><br><span class="line"><span class="keyword">SELECT</span> region, <span class="keyword">SUM</span>(amount) <span class="keyword">FROM</span> orders <span class="keyword">GROUP</span> <span class="keyword">BY</span> region;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 引擎内部自动改写（用户看不到）</span></span><br><span class="line"><span class="keyword">SELECT</span> region, <span class="keyword">SUM</span>(amount) * <span class="number">100</span> <span class="keyword">FROM</span> orders <span class="keyword">TABLESAMPLE</span>(<span class="number">1</span>%) <span class="keyword">GROUP</span> <span class="keyword">BY</span> region;</span><br></pre></td></tr></table></figure>
+
 <p><strong>第二层：结果自动标注</strong></p>
 <p>用户看到的结果自动附带精度信息，但不打断使用流程：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│ region    │ SUM(amount)  │ 置信度       │</span><br><span class="line">│───────────┼──────────────┼──────────────│</span><br><span class="line">│ 华东      │ ≈280,000,000 │ ±5% (1%采样) │</span><br><span class="line">│ 华南      │ ≈150,000,000 │ ±5% (1%采样) │</span><br><span class="line">│ 华北      │ ≈90,000,000  │ ±5% (1%采样) │</span><br><span class="line">├─────────────────────────────────────────┤</span><br><span class="line">│ [提升精度] [导出] [可视化]               │</span><br><span class="line">└─────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
 <p><strong>第三层：BI工具适配</strong></p>
-<p>BI工具（Tableau/Superset/Metabase）通过标准JDBC连接，采样结果自动呈现。不需要BI工具做任何适配——JDBC驱动在返回结果的同时返回精度元数据。</p>
+<p>BI工具（Tableau&#x2F;Superset&#x2F;Metabase）通过标准JDBC连接，采样结果自动呈现。不需要BI工具做任何适配——JDBC驱动在返回结果的同时返回精度元数据。</p>
 <p><strong>第四层：表格式自描述</strong></p>
 <p>Iceberg表创建时自动启用采样，不需要DBA配置：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 建表语句（完全标准）</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> orders (</span><br><span class="line">  <span class="keyword">id</span> <span class="built_in">BIGINT</span>,</span><br><span class="line">  region <span class="keyword">STRING</span>,</span><br><span class="line">  amount <span class="built_in">DECIMAL</span>(<span class="number">10</span>,<span class="number">2</span>),</span><br><span class="line">  <span class="built_in">date</span> <span class="built_in">DATE</span></span><br><span class="line">) <span class="keyword">STORED</span> <span class="keyword">AS</span> ICEBERG;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 系统自动行为：</span></span><br><span class="line"><span class="comment">-- 1. 数据写入时自动维护多级采样</span></span><br><span class="line"><span class="comment">-- 2. Zone Maps自动收集</span></span><br><span class="line"><span class="comment">-- 3. 采样统计信息自动更新</span></span><br><span class="line"><span class="comment">-- 4. 查询时自动使用采样</span></span><br></pre></td></tr></table></figure>
+
 <h3 id="渐进式上车路径"><a href="#渐进式上车路径" class="headerlink" title="渐进式上车路径"></a>渐进式上车路径</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">阶段1（0改动）：引擎层自动采样</span><br><span class="line">  → 只需要升级查询引擎（Trino&#x2F;StarRocks&#x2F;Calcite）</span><br><span class="line">  → 对已有Iceberg&#x2F;Parquet表自动启用文件级采样</span><br><span class="line">  → 用户立即获得2-10倍加速</span><br><span class="line"></span><br><span class="line">阶段2（表格式增强）：Iceberg采样元数据</span><br><span class="line">  → 新建表自动内建采样</span><br><span class="line">  → 采样精度提升、开销降低</span><br><span class="line">  → 旧表通过ALTER TABLE升级</span><br><span class="line"></span><br><span class="line">阶段3（生态集成）：BI&#x2F;应用层适配</span><br><span class="line">  → JDBC驱动暴露精度元数据</span><br><span class="line">  → BI工具展示置信区间</span><br><span class="line">  → 应用层实现&quot;渐进式UI&quot;</span><br><span class="line"></span><br><span class="line">阶段4（AI驱动）：智能采样选择</span><br><span class="line">  → AI预测最佳采样率</span><br><span class="line">  → 自动分层采样策略</span><br><span class="line">  → 查询模式学习与优化</span><br></pre></td></tr></table></figure>
-<h2 id="对比分析：为什么采样范式最可能成功"><a href="#对比分析：为什么采样范式最可能成功" class="headerlink" title="对比分析：为什么采样范式最可能成功"></a>对比分析：为什么采样范式最可能成功</h2><h3 id="vs-现有方案"><a href="#vs-现有方案" class="headerlink" title="vs 现有方案"></a>vs 现有方案</h3><div class="table-container">
-<table>
+
+<h2 id="对比分析：为什么采样范式最可能成功"><a href="#对比分析：为什么采样范式最可能成功" class="headerlink" title="对比分析：为什么采样范式最可能成功"></a>对比分析：为什么采样范式最可能成功</h2><h3 id="vs-现有方案"><a href="#vs-现有方案" class="headerlink" title="vs 现有方案"></a>vs 现有方案</h3><table>
 <thead>
 <tr>
 <th>方案</th>
@@ -525,8 +533,7 @@
 <th>误差可控</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>缓存</td>
 <td>重用历史结果</td>
 <td>低（只对重复查询）</td>
@@ -543,7 +550,7 @@
 <td>无误差但维度固定</td>
 </tr>
 <tr>
-<td>Cube/OLAP</td>
+<td>Cube&#x2F;OLAP</td>
 <td>多维预聚合</td>
 <td>低（需建模）</td>
 <td>高</td>
@@ -566,17 +573,16 @@
 <td><strong>兼容</strong></td>
 <td><strong>可控</strong></td>
 </tr>
-</tbody>
-</table>
-</div>
+</tbody></table>
 <h3 id="成功的四个必要条件"><a href="#成功的四个必要条件" class="headerlink" title="成功的四个必要条件"></a>成功的四个必要条件</h3><ol>
 <li><strong>零改动上车</strong> — 不需要改SQL、改表结构、改应用代码 → ✓ 表格式自描述 + 引擎自动改写</li>
 <li><strong>误差可控</strong> — 用户知道结果的可靠程度 → ✓ 置信区间 + 自适应采样率</li>
-<li><strong>全场景覆盖</strong> — 聚合/明细/JOIN都受益 → ✓ 分层采样 + 双侧JOIN采样</li>
+<li><strong>全场景覆盖</strong> — 聚合&#x2F;明细&#x2F;JOIN都受益 → ✓ 分层采样 + 双侧JOIN采样</li>
 <li><strong>跨源统一</strong> — 湖仓一体兼容 → ✓ 采样归一化不同数据源速度</li>
 </ol>
 <h3 id="与现有技术的融合点"><a href="#与现有技术的融合点" class="headerlink" title="与现有技术的融合点"></a>与现有技术的融合点</h3><p>采样范式不是推翻现有技术，而是在其上增加一层：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────────────────────────────────────────┐</span><br><span class="line">│        渐进式采样查询层（新范式）                   │</span><br><span class="line">│  意图识别 → 采样路由 → 误差估算 → 渐进精化         │</span><br><span class="line">├──────────────────────────────────────────────────┤</span><br><span class="line">│        查询优化器层（已有）                         │</span><br><span class="line">│  Calcite &#x2F; Trino &#x2F; StarRocks 优化器               │</span><br><span class="line">├──────────────────────────────────────────────────┤</span><br><span class="line">│        执行引擎层（已有）                          │</span><br><span class="line">│  向量化执行 &#x2F; MPP &#x2F; JIT                           │</span><br><span class="line">├──────────────────────────────────────────────────┤</span><br><span class="line">│        表格式层（增强）                            │</span><br><span class="line">│  Iceberg + 采样元数据 &#x2F; Parquet + 文件采样         │</span><br><span class="line">├──────────────────────────────────────────────────┤</span><br><span class="line">│        存储层（已有）                              │</span><br><span class="line">│  行存 &#x2F; 列存 &#x2F; 对象存储 &#x2F; PMem                     │</span><br><span class="line">└──────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
 <p>每一层都保留已有技术，采样层是新增的。这意味着：</p>
 <ul>
 <li>Calcite可以扩展为采样感知的优化器</li>
@@ -587,23 +593,27 @@
 <h2 id="技术挑战与解法"><a href="#技术挑战与解法" class="headerlink" title="技术挑战与解法"></a>技术挑战与解法</h2><h3 id="挑战一：JOIN场景的采样"><a href="#挑战一：JOIN场景的采样" class="headerlink" title="挑战一：JOIN场景的采样"></a>挑战一：JOIN场景的采样</h3><p>JOIN是最难采样的——两表JOIN如果各自采样1%，JOIN结果可能只有0.01%的行，误差爆炸。</p>
 <p><strong>解法：相关性感知采样</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">方案A：大表采样 + 小表全量</span><br><span class="line">  orders(1亿行) 1%采样 → 100万行</span><br><span class="line">  users(10万行) 全量 → 10万行</span><br><span class="line">  JOIN结果：误差可控</span><br><span class="line"></span><br><span class="line">方案B：基于JOIN键的分层采样</span><br><span class="line">  两个表都按user_id分层</span><br><span class="line">  相同user_id在两个表中都被选中或都不选</span><br><span class="line">  → 保证JOIN完整性</span><br><span class="line"></span><br><span class="line">方案C：图采样（Graph Sampling）</span><br><span class="line">  将多表JOIN建模为图</span><br><span class="line">  在图上做随机游走采样</span><br><span class="line">  保证JOIN结果的代表性</span><br></pre></td></tr></table></figure>
+
 <h3 id="挑战二：COUNT-DISTINCT"><a href="#挑战二：COUNT-DISTINCT" class="headerlink" title="挑战二：COUNT DISTINCT"></a>挑战二：COUNT DISTINCT</h3><p><code>COUNT(DISTINCT user_id)</code> 是采样最难的场景——去重计数对采样极其敏感。</p>
 <p><strong>解法：HyperLogLog + 采样</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">传统：COUNT(DISTINCT)需要全量扫描+哈希去重</span><br><span class="line">采样+HLL：</span><br><span class="line">  1%采样 → 用HyperLogLog估算去重基数</span><br><span class="line">  HLL只需要固定内存（通常16KB）</span><br><span class="line">  采样100万行 → HLL估算误差约5%</span><br><span class="line">  </span><br><span class="line">效果：1%采样 + HLL &#x3D; 80ms返回 ±5% 的去重结果</span><br><span class="line">对比：全量扫描去重 &#x3D; 28秒返回精确结果</span><br></pre></td></tr></table></figure>
+
 <h3 id="挑战三：数据分布变化"><a href="#挑战三：数据分布变化" class="headerlink" title="挑战三：数据分布变化"></a>挑战三：数据分布变化</h3><p>如果数据分布突变（比如某天突然多了10倍数据），旧的采样统计可能不准。</p>
 <p><strong>解法：自适应采样校准</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">写入时监控数据分布变化</span><br><span class="line">  → 分布变化超过阈值 → 触发采样池重构建</span><br><span class="line">  → 分布稳定 → 增量更新采样</span><br><span class="line">  </span><br><span class="line">查询时交叉验证</span><br><span class="line">  → 采样结果与Zone Map统计交叉对比</span><br><span class="line">  → 偏差大 → 自动升级到更高采样率</span><br></pre></td></tr></table></figure>
+
 <h3 id="挑战四：用户信任"><a href="#挑战四：用户信任" class="headerlink" title="挑战四：用户信任"></a>挑战四：用户信任</h3><p>用户可能不信任”模糊”结果——尤其是中国企业的数据文化偏向精确。</p>
 <p><strong>解法：渐进式信任建立</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">第一阶段：采样 + 精确并行展示</span><br><span class="line">  → 展示采样结果（快）和精确结果（慢）的差异</span><br><span class="line">  → 用户看到误差通常 &lt; 5%</span><br><span class="line">  </span><br><span class="line">第二阶段：采样结果默认展示，精确可选</span><br><span class="line">  → 用户逐渐习惯用采样结果做决策</span><br><span class="line">  → 需要精确时点击&quot;验证&quot;</span><br><span class="line"></span><br><span class="line">第三阶段：采样成为默认范式</span><br><span class="line">  → 业务决策基于采样结果</span><br><span class="line">  → 精确查询只用于财务对账等场景</span><br></pre></td></tr></table></figure>
+
 <h2 id="未来演进路线"><a href="#未来演进路线" class="headerlink" title="未来演进路线"></a>未来演进路线</h2><h3 id="近期（1-2年）：引擎层采样"><a href="#近期（1-2年）：引擎层采样" class="headerlink" title="近期（1-2年）：引擎层采样"></a>近期（1-2年）：引擎层采样</h3><ul>
-<li>Trino/StarRocks增加自动采样路由</li>
+<li>Trino&#x2F;StarRocks增加自动采样路由</li>
 <li>Iceberg扩展采样元数据属性</li>
 <li>JDBC驱动暴露置信区间元数据</li>
 <li>开源参考实现（基于Calcite）</li>
 </ul>
 <h3 id="中期（3-5年）：表格式标准化"><a href="#中期（3-5年）：表格式标准化" class="headerlink" title="中期（3-5年）：表格式标准化"></a>中期（3-5年）：表格式标准化</h3><ul>
-<li>Iceberg/Paimon/Hudi原生支持采样元数据</li>
+<li>Iceberg&#x2F;Paimon&#x2F;Hudi原生支持采样元数据</li>
 <li>Apache社区推动采样查询标准</li>
 <li>BI工具原生支持渐进式结果展示</li>
 <li>云厂商提供托管采样服务</li>
@@ -614,6 +624,15 @@
 <li>查询模式学习（高频查询自动提升采样精度）</li>
 <li>采样质量持续优化（无人工干预）</li>
 </ul>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><p><strong>Q: 采样查询会不会给出错误答案？</strong></p>
+<p>采样查询提供的是近似结果，不是错误结果。关键是置信区间可控——0.1% 采样在大多数聚合查询上误差不超过 5%。渐进式范式的精髓是”先给模糊方向，再按需精确”，用户根据近似结果决定是否值得等待全量扫描。</p>
+<p><strong>Q: 为什么不直接用缓存或物化视图？</strong></p>
+<p>缓存和物化视图是”预计算”思路——提前算好结果存起来。问题是：查询组合爆炸、维度变更失效、新鲜数据查不到。渐进式采样是”算得快但模糊”思路——不预存任何结果，对所有查询即时响应，靠采样量控制精度和速度的平衡。</p>
+<p><strong>Q: 渐进式采样查询需要改用户的 SQL 吗？</strong></p>
+<p>不需要。理想方案是表格式内建采样能力，引擎在执行层自动插入采样算子。用户写普通 SQL，引擎根据查询类型（聚合 vs 详情）自动决定采样策略。这是”用户无感上车”的关键设计。</p>
+<p><strong>Q: 采样查询适合所有场景吗？</strong></p>
+<p>不适合。需要精确结果的场景（金融对账、合规审计、计数查询）仍然需要全量扫描。渐进式采样适合探索性分析、趋势判断、仪表盘、A&#x2F;B 实验方向性判断——这些场景占分析查询的 80% 以上。</p>
+<hr>
 <h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><p>渐进式采样查询范式的核心命题：</p>
 <p><strong>传统范式：扫描全量数据 → 给精确答案 → 慢但准</strong><br><strong>新范式：扫描采样数据 → 给近似答案 → 快且够准 → 按需精确</strong></p>
 <p>这个范式能统一湖仓一体的根本原因：</p>
@@ -627,6 +646,8 @@
 <p><strong>为什么这是最可能成功的技术路线？</strong></p>
 <p>因为它满足了成功的四个必要条件——零改动、误差可控、全场景、跨源统一。而缓存、物化视图、Cube等方案都在这四个条件中有短板。采样范式不是替代现有技术，而是在其上增加一个”智能降速”层，让所有现有引擎和表格式都能受益。</p>
 <p><strong>最终愿景：让”大数据”在查询时自动变成”小数据”——不是靠缓存，不是靠预计算，而是靠统计学的力量。100倍数据量只需要扫描1%，这就是采样的数学之美。</strong></p>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"采样查询会不会给出错误答案？","acceptedAnswer":{"@type":"Answer","text":"采样查询提供的是近似结果，不是错误结果。关键是置信区间可控——0.1% 采样在大多数聚合查询上误差不超过 5%。渐进式范式的精髓是”先给模糊方向，再按需精确”，用户根据近似结果决定是否值得等待全量扫描。"}},{"@type":"Question","name":"为什么不直接用缓存或物化视图？","acceptedAnswer":{"@type":"Answer","text":"缓存和物化视图是”预计算”思路——提前算好结果存起来。问题是：查询组合爆炸、维度变更失效、新鲜数据查不到。渐进式采样是”算得快但模糊”思路——不预存任何结果，对所有查询即时响应，靠采样量控制精度和速度的平衡。"}},{"@type":"Question","name":"渐进式采样查询需要改用户的 SQL 吗？","acceptedAnswer":{"@type":"Answer","text":"不需要。理想方案是表格式内建采样能力，引擎在执行层自动插入采样算子。用户写普通 SQL，引擎根据查询类型（聚合 vs 详情）自动决定采样策略。这是”用户无感上车”的关键设计。"}},{"@type":"Question","name":"采样查询适合所有场景吗？","acceptedAnswer":{"@type":"Answer","text":"不适合。需要精确结果的场景（金融对账、合规审计、计数查询）仍然需要全量扫描。渐进式采样适合探索性分析、趋势判断、仪表盘、A&#x2F;B 实验方向性判断——这些场景占分析查询的 80% 以上。\n\n✅ 总结渐进式采样查询范式的核心命题："}}]}</script>
 
     </div>
 
@@ -716,7 +737,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心问题：为什么精确优先的范式已经走到尽头"><span class="nav-number">1.</span> <span class="nav-text">核心问题：为什么精确优先的范式已经走到尽头</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#传统范式的致命假设"><span class="nav-number">1.1.</span> <span class="nav-text">传统范式的致命假设</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存、物化视图、预聚合为什么不够"><span class="nav-number">1.2.</span> <span class="nav-text">缓存、物化视图、预聚合为什么不够</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新范式：渐进式采样查询（Progressive-Sampling-Query）"><span class="nav-number">2.</span> <span class="nav-text">新范式：渐进式采样查询（Progressive Sampling Query）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#核心理念"><span class="nav-number">2.1.</span> <span class="nav-text">核心理念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三阶段执行模型"><span class="nav-number">2.2.</span> <span class="nav-text">三阶段执行模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询意图自动识别"><span class="nav-number">2.3.</span> <span class="nav-text">查询意图自动识别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#明细查询的采样范式"><span class="nav-number">2.4.</span> <span class="nav-text">明细查询的采样范式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术实现：表格式内建采样"><span class="nav-number">3.</span> <span class="nav-text">技术实现：表格式内建采样</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Iceberg表格式扩展"><span class="nav-number">3.1.</span> <span class="nav-text">Iceberg表格式扩展</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自描述采样（Self-Describing-Sampling）"><span class="nav-number">3.2.</span> <span class="nav-text">自描述采样（Self-Describing Sampling）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#增量采样维护"><span class="nav-number">3.3.</span> <span class="nav-text">增量采样维护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Zone-Maps-采样的协同"><span class="nav-number">3.4.</span> <span class="nav-text">Zone Maps + 采样的协同</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#大一统：湖仓一体的破局点"><span class="nav-number">4.</span> <span class="nav-text">大一统：湖仓一体的破局点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#当前数据架构的三难困境"><span class="nav-number">4.1.</span> <span class="nav-text">当前数据架构的三难困境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#采样范式为什么能统一三层"><span class="nav-number">4.2.</span> <span class="nav-text">采样范式为什么能统一三层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#统一查询接口"><span class="nav-number">4.3.</span> <span class="nav-text">统一查询接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#外部数据目录兼容"><span class="nav-number">4.4.</span> <span class="nav-text">外部数据目录兼容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#采样质量控制"><span class="nav-number">5.</span> <span class="nav-text">采样质量控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#误差保证"><span class="nav-number">5.1.</span> <span class="nav-text">误差保证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自适应采样率"><span class="nav-number">5.2.</span> <span class="nav-text">自适应采样率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分层采样处理数据倾斜"><span class="nav-number">5.3.</span> <span class="nav-text">分层采样处理数据倾斜</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用户无感上车策略"><span class="nav-number">6.</span> <span class="nav-text">用户无感上车策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么”无感”是成功的关键"><span class="nav-number">6.1.</span> <span class="nav-text">为什么”无感”是成功的关键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四层无感设计"><span class="nav-number">6.2.</span> <span class="nav-text">四层无感设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#渐进式上车路径"><span class="nav-number">6.3.</span> <span class="nav-text">渐进式上车路径</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对比分析：为什么采样范式最可能成功"><span class="nav-number">7.</span> <span class="nav-text">对比分析：为什么采样范式最可能成功</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#vs-现有方案"><span class="nav-number">7.1.</span> <span class="nav-text">vs 现有方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成功的四个必要条件"><span class="nav-number">7.2.</span> <span class="nav-text">成功的四个必要条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#与现有技术的融合点"><span class="nav-number">7.3.</span> <span class="nav-text">与现有技术的融合点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术挑战与解法"><span class="nav-number">8.</span> <span class="nav-text">技术挑战与解法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战一：JOIN场景的采样"><span class="nav-number">8.1.</span> <span class="nav-text">挑战一：JOIN场景的采样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战二：COUNT-DISTINCT"><span class="nav-number">8.2.</span> <span class="nav-text">挑战二：COUNT DISTINCT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战三：数据分布变化"><span class="nav-number">8.3.</span> <span class="nav-text">挑战三：数据分布变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战四：用户信任"><span class="nav-number">8.4.</span> <span class="nav-text">挑战四：用户信任</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#未来演进路线"><span class="nav-number">9.</span> <span class="nav-text">未来演进路线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#近期（1-2年）：引擎层采样"><span class="nav-number">9.1.</span> <span class="nav-text">近期（1-2年）：引擎层采样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#中期（3-5年）：表格式标准化"><span class="nav-number">9.2.</span> <span class="nav-text">中期（3-5年）：表格式标准化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#远期（5-10年）：AI驱动采样"><span class="nav-number">9.3.</span> <span class="nav-text">远期（5-10年）：AI驱动采样</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">10.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心问题：为什么精确优先的范式已经走到尽头"><span class="nav-number">1.</span> <span class="nav-text">核心问题：为什么精确优先的范式已经走到尽头</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#传统范式的致命假设"><span class="nav-number">1.1.</span> <span class="nav-text">传统范式的致命假设</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存、物化视图、预聚合为什么不够"><span class="nav-number">1.2.</span> <span class="nav-text">缓存、物化视图、预聚合为什么不够</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新范式：渐进式采样查询（Progressive-Sampling-Query）"><span class="nav-number">2.</span> <span class="nav-text">新范式：渐进式采样查询（Progressive Sampling Query）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#核心理念"><span class="nav-number">2.1.</span> <span class="nav-text">核心理念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三阶段执行模型"><span class="nav-number">2.2.</span> <span class="nav-text">三阶段执行模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询意图自动识别"><span class="nav-number">2.3.</span> <span class="nav-text">查询意图自动识别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#明细查询的采样范式"><span class="nav-number">2.4.</span> <span class="nav-text">明细查询的采样范式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术实现：表格式内建采样"><span class="nav-number">3.</span> <span class="nav-text">技术实现：表格式内建采样</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Iceberg表格式扩展"><span class="nav-number">3.1.</span> <span class="nav-text">Iceberg表格式扩展</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自描述采样（Self-Describing-Sampling）"><span class="nav-number">3.2.</span> <span class="nav-text">自描述采样（Self-Describing Sampling）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#增量采样维护"><span class="nav-number">3.3.</span> <span class="nav-text">增量采样维护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Zone-Maps-采样的协同"><span class="nav-number">3.4.</span> <span class="nav-text">Zone Maps + 采样的协同</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#大一统：湖仓一体的破局点"><span class="nav-number">4.</span> <span class="nav-text">大一统：湖仓一体的破局点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#当前数据架构的三难困境"><span class="nav-number">4.1.</span> <span class="nav-text">当前数据架构的三难困境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#采样范式为什么能统一三层"><span class="nav-number">4.2.</span> <span class="nav-text">采样范式为什么能统一三层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#统一查询接口"><span class="nav-number">4.3.</span> <span class="nav-text">统一查询接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#外部数据目录兼容"><span class="nav-number">4.4.</span> <span class="nav-text">外部数据目录兼容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#采样质量控制"><span class="nav-number">5.</span> <span class="nav-text">采样质量控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#误差保证"><span class="nav-number">5.1.</span> <span class="nav-text">误差保证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自适应采样率"><span class="nav-number">5.2.</span> <span class="nav-text">自适应采样率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分层采样处理数据倾斜"><span class="nav-number">5.3.</span> <span class="nav-text">分层采样处理数据倾斜</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用户无感上车策略"><span class="nav-number">6.</span> <span class="nav-text">用户无感上车策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么”无感”是成功的关键"><span class="nav-number">6.1.</span> <span class="nav-text">为什么”无感”是成功的关键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四层无感设计"><span class="nav-number">6.2.</span> <span class="nav-text">四层无感设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#渐进式上车路径"><span class="nav-number">6.3.</span> <span class="nav-text">渐进式上车路径</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对比分析：为什么采样范式最可能成功"><span class="nav-number">7.</span> <span class="nav-text">对比分析：为什么采样范式最可能成功</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#vs-现有方案"><span class="nav-number">7.1.</span> <span class="nav-text">vs 现有方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成功的四个必要条件"><span class="nav-number">7.2.</span> <span class="nav-text">成功的四个必要条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#与现有技术的融合点"><span class="nav-number">7.3.</span> <span class="nav-text">与现有技术的融合点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术挑战与解法"><span class="nav-number">8.</span> <span class="nav-text">技术挑战与解法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战一：JOIN场景的采样"><span class="nav-number">8.1.</span> <span class="nav-text">挑战一：JOIN场景的采样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战二：COUNT-DISTINCT"><span class="nav-number">8.2.</span> <span class="nav-text">挑战二：COUNT DISTINCT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战三：数据分布变化"><span class="nav-number">8.3.</span> <span class="nav-text">挑战三：数据分布变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战四：用户信任"><span class="nav-number">8.4.</span> <span class="nav-text">挑战四：用户信任</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#未来演进路线"><span class="nav-number">9.</span> <span class="nav-text">未来演进路线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#近期（1-2年）：引擎层采样"><span class="nav-number">9.1.</span> <span class="nav-text">近期（1-2年）：引擎层采样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#中期（3-5年）：表格式标准化"><span class="nav-number">9.2.</span> <span class="nav-text">中期（3-5年）：表格式标准化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#远期（5-10年）：AI驱动采样"><span class="nav-number">9.3.</span> <span class="nav-text">远期（5-10年）：AI驱动采样</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">10.</span> <span class="nav-text">常见问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">11.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -785,12 +806,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">99k</span>
+    <span title="站点总字数">103k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:30</span>
+    <span title="站点阅读时长">1:34</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -821,7 +842,7 @@
 <script src="/js/schemes/muse.js"></script>
 
 
-<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<script src="/js/next-boot.js"></script>
 
 
 
