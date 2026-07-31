@@ -1,0 +1,41 @@
+# Lanky's Blog
+
+> 技术洞察博客，专注数据库、数据湖、AI编程领域的深度分析与实测对比。含TPC-DS benchmark原创数据、OLAP数据库选型、湖仓架构分析。
+
+## 数据库与OLAP
+- [ClickHouse列式OLAP数据库洞察](/2026/07/16/ClickHouse-列式OLAP洞察/)
+  TPC-DS实测对比ClickHouse vs StarRocks，单表聚合ClickHouse快3倍，多表JOIN StarRocks更优
+- [Apache Pinot实时OLAP洞察](/2026/07/16/Apache-Pinot-实时OLAP洞察/)
+  Pinot靠Star-Tree预聚合索引，用户面分析比Druid低2-7倍延迟，含实时Upsert技术路线选型
+- [DuckDB嵌入式分析数据库洞察](/2026/07/16/DuckDB-嵌入式分析数据库洞察/)
+  "分析界SQLite"——无需独立服务进程，直接嵌入应用，适合边缘设备轻量分析和AI查询场景
+- [SingleStore HTAP实时统一数据平台洞察](/2026/07/16/SingleStore-HTAP实时统一数据平台洞察/)
+  一个引擎同时跑事务、分析和向量搜索，电信场景验证6-100倍查询加速
+
+## 数据湖与湖仓
+- [Apache Iceberg表格式性能与架构洞察](/2026/07/22/Apache-Iceberg表格式性能与架构洞察/)
+  TPC-DS 4场景benchmark：Iceberg公平对比仅快4.7%，核心价值在架构治理而非裸性能
+- [Iceberg + Trino开源湖仓查询洞察](/2026/07/16/Iceberg-Trino-开源湖仓查询洞察/)
+  Iceberg+Trino+Polaris构成开源湖仓三件套，Trino查询比StarRocks慢约5倍，价值在标准对接
+
+## AI编程与Code Agent
+- [Claude Code开源代码与Code Agent技术洞察](/2026/07/16/Claude-Code-开源代码与Code-Agent技术洞察/)
+  1730行异步生成器为核心agentic loop，40+自描述工具，四层上下文压缩，MCP生态
+- [AI编程实践洞察与工程原则](/2026/07/15/AI编程实践洞察与工程原则/)
+  差分测试、规格驱动、确定性护栏、对抗性验证等方法论，有参考实现的迁移项目ROI最高
+
+## 语义层与AI查询
+- [dbt Semantic Layer / Cube开源语义层洞察](/2026/07/15/dbt-Cube-开源语义层洞察/)
+  Cube在多仓库覆盖和架构独立性上更优，两者均支持MCP Server供AI Agent调用
+- [Snowflake AI查询与语义层洞察](/2026/07/15/Snowflake-AI查询与语义层洞察/)
+  六阶段Agent流水线+原生语义层，text-to-SQL准确率从51%提升到90%+
+- [BigQuery + Looker + Gemini洞察](/2026/07/15/BigQuery-Looker-Gemini洞察/)
+  LookML运行14年最成熟的语义建模语言，Gemini"AI生成语义查询+确定性编译SQL"准确率97%
+- [Databricks AI/BI洞察](/2026/07/15/Databricks-AI-BI洞察/)
+  AI/BI Genie+Unity Catalog+Delta Lake UniForm构成湖仓一体AI查询方案
+- [基于统一SQL的大模型友好查询洞察](/2026/07/15/基于统一SQL的大模型友好查询洞察分享/)
+  跨库SQL适配三条路线分析，当前"统一SQL+方言转换"方案存在结构性风险
+
+## 知识图谱
+- [Neo4j / RelationalAI知识图谱洞察](/2026/07/15/Neo4j-RelationalAI-知识图谱洞察/)
+  图查询在多跳遍历场景远胜SQL，聚合分析应留在SQL引擎，图查询是补充而非替代

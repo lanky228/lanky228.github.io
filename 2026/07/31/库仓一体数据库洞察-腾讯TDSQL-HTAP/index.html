@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lanky228.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="库仓一体的核心矛盾不是缓存能解决的。本文从存储格式、执行引擎、索引创新、硬件加速、增量计算五个维度，深入分析突破&quot;查得快&quot;与&quot;大数据&quot;矛盾的技术路径和未来方向。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="库仓一体数据库洞察——超越缓存，如何真正破解查询速度与数据规模的矛盾">
+<meta property="og:url" content="https://lanky228.github.io/2026/07/31/%E5%BA%93%E4%BB%93%E4%B8%80%E4%BD%93%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B4%9E%E5%AF%9F-%E8%85%BE%E8%AE%AFTDSQL-HTAP/index.html">
+<meta property="og:site_name" content="Lanky的博客">
+<meta property="og:description" content="库仓一体的核心矛盾不是缓存能解决的。本文从存储格式、执行引擎、索引创新、硬件加速、增量计算五个维度，深入分析突破&quot;查得快&quot;与&quot;大数据&quot;矛盾的技术路径和未来方向。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-30T19:30:00.000Z">
+<meta property="article:modified_time" content="2026-07-30T19:02:32.833Z">
+<meta property="article:author" content="Lanky">
+<meta property="article:tag" content="HTAP">
+<meta property="article:tag" content="库仓一体">
+<meta property="article:tag" content="腾讯TDSQL">
+<meta property="article:tag" content="数据库架构">
+<meta property="article:tag" content="云原生">
+<meta property="article:tag" content="向量化执行">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lanky228.github.io/2026/07/31/%E5%BA%93%E4%BB%93%E4%B8%80%E4%BD%93%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B4%9E%E5%AF%9F-%E8%85%BE%E8%AE%AFTDSQL-HTAP/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Lanky的技术博客",
+  "url": "https://lanky228.github.io",
+  "description": "Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。",
+  "inLanguage": "zh-CN"
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "库仓一体数据库洞察——超越缓存，如何真正破解查询速度与数据规模的矛盾",
+  "datePublished": "1785439800000",
+  "url": "https://lanky228.github.io2026/07/31/库仓一体数据库洞察-腾讯TDSQL-HTAP/",
+  "inLanguage": "zh-CN"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://lanky228.github.io" },
+    { "@type": "ListItem", "position": 2, "name": "库仓一体数据库洞察——超越缓存，如何真正破解查询速度与数据规模的矛盾", "item": "https://lanky228.github.io2026/07/31/库仓一体数据库洞察-腾讯TDSQL-HTAP/" }
+  ]
+}
+</script>
+
+
+<link rel="canonical" href="https://lanky228.github.io2026/07/31/库仓一体数据库洞察-腾讯TDSQL-HTAP/" />
+<meta property="og:site_name" content="Lanky的博客" />
+<meta property="og:title" content="库仓一体数据库洞察——超越缓存，如何真正破解查询速度与数据规模的矛盾" />
+<meta property="og:url" content="https://lanky228.github.io2026/07/31/库仓一体数据库洞察-腾讯TDSQL-HTAP/" />
+<meta property="og:locale" content="zh_CN" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="库仓一体数据库洞察——超越缓存，如何真正破解查询速度与数据规模的矛盾" />
+
+  <title>库仓一体数据库洞察——超越缓存，如何真正破解查询速度与数据规模的矛盾 | Lanky的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lanky的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">生活 学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/07/31/%E5%BA%93%E4%BB%93%E4%B8%80%E4%BD%93%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B4%9E%E5%AF%9F-%E8%85%BE%E8%AE%AFTDSQL-HTAP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          库仓一体数据库洞察——超越缓存，如何真正破解查询速度与数据规模的矛盾
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-07-31 03:30:00 / 修改时间：03:02:32" itemprop="dateCreated datePublished" datetime="2026-07-31T03:30:00+08:00">2026-07-31</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+            <div class="post-description">库仓一体的核心矛盾不是缓存能解决的。本文从存储格式、执行引擎、索引创新、硬件加速、增量计算五个维度，深入分析突破"查得快"与"大数据"矛盾的技术路径和未来方向。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>💡 一句话总结：缓存只是延迟矛盾，真正的解法是让数据扫描量指数级下降——向量化执行减少CPU开销、数据跳越索引减少I/O、增量计算避免重复扫描、硬件加速突破摩尔定律极限、自适应存储让热数据自然浮现。</p>
+<h2 id="缓存为什么不够"><a href="#缓存为什么不够" class="headerlink" title="缓存为什么不够"></a>缓存为什么不够</h2><p>很多人对HTAP的第一反应是”加缓存”——把热点数据放内存，查询自然快。但缓存有三个根本性局限：</p>
+<ol>
+<li><strong>缓存命中率天花板</strong>：数据量增长到TB/PB级，内存只够放1-5%，命中率必然下降</li>
+<li><strong>数据新鲜度问题</strong>：缓存数据有延迟，HTAP的核心价值是”分析最新事务数据”，缓存破坏了这一点</li>
+<li><strong>缓存失效成本</strong>：高频写入场景下，缓存不断失效重建，反而增加系统负担</li>
+</ol>
+<p>缓存是锦上添花，不是釜底抽薪。真正要解决的是：<strong>当数据量从GB增长到PB时，如何让查询延迟不随数据量线性增长。</strong></p>
+<h2 id="问题的数学本质"><a href="#问题的数学本质" class="headerlink" title="问题的数学本质"></a>问题的数学本质</h2><p>一次全表扫描的延迟：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">T &#x3D; D &#x2F; S</span><br><span class="line"></span><br><span class="line">D &#x3D; 数据扫描量</span><br><span class="line">S &#x3D; 扫描吞吐率（I&#x2F;O + CPU）</span><br></pre></td></tr></table></figure>
+<p>传统方案只优化 S（更快的磁盘、更快的CPU），但 D 不变，数据量翻倍延迟就翻倍。</p>
+<p>真正的突破方向是同时优化 D 和 S：</p>
+<ul>
+<li><strong>降低 D</strong>：不需要的数据不扫描</li>
+<li><strong>提高 S</strong>：扫描效率指数级提升</li>
+</ul>
+<h2 id="方向一：数据跳越——从全表扫描到精准打击"><a href="#方向一：数据跳越——从全表扫描到精准打击" class="headerlink" title="方向一：数据跳越——从全表扫描到精准打击"></a>方向一：数据跳越——从全表扫描到精准打击</h2><h3 id="Zone-Maps（区域地图）"><a href="#Zone-Maps（区域地图）" class="headerlink" title="Zone Maps（区域地图）"></a>Zone Maps（区域地图）</h3><p>这是所有现代列存数据库的基础技术：</p>
+<ul>
+<li>数据按块（block，通常8192行）存储</li>
+<li>每个块记录min/max值</li>
+<li>查询时先检查min/max，跳过不匹配的块</li>
+</ul>
+<p>效果：查询 <code>WHERE date &gt; &#39;2026-07-01&#39;</code>，如果数据按日期排序，90%的块可以被跳过。<strong>数据扫描量从100%降到10%，效果远超任何缓存。</strong></p>
+<p>腾讯TDSQL-A、ClickHouse、Snowflake都用这个技术。关键在于数据排列——按高频查询列排序，Zone Maps的效果可以差10倍。</p>
+<h3 id="数据跳越索引（Data-Skipping-Index）"><a href="#数据跳越索引（Data-Skipping-Index）" class="headerlink" title="数据跳越索引（Data Skipping Index）"></a>数据跳越索引（Data Skipping Index）</h3><p>比Zone Maps更进一步：</p>
+<ul>
+<li><strong>Bloom Filter索引</strong>：对高基数列（如user_id）建Bloom Filter，快速判断值是否存在于块中</li>
+<li><strong>倒排索引</strong>：对低基数列（如status）建倒排表，直接定位包含特定值的块</li>
+<li><strong>MinMax统计</strong>：对数值列记录min/max/sum/count，聚合查询可以直接使用统计值</li>
+</ul>
+<p>PolarDB的IMCI引擎在这个方向做得比较深，支持多种数据跳越索引的组合使用。</p>
+<h3 id="列裁剪"><a href="#列裁剪" class="headerlink" title="列裁剪"></a>列裁剪</h3><p>列存天然的优势——只读取查询涉及的列：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">SUM</span>(amount) <span class="keyword">FROM</span> orders <span class="keyword">WHERE</span> <span class="keyword">status</span> = <span class="string">'paid'</span></span><br></pre></td></tr></table></figure>
+<p>如果orders表有50列，但查询只用了2列，列存只扫描4%的数据。这是行存做不到的。</p>
+<h2 id="方向二：向量化执行——CPU效率的指数级提升"><a href="#方向二：向量化执行——CPU效率的指数级提升" class="headerlink" title="方向二：向量化执行——CPU效率的指数级提升"></a>方向二：向量化执行——CPU效率的指数级提升</h2><h3 id="逐行-vs-批量"><a href="#逐行-vs-批量" class="headerlink" title="逐行 vs 批量"></a>逐行 vs 批量</h3><p>传统Volcano模型逐行处理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">for each row:</span><br><span class="line">  if row.status &#x3D;&#x3D; &#39;paid&#39;:</span><br><span class="line">    sum +&#x3D; row.amount</span><br></pre></td></tr></table></figure>
+<p>每次处理一行，CPU分支预测失败率高，无法利用SIMD。</p>
+<p>向量化执行批量处理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">batch &#x3D; fetch_1024_rows()</span><br><span class="line">mask &#x3D; batch.status &#x3D;&#x3D; &#39;paid&#39;  &#x2F;&#x2F; SIMD一条指令比较1024个值</span><br><span class="line">sum +&#x3D; batch.amount[mask]      &#x2F;&#x2F; SIMD加法</span><br></pre></td></tr></table></figure>
+<p>效果：<strong>CPU利用率提升5-10倍</strong>。这不是优化，是执行模型的根本变化。</p>
+<h3 id="晚物化（Late-Materialization）"><a href="#晚物化（Late-Materialization）" class="headerlink" title="晚物化（Late Materialization）"></a>晚物化（Late Materialization）</h3><p>列存+向量化的组合技：</p>
+<ul>
+<li>传统行存：尽早物化（early materialization）——扫描时就拼装完整行</li>
+<li>列存晚物化：先在列上过滤和计算，最后才拼装结果行</li>
+</ul>
+<p>效果：查询 <code>SELECT name FROM users WHERE age &gt; 30</code>，如果只有10%的用户年龄&gt;30，晚物化只拼装10%的name值，而不是先拼装100%的行再过滤。</p>
+<h3 id="JIT编译查询"><a href="#JIT编译查询" class="headerlink" title="JIT编译查询"></a>JIT编译查询</h3><p>将SQL查询编译为机器码，消除解释器开销：</p>
+<ul>
+<li>Eliminate虚函数调用</li>
+<li>消除分支预测失败</li>
+<li>利用CPU寄存器优化</li>
+</ul>
+<p>ClickHouse的编译执行、PostgreSQL的JIT（LLVM）都用这个思路。对复杂查询效果显著，但对简单查询编译开销可能得不偿失。</p>
+<h2 id="方向三：增量计算——不重复扫已完成的工作"><a href="#方向三：增量计算——不重复扫已完成的工作" class="headerlink" title="方向三：增量计算——不重复扫已完成的工作"></a>方向三：增量计算——不重复扫已完成的工作</h2><h3 id="物化视图的进化"><a href="#物化视图的进化" class="headerlink" title="物化视图的进化"></a>物化视图的进化</h3><p>传统物化视图：预计算好结果，查询时直接读。问题是数据更新时需要全量重建。</p>
+<p><strong>增量物化视图</strong>：只处理变化部分：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">基础视图: SELECT dept, SUM(salary) FROM emp GROUP BY dept</span><br><span class="line"></span><br><span class="line">新增一条员工记录(dept&#x3D;IT, salary&#x3D;20000):</span><br><span class="line">增量计算: view[IT] +&#x3D; 20000  &#x2F;&#x2F; 只做一次加法，不重扫全表</span><br></pre></td></tr></table></figure>
+<p>这是ClickHouse的AggregatingMergeTree、PostgreSQL的Incremental Materialized View的核心思路。</p>
+<h3 id="流批一体"><a href="#流批一体" class="headerlink" title="流批一体"></a>流批一体</h3><p>把增量推到极致——数据变更以流的方式实时应用：</p>
+<ul>
+<li>数据写入 = 流事件</li>
+<li>物化视图 = 流处理结果</li>
+<li>查询 = 读取流处理维护的最新状态</li>
+</ul>
+<p>这就是Flink + 数据库的融合方向。TDSQL的实时分析能力部分基于这个思路。</p>
+<h3 id="查询结果复用"><a href="#查询结果复用" class="headerlink" title="查询结果复用"></a>查询结果复用</h3><p>不是缓存原始数据，而是缓存中间计算结果：</p>
+<ul>
+<li><strong>子查询结果复用</strong>：同一查询中多次出现的子查询只算一次</li>
+<li><strong>跨查询结果复用</strong>：不同查询共享公共的中间结果</li>
+<li><strong>预计算立方体</strong>：对多维分析场景，预计算不同维度的聚合</li>
+</ul>
+<p>Snowflake的Result Cache、Oracle的Materialized Join都走这个方向。</p>
+<h2 id="方向四：存储格式创新——从行列之争到混合智能"><a href="#方向四：存储格式创新——从行列之争到混合智能" class="headerlink" title="方向四：存储格式创新——从行列之争到混合智能"></a>方向四：存储格式创新——从行列之争到混合智能</h2><h3 id="PAX格式（行列混合）"><a href="#PAX格式（行列混合）" class="headerlink" title="PAX格式（行列混合）"></a>PAX格式（行列混合）</h3><p>不是简单的”行存一份+列存一份”，而是同一个数据块内同时有行和列的布局：</p>
+<ul>
+<li><strong>行组（Row Group）</strong>：数据按行组切分，每个行组N行</li>
+<li><strong>列段（Column Segment）</strong>：行组内每列独立存储</li>
+<li>查询时按列扫描（列存优势），但同一行的列在物理上邻近（行存优势）</li>
+</ul>
+<p>这就是Parquet、ORC的底层格式。但下一代格式走得更远。</p>
+<h3 id="自适应存储"><a href="#自适应存储" class="headerlink" title="自适应存储"></a>自适应存储</h3><p>根据数据访问模式自动调整存储格式：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>数据特征</th>
+<th>自动选择</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>高频点查</td>
+<td>行存 + B+树索引</td>
+</tr>
+<tr>
+<td>高频范围扫描</td>
+<td>列存 + Zone Map</td>
+</tr>
+<tr>
+<td>高频聚合</td>
+<td>列存 + 预聚合</td>
+</tr>
+<tr>
+<td>时序数据</td>
+<td>列存 + 时间分区</td>
+</tr>
+<tr>
+<td>冷数据</td>
+<td>压缩列存（高压缩比）</td>
+</tr>
+<tr>
+<td>热数据</td>
+<td>未压缩行存（最低延迟）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>TiDB的TiFlash在这个方向探索较多，但完全自适应的存储引擎仍在研究中。</p>
+<h3 id="存储分层不是缓存"><a href="#存储分层不是缓存" class="headerlink" title="存储分层不是缓存"></a>存储分层不是缓存</h3><p>关键区分：<strong>存储分层 ≠ 缓存</strong></p>
+<ul>
+<li>缓存：数据有两份（内存一份+磁盘一份），一致性问题</li>
+<li>分层：数据只有一份，根据温度自动迁移存储介质<ul>
+<li>热数据 → NVMe SSD（微秒级延迟）</li>
+<li>温数据 → SATA SSD（毫秒级）</li>
+<li>冷数据 → 对象存储（百毫秒级，但成本低10倍）</li>
+</ul>
+</li>
+</ul>
+<p>分层是透明的——查询不需要知道数据在哪层，系统自动路由。这是云原生HTAP的基础能力。</p>
+<h2 id="方向五：硬件加速——突破摩尔定律"><a href="#方向五：硬件加速——突破摩尔定律" class="headerlink" title="方向五：硬件加速——突破摩尔定律"></a>方向五：硬件加速——突破摩尔定律</h2><h3 id="GPU加速查询"><a href="#GPU加速查询" class="headerlink" title="GPU加速查询"></a>GPU加速查询</h3><p>GPU有数万核心，天然适合大规模并行：</p>
+<ul>
+<li><strong>聚合操作</strong>：SUM/COUNT/AVG在GPU上速度提升10-100倍</li>
+<li><strong>JOIN操作</strong>：Hash JOIN在GPU上利用共享内存极快</li>
+<li><strong>过滤操作</strong>：批量谓词评估利用SIMT</li>
+</ul>
+<p>挑战：数据传输（PCIe带宽瓶颈）。解法：<strong>GPU直连存储</strong>，绕过CPU。NVIDIA的RAPIDS和Google的F1 Query都在走这个方向。</p>
+<h3 id="FPGA卸载"><a href="#FPGA卸载" class="headerlink" title="FPGA卸载"></a>FPGA卸载</h3><p>把特定计算卸载到FPGA：</p>
+<ul>
+<li><strong>数据解压</strong>：列存压缩数据在FPGA上硬件解压，CPU零开销</li>
+<li><strong>谓词过滤</strong>：WHERE条件在FPGA上执行，只传回匹配行</li>
+<li><strong>加密解密</strong>：透明数据加密的加解密在FPGA上完成</li>
+</ul>
+<p>微软Azure SQL的Hardware Offload、AWS的Nitro系统都用FPGA卸载。</p>
+<h3 id="持久内存（PMem-SCM）"><a href="#持久内存（PMem-SCM）" class="headerlink" title="持久内存（PMem/SCM）"></a>持久内存（PMem/SCM）</h3><p>存储介质的革命性变化：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>介质</th>
+<th>延迟</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DRAM</td>
+<td>~100ns</td>
+<td>易失，贵</td>
+</tr>
+<tr>
+<td>PMem</td>
+<td>~300ns</td>
+<td>持久，接近内存速度</td>
+</tr>
+<tr>
+<td>NVMe SSD</td>
+<td>~10μs</td>
+<td>持久，较贵</td>
+</tr>
+<tr>
+<td>SATA SSD</td>
+<td>~100μs</td>
+<td>持久，中等</td>
+</tr>
+<tr>
+<td>HDD</td>
+<td>~10ms</td>
+<td>持久，便宜</td>
+</tr>
+<tr>
+<td>对象存储</td>
+<td>~100ms</td>
+<td>持久，极便宜</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>PMem模糊了内存和存储的边界——数据库可以直接在持久内存上运行，不需要缓冲池（Buffer Pool）。这从根本上消除了缓存一致性问题。</p>
+<p>虽然Intel已停产Optane PMem，但SCM（Storage Class Memory）技术方向不变，未来可能有新的实现。</p>
+<h3 id="RDMA网络"><a href="#RDMA网络" class="headerlink" title="RDMA网络"></a>RDMA网络</h3><p>存算分离的网络瓶颈由RDMA解决：</p>
+<ul>
+<li>传统TCP：~50μs延迟，CPU参与数据拷贝</li>
+<li>RDMA：~2μs延迟，CPU零参与（直接内存到内存）</li>
+</ul>
+<p>腾讯TDSQL用RDMA连接计算和存储层，使存算分离的网络开销几乎可以忽略。这是TDSQL能做到”分离但低延迟”的关键。</p>
+<h2 id="方向六：AI驱动的查询优化"><a href="#方向六：AI驱动的查询优化" class="headerlink" title="方向六：AI驱动的查询优化"></a>方向六：AI驱动的查询优化</h2><h3 id="学习型索引（Learned-Index）"><a href="#学习型索引（Learned-Index）" class="headerlink" title="学习型索引（Learned Index）"></a>学习型索引（Learned Index）</h3><p>传统B+树假设数据均匀分布，但实际上数据有分布模式：</p>
+<ul>
+<li><strong>学习型索引</strong>：用ML模型学习数据的CDF（累积分布函数），直接预测数据位置</li>
+<li>效果：查询速度提升1-10倍，内存占用减少10-100倍</li>
+</ul>
+<p>Google在SASI（Sapphire Auxiliary Search Index）中验证了这个方向。挑战是数据分布变化时需要重训模型。</p>
+<h3 id="自适应查询计划"><a href="#自适应查询计划" class="headerlink" title="自适应查询计划"></a>自适应查询计划</h3><p>传统优化器在编译时确定执行计划，实际执行时如果统计信息不准就退化。自适应优化：</p>
+<ul>
+<li><strong>运行时统计收集</strong>：执行过程中收集实际数据分布</li>
+<li><strong>动态计划调整</strong>：如果发现实际数据量远超预期，自动切换到并行计划</li>
+<li><strong>学习型代价模型</strong>：用历史查询数据训练代价预测模型</li>
+</ul>
+<h3 id="自动索引推荐"><a href="#自动索引推荐" class="headerlink" title="自动索引推荐"></a>自动索引推荐</h3><p>AI分析查询日志，自动决定：</p>
+<ul>
+<li>该建什么索引（B+树/Hash/列存/Bloom Filter）</li>
+<li>该建在哪列上</li>
+<li>该在什么时候重建或删除</li>
+</ul>
+<p>这比DBA手动调优更精确，因为AI能看到全量查询模式。</p>
+<h2 id="未来趋势：从HTAP到HTAP-Lake"><a href="#未来趋势：从HTAP到HTAP-Lake" class="headerlink" title="未来趋势：从HTAP到HTAP+Lake"></a>未来趋势：从HTAP到HTAP+Lake</h2><h3 id="三层融合"><a href="#三层融合" class="headerlink" title="三层融合"></a>三层融合</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────┐</span><br><span class="line">│         统一SQL接口                  │</span><br><span class="line">│  (Calcite&#x2F;Trino联邦查询)             │</span><br><span class="line">├──────────┬──────────┬───────────────┤</span><br><span class="line">│   TP层    │   AP层    │   Lake层      │</span><br><span class="line">│  行存+索引 │ 列存+向量化 │ Parquet+Iceberg│</span><br><span class="line">│  低延迟事务 │ 高吞吐分析  │ 海量历史数据   │</span><br><span class="line">│  内存&#x2F;NVMe │ SSD+PMem  │ 对象存储       │</span><br><span class="line">├──────────┴──────────┴───────────────┤</span><br><span class="line">│      共享元数据 + 统一权限             │</span><br><span class="line">│      (Unity Catalog &#x2F; Polaris)        │</span><br><span class="line">└─────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+<p>用户写一条SQL，系统自动决定走哪层：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 透明跨层查询</span></span><br><span class="line"><span class="keyword">SELECT</span> customer_id, <span class="keyword">SUM</span>(amount) <span class="keyword">as</span> total</span><br><span class="line"><span class="keyword">FROM</span> orders          <span class="comment">-- TP行存（今天的事务）</span></span><br><span class="line"><span class="keyword">WHERE</span> <span class="built_in">date</span> &gt;= <span class="string">'2026-01-01'</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> customer_id</span><br><span class="line"><span class="keyword">HAVING</span> <span class="keyword">SUM</span>(amount) &gt; (</span><br><span class="line">  <span class="keyword">SELECT</span> <span class="keyword">AVG</span>(amount) <span class="keyword">FROM</span> lake.analytics  <span class="comment">-- Lake层（去年的历史数据）</span></span><br><span class="line">  <span class="keyword">WHERE</span> <span class="keyword">year</span> = <span class="number">2025</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h3 id="关键技术收敛点"><a href="#关键技术收敛点" class="headerlink" title="关键技术收敛点"></a>关键技术收敛点</h3><ol>
+<li><strong>Apache Iceberg成为统一表格式</strong>：TP/AP/Lake都用Iceberg管理元数据，消除格式壁垒</li>
+<li><strong>Calcite/Trino成为统一查询引擎</strong>：一套优化器覆盖所有数据源</li>
+<li><strong>Arrow成为统一内存格式</strong>：零拷贝跨引擎数据交换</li>
+<li><strong>Serverless弹性</strong>：TP常驻+AP按需+Lake无服务器</li>
+</ol>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><p>“查得快”和”大数据”的矛盾不是一个缓存问题，而是系统工程的六层组合：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>技术</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据跳越</td>
+<td>Zone Maps + 列裁剪</td>
+<td>扫描量降80-95%</td>
+</tr>
+<tr>
+<td>执行引擎</td>
+<td>向量化 + 晚物化 + JIT</td>
+<td>CPU效率提升5-10倍</td>
+</tr>
+<tr>
+<td>增量计算</td>
+<td>增量物化视图 + 流批一体</td>
+<td>避免重复扫描</td>
+</tr>
+<tr>
+<td>存储格式</td>
+<td>PAX混合 + 自适应分层</td>
+<td>各场景最优布局</td>
+</tr>
+<tr>
+<td>硬件加速</td>
+<td>GPU + FPGA + PMem + RDMA</td>
+<td>突破物理极限</td>
+</tr>
+<tr>
+<td>AI优化</td>
+<td>学习型索引 + 自适应计划</td>
+<td>持续自动优化</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>最终答案：<strong>不是让一个引擎同时做好两件事，而是让数据扫描量指数级下降，让计算效率指数级提升。缓存只是延迟矛盾，真正的突破在于让”大数据”在查询时变成”小数据”——只扫描需要的、只计算变化的、只传输有用的。</strong></p>
+<p>腾讯TDSQL的路线验证了这个方向：存算分离（RDMA低延迟）→ 行列混存（各得其所）→ 向量化执行（CPU效率）→ 弹性Serverless（成本）→ 湖仓一体（统一接口）。但最前沿的突破点在AI驱动优化和硬件加速——这才是未来3-5年的真正战场。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/HTAP/" rel="tag"># HTAP</a>
+              <a href="/tags/%E5%BA%93%E4%BB%93%E4%B8%80%E4%BD%93/" rel="tag"># 库仓一体</a>
+              <a href="/tags/%E8%85%BE%E8%AE%AFTDSQL/" rel="tag"># 腾讯TDSQL</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9E%B6%E6%9E%84/" rel="tag"># 数据库架构</a>
+              <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" rel="tag"># 云原生</a>
+              <a href="/tags/%E5%90%91%E9%87%8F%E5%8C%96%E6%89%A7%E8%A1%8C/" rel="tag"># 向量化执行</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/07/28/blog-article-universal-dividend/" rel="prev" title="全民分红不是财政善意，是公有制在数字时代的制度履约">
+      <i class="fa fa-chevron-left"></i> 全民分红不是财政善意，是公有制在数字时代的制度履约
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2026/07/31/%E6%B8%90%E8%BF%9B%E5%BC%8F%E9%87%87%E6%A0%B7%E6%9F%A5%E8%AF%A2-%E5%BA%93%E4%BB%93%E6%B9%96%E4%B8%80%E4%BD%93%E6%96%B0%E8%8C%83%E5%BC%8F/" rel="next" title="渐进式采样查询——突破库仓湖一体的新范式">
+      渐进式采样查询——突破库仓湖一体的新范式 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#缓存为什么不够"><span class="nav-number">1.</span> <span class="nav-text">缓存为什么不够</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题的数学本质"><span class="nav-number">2.</span> <span class="nav-text">问题的数学本质</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方向一：数据跳越——从全表扫描到精准打击"><span class="nav-number">3.</span> <span class="nav-text">方向一：数据跳越——从全表扫描到精准打击</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Zone-Maps（区域地图）"><span class="nav-number">3.1.</span> <span class="nav-text">Zone Maps（区域地图）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据跳越索引（Data-Skipping-Index）"><span class="nav-number">3.2.</span> <span class="nav-text">数据跳越索引（Data Skipping Index）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#列裁剪"><span class="nav-number">3.3.</span> <span class="nav-text">列裁剪</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方向二：向量化执行——CPU效率的指数级提升"><span class="nav-number">4.</span> <span class="nav-text">方向二：向量化执行——CPU效率的指数级提升</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#逐行-vs-批量"><span class="nav-number">4.1.</span> <span class="nav-text">逐行 vs 批量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#晚物化（Late-Materialization）"><span class="nav-number">4.2.</span> <span class="nav-text">晚物化（Late Materialization）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JIT编译查询"><span class="nav-number">4.3.</span> <span class="nav-text">JIT编译查询</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方向三：增量计算——不重复扫已完成的工作"><span class="nav-number">5.</span> <span class="nav-text">方向三：增量计算——不重复扫已完成的工作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#物化视图的进化"><span class="nav-number">5.1.</span> <span class="nav-text">物化视图的进化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#流批一体"><span class="nav-number">5.2.</span> <span class="nav-text">流批一体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询结果复用"><span class="nav-number">5.3.</span> <span class="nav-text">查询结果复用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方向四：存储格式创新——从行列之争到混合智能"><span class="nav-number">6.</span> <span class="nav-text">方向四：存储格式创新——从行列之争到混合智能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PAX格式（行列混合）"><span class="nav-number">6.1.</span> <span class="nav-text">PAX格式（行列混合）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自适应存储"><span class="nav-number">6.2.</span> <span class="nav-text">自适应存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#存储分层不是缓存"><span class="nav-number">6.3.</span> <span class="nav-text">存储分层不是缓存</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方向五：硬件加速——突破摩尔定律"><span class="nav-number">7.</span> <span class="nav-text">方向五：硬件加速——突破摩尔定律</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GPU加速查询"><span class="nav-number">7.1.</span> <span class="nav-text">GPU加速查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FPGA卸载"><span class="nav-number">7.2.</span> <span class="nav-text">FPGA卸载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#持久内存（PMem-SCM）"><span class="nav-number">7.3.</span> <span class="nav-text">持久内存（PMem&#x2F;SCM）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RDMA网络"><span class="nav-number">7.4.</span> <span class="nav-text">RDMA网络</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方向六：AI驱动的查询优化"><span class="nav-number">8.</span> <span class="nav-text">方向六：AI驱动的查询优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#学习型索引（Learned-Index）"><span class="nav-number">8.1.</span> <span class="nav-text">学习型索引（Learned Index）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自适应查询计划"><span class="nav-number">8.2.</span> <span class="nav-text">自适应查询计划</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自动索引推荐"><span class="nav-number">8.3.</span> <span class="nav-text">自动索引推荐</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#未来趋势：从HTAP到HTAP-Lake"><span class="nav-number">9.</span> <span class="nav-text">未来趋势：从HTAP到HTAP+Lake</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#三层融合"><span class="nav-number">9.1.</span> <span class="nav-text">三层融合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关键技术收敛点"><span class="nav-number">9.2.</span> <span class="nav-text">关键技术收敛点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">10.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lanky</p>
+  <div class="site-description" itemprop="description">Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">77</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lanky228" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lanky228" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1289206629@qq.com" title="E-Mail → mailto:1289206629@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lanky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">99k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:30</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
