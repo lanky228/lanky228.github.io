@@ -28,7 +28,7 @@
 <meta property="og:description" content="传统数据库追求精确扫描全量数据，这在PB时代不可持续。渐进式采样查询范式将&quot;模糊优先、精确按需&quot;作为默认行为——聚合查询默认走采样获得毫秒级近似结果，详情查询先采样定位再精确获取，通过表格式内建采样能力实现用户无感上车，最终统一湖仓三层数据源。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-07-30T20:30:00.000Z">
-<meta property="article:modified_time" content="2026-07-31T19:44:30.242Z">
+<meta property="article:modified_time" content="2026-08-01T04:43:53.418Z">
 <meta property="article:author" content="Lanky">
 <meta property="article:tag" content="Apache Iceberg">
 <meta property="article:tag" content="HTAP">
@@ -53,6 +53,7 @@
 </script>
 
 
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -64,17 +65,17 @@
 }
 </script>
 
-
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "渐进式采样查询——突破湖仓一体的新范式",
-  "datePublished": "1785443400000",
-  "url": "https://lanky228.github.io/2026/07/31/渐进式采样查询-湖仓一体新范式/",
-  "inLanguage": "zh-CN"
+  "@type": "Person",
+  "name": "Lanky",
+  "url": "https://lanky228.github.io",
+  "jobTitle": "Database & Data Lake Engineer",
+  "knowsAbout": ["Apache Calcite", "StarRocks", "ClickHouse", "Apache Iceberg", "OLAP", "Data Lakehouse", "TPC-DS Benchmark", "DuckDB", "Trino", "SQL Parser", "AI Coding"]
 }
 </script>
+
 
 <script type="application/ld+json">
 {
@@ -225,7 +226,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-08-01 03:44:30" itemprop="dateModified" datetime="2026-08-01T03:44:30+08:00">2026-08-01</time>
+                <time title="修改时间：2026-08-01 12:43:53" itemprop="dateModified" datetime="2026-08-01T12:43:53+08:00">2026-08-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,14 +244,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>10k</span>
+              <span>11k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>9 分钟</span>
+              <span>10 分钟</span>
             </span>
             <div class="post-description">传统数据库追求精确扫描全量数据，这在PB时代不可持续。渐进式采样查询范式将"模糊优先、精确按需"作为默认行为——聚合查询默认走采样获得毫秒级近似结果，详情查询先采样定位再精确获取，通过表格式内建采样能力实现用户无感上车，最终统一湖仓三层数据源。</div>
 
@@ -263,7 +264,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>💡 一句话总结：未来数据库的默认行为不应该是”扫描所有数据给精确答案”，而应该是”先采样给模糊答案，再按需精确”——这像渐进式图片加载一样，先模糊后清晰，让用户在毫秒内获得方向性判断，再决定是否值得等待精确结果。</p>
+        <details>
+<summary>📝 AI 摘要</summary>
+
+<p>传统数据库追求精确扫描全量数据，这在PB时代不可持续。渐进式采样查询范式将”模糊优先、精确按需”作为默认行为——聚合查询默认走采样获得毫秒级近似结果，详情查询先采样定位再精确获取，通过表格式内建采样能力实现用户无感上车，最终统一湖仓三层数据源。</p>
+</details>
+
+
+<p>💡 一句话总结：未来数据库的默认行为不应该是”扫描所有数据给精确答案”，而应该是”先采样给模糊答案，再按需精确”——这像渐进式图片加载一样，先模糊后清晰，让用户在毫秒内获得方向性判断，再决定是否值得等待精确结果。</p>
 <h2 id="核心问题：为什么精确优先的范式已经走到尽头"><a href="#核心问题：为什么精确优先的范式已经走到尽头" class="headerlink" title="核心问题：为什么精确优先的范式已经走到尽头"></a>核心问题：为什么精确优先的范式已经走到尽头</h2><h3 id="传统范式的致命假设"><a href="#传统范式的致命假设" class="headerlink" title="传统范式的致命假设"></a>传统范式的致命假设</h3><p>传统数据库有一个隐含假设：<strong>用户需要精确答案，系统必须扫描全量数据。</strong></p>
 <p>这个假设在数据量小的时候没问题。但当数据量从GB到TB到PB时，这个假设变成了诅咒：</p>
 <table>
@@ -624,6 +632,14 @@
 <li>查询模式学习（高频查询自动提升采样精度）</li>
 <li>采样质量持续优化（无人工干预）</li>
 </ul>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://iceberg.apache.org/docs/latest/" target="_blank" rel="noopener">Apache Iceberg官方文档</a></li>
+<li><a href="https://iceberg.apache.org/spec/" target="_blank" rel="noopener">Iceberg表格式规范</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Apache_Iceberg" target="_blank" rel="noopener">Apache Iceberg Wikipedia</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Hybrid_transactional/analytical_processing_(HTAP)" target="_blank" rel="noopener">HTAP Wikipedia</a></li>
+<li><a href="https://cube.dev/docs/" target="_blank" rel="noopener">Cube官方文档</a></li>
+<li><a href="https://github.com/cube-js/cube" target="_blank" rel="noopener">Cube GitHub</a></li>
+</ul>
 <h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><p><strong>Q: 采样查询会不会给出错误答案？</strong></p>
 <p>采样查询提供的是近似结果，不是错误结果。关键是置信区间可控——0.1% 采样在大多数聚合查询上误差不超过 5%。渐进式范式的精髓是”先给模糊方向，再按需精确”，用户根据近似结果决定是否值得等待全量扫描。</p>
 <p><strong>Q: 为什么不直接用缓存或物化视图？</strong></p>
@@ -646,6 +662,8 @@
 <p><strong>为什么这是最可能成功的技术路线？</strong></p>
 <p>因为它满足了成功的四个必要条件——零改动、误差可控、全场景、跨源统一。而缓存、物化视图、Cube等方案都在这四个条件中有短板。采样范式不是替代现有技术，而是在其上增加一个”智能降速”层，让所有现有引擎和表格式都能受益。</p>
 <p><strong>最终愿景：让”大数据”在查询时自动变成”小数据”——不是靠缓存，不是靠预计算，而是靠统计学的力量。100倍数据量只需要扫描1%，这就是采样的数学之美。</strong></p>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"渐进式采样查询——突破湖仓一体的新范式","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-07-31","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/07/31/渐进式采样查询-湖仓一体新范式/"},"url":"https://lanky228.github.io/2026/07/31/渐进式采样查询-湖仓一体新范式/","inLanguage":"zh-CN","dateModified":"2026-08-01","description":"传统数据库追求精确扫描全量数据，这在PB时代不可持续。渐进式采样查询范式将\"模糊优先、精确按需\"作为默认行为——聚合查询默认走采样获得毫秒级近似结果，详情查询先采样定位再精确获取，通过表格式内建采样能力实现用户无感上车，最终统一湖仓三层数据源。","keywords":["Apache Iceberg","HTAP","湖仓一体","采样查询","渐进式执行","数据库架构","查询优化"]}</script>
 
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"采样查询会不会给出错误答案？","acceptedAnswer":{"@type":"Answer","text":"采样查询提供的是近似结果，不是错误结果。关键是置信区间可控——0.1% 采样在大多数聚合查询上误差不超过 5%。渐进式范式的精髓是”先给模糊方向，再按需精确”，用户根据近似结果决定是否值得等待全量扫描。"}},{"@type":"Question","name":"为什么不直接用缓存或物化视图？","acceptedAnswer":{"@type":"Answer","text":"缓存和物化视图是”预计算”思路——提前算好结果存起来。问题是：查询组合爆炸、维度变更失效、新鲜数据查不到。渐进式采样是”算得快但模糊”思路——不预存任何结果，对所有查询即时响应，靠采样量控制精度和速度的平衡。"}},{"@type":"Question","name":"渐进式采样查询需要改用户的 SQL 吗？","acceptedAnswer":{"@type":"Answer","text":"不需要。理想方案是表格式内建采样能力，引擎在执行层自动插入采样算子。用户写普通 SQL，引擎根据查询类型（聚合 vs 详情）自动决定采样策略。这是”用户无感上车”的关键设计。"}},{"@type":"Question","name":"采样查询适合所有场景吗？","acceptedAnswer":{"@type":"Answer","text":"不适合。需要精确结果的场景（金融对账、合规审计、计数查询）仍然需要全量扫描。渐进式采样适合探索性分析、趋势判断、仪表盘、A&#x2F;B 实验方向性判断——这些场景占分析查询的 80% 以上。\n\n✅ 总结渐进式采样查询范式的核心命题："}}]}</script>
 
@@ -737,7 +755,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心问题：为什么精确优先的范式已经走到尽头"><span class="nav-number">1.</span> <span class="nav-text">核心问题：为什么精确优先的范式已经走到尽头</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#传统范式的致命假设"><span class="nav-number">1.1.</span> <span class="nav-text">传统范式的致命假设</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存、物化视图、预聚合为什么不够"><span class="nav-number">1.2.</span> <span class="nav-text">缓存、物化视图、预聚合为什么不够</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新范式：渐进式采样查询（Progressive-Sampling-Query）"><span class="nav-number">2.</span> <span class="nav-text">新范式：渐进式采样查询（Progressive Sampling Query）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#核心理念"><span class="nav-number">2.1.</span> <span class="nav-text">核心理念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三阶段执行模型"><span class="nav-number">2.2.</span> <span class="nav-text">三阶段执行模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询意图自动识别"><span class="nav-number">2.3.</span> <span class="nav-text">查询意图自动识别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#明细查询的采样范式"><span class="nav-number">2.4.</span> <span class="nav-text">明细查询的采样范式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术实现：表格式内建采样"><span class="nav-number">3.</span> <span class="nav-text">技术实现：表格式内建采样</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Iceberg表格式扩展"><span class="nav-number">3.1.</span> <span class="nav-text">Iceberg表格式扩展</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自描述采样（Self-Describing-Sampling）"><span class="nav-number">3.2.</span> <span class="nav-text">自描述采样（Self-Describing Sampling）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#增量采样维护"><span class="nav-number">3.3.</span> <span class="nav-text">增量采样维护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Zone-Maps-采样的协同"><span class="nav-number">3.4.</span> <span class="nav-text">Zone Maps + 采样的协同</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#大一统：湖仓一体的破局点"><span class="nav-number">4.</span> <span class="nav-text">大一统：湖仓一体的破局点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#当前数据架构的三难困境"><span class="nav-number">4.1.</span> <span class="nav-text">当前数据架构的三难困境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#采样范式为什么能统一三层"><span class="nav-number">4.2.</span> <span class="nav-text">采样范式为什么能统一三层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#统一查询接口"><span class="nav-number">4.3.</span> <span class="nav-text">统一查询接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#外部数据目录兼容"><span class="nav-number">4.4.</span> <span class="nav-text">外部数据目录兼容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#采样质量控制"><span class="nav-number">5.</span> <span class="nav-text">采样质量控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#误差保证"><span class="nav-number">5.1.</span> <span class="nav-text">误差保证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自适应采样率"><span class="nav-number">5.2.</span> <span class="nav-text">自适应采样率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分层采样处理数据倾斜"><span class="nav-number">5.3.</span> <span class="nav-text">分层采样处理数据倾斜</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用户无感上车策略"><span class="nav-number">6.</span> <span class="nav-text">用户无感上车策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么”无感”是成功的关键"><span class="nav-number">6.1.</span> <span class="nav-text">为什么”无感”是成功的关键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四层无感设计"><span class="nav-number">6.2.</span> <span class="nav-text">四层无感设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#渐进式上车路径"><span class="nav-number">6.3.</span> <span class="nav-text">渐进式上车路径</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对比分析：为什么采样范式最可能成功"><span class="nav-number">7.</span> <span class="nav-text">对比分析：为什么采样范式最可能成功</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#vs-现有方案"><span class="nav-number">7.1.</span> <span class="nav-text">vs 现有方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成功的四个必要条件"><span class="nav-number">7.2.</span> <span class="nav-text">成功的四个必要条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#与现有技术的融合点"><span class="nav-number">7.3.</span> <span class="nav-text">与现有技术的融合点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术挑战与解法"><span class="nav-number">8.</span> <span class="nav-text">技术挑战与解法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战一：JOIN场景的采样"><span class="nav-number">8.1.</span> <span class="nav-text">挑战一：JOIN场景的采样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战二：COUNT-DISTINCT"><span class="nav-number">8.2.</span> <span class="nav-text">挑战二：COUNT DISTINCT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战三：数据分布变化"><span class="nav-number">8.3.</span> <span class="nav-text">挑战三：数据分布变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战四：用户信任"><span class="nav-number">8.4.</span> <span class="nav-text">挑战四：用户信任</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#未来演进路线"><span class="nav-number">9.</span> <span class="nav-text">未来演进路线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#近期（1-2年）：引擎层采样"><span class="nav-number">9.1.</span> <span class="nav-text">近期（1-2年）：引擎层采样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#中期（3-5年）：表格式标准化"><span class="nav-number">9.2.</span> <span class="nav-text">中期（3-5年）：表格式标准化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#远期（5-10年）：AI驱动采样"><span class="nav-number">9.3.</span> <span class="nav-text">远期（5-10年）：AI驱动采样</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">10.</span> <span class="nav-text">常见问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">11.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#核心问题：为什么精确优先的范式已经走到尽头"><span class="nav-number">1.</span> <span class="nav-text">核心问题：为什么精确优先的范式已经走到尽头</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#传统范式的致命假设"><span class="nav-number">1.1.</span> <span class="nav-text">传统范式的致命假设</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存、物化视图、预聚合为什么不够"><span class="nav-number">1.2.</span> <span class="nav-text">缓存、物化视图、预聚合为什么不够</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新范式：渐进式采样查询（Progressive-Sampling-Query）"><span class="nav-number">2.</span> <span class="nav-text">新范式：渐进式采样查询（Progressive Sampling Query）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#核心理念"><span class="nav-number">2.1.</span> <span class="nav-text">核心理念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三阶段执行模型"><span class="nav-number">2.2.</span> <span class="nav-text">三阶段执行模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询意图自动识别"><span class="nav-number">2.3.</span> <span class="nav-text">查询意图自动识别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#明细查询的采样范式"><span class="nav-number">2.4.</span> <span class="nav-text">明细查询的采样范式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术实现：表格式内建采样"><span class="nav-number">3.</span> <span class="nav-text">技术实现：表格式内建采样</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Iceberg表格式扩展"><span class="nav-number">3.1.</span> <span class="nav-text">Iceberg表格式扩展</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自描述采样（Self-Describing-Sampling）"><span class="nav-number">3.2.</span> <span class="nav-text">自描述采样（Self-Describing Sampling）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#增量采样维护"><span class="nav-number">3.3.</span> <span class="nav-text">增量采样维护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Zone-Maps-采样的协同"><span class="nav-number">3.4.</span> <span class="nav-text">Zone Maps + 采样的协同</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#大一统：湖仓一体的破局点"><span class="nav-number">4.</span> <span class="nav-text">大一统：湖仓一体的破局点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#当前数据架构的三难困境"><span class="nav-number">4.1.</span> <span class="nav-text">当前数据架构的三难困境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#采样范式为什么能统一三层"><span class="nav-number">4.2.</span> <span class="nav-text">采样范式为什么能统一三层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#统一查询接口"><span class="nav-number">4.3.</span> <span class="nav-text">统一查询接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#外部数据目录兼容"><span class="nav-number">4.4.</span> <span class="nav-text">外部数据目录兼容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#采样质量控制"><span class="nav-number">5.</span> <span class="nav-text">采样质量控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#误差保证"><span class="nav-number">5.1.</span> <span class="nav-text">误差保证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自适应采样率"><span class="nav-number">5.2.</span> <span class="nav-text">自适应采样率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分层采样处理数据倾斜"><span class="nav-number">5.3.</span> <span class="nav-text">分层采样处理数据倾斜</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用户无感上车策略"><span class="nav-number">6.</span> <span class="nav-text">用户无感上车策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么”无感”是成功的关键"><span class="nav-number">6.1.</span> <span class="nav-text">为什么”无感”是成功的关键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四层无感设计"><span class="nav-number">6.2.</span> <span class="nav-text">四层无感设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#渐进式上车路径"><span class="nav-number">6.3.</span> <span class="nav-text">渐进式上车路径</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对比分析：为什么采样范式最可能成功"><span class="nav-number">7.</span> <span class="nav-text">对比分析：为什么采样范式最可能成功</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#vs-现有方案"><span class="nav-number">7.1.</span> <span class="nav-text">vs 现有方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成功的四个必要条件"><span class="nav-number">7.2.</span> <span class="nav-text">成功的四个必要条件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#与现有技术的融合点"><span class="nav-number">7.3.</span> <span class="nav-text">与现有技术的融合点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术挑战与解法"><span class="nav-number">8.</span> <span class="nav-text">技术挑战与解法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战一：JOIN场景的采样"><span class="nav-number">8.1.</span> <span class="nav-text">挑战一：JOIN场景的采样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战二：COUNT-DISTINCT"><span class="nav-number">8.2.</span> <span class="nav-text">挑战二：COUNT DISTINCT</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战三：数据分布变化"><span class="nav-number">8.3.</span> <span class="nav-text">挑战三：数据分布变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#挑战四：用户信任"><span class="nav-number">8.4.</span> <span class="nav-text">挑战四：用户信任</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#未来演进路线"><span class="nav-number">9.</span> <span class="nav-text">未来演进路线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#近期（1-2年）：引擎层采样"><span class="nav-number">9.1.</span> <span class="nav-text">近期（1-2年）：引擎层采样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#中期（3-5年）：表格式标准化"><span class="nav-number">9.2.</span> <span class="nav-text">中期（3-5年）：表格式标准化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#远期（5-10年）：AI驱动采样"><span class="nav-number">9.3.</span> <span class="nav-text">远期（5-10年）：AI驱动采样</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考链接"><span class="nav-number">10.</span> <span class="nav-text">参考链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">11.</span> <span class="nav-text">常见问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">12.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -806,12 +824,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">103k</span>
+    <span title="站点总字数">106k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:34</span>
+    <span title="站点阅读时长">1:36</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>

@@ -28,11 +28,11 @@
 <meta property="og:description" content="Iceberg加Trino加Polaris构成开源湖仓三件套，Trino查询比StarRocks慢约5倍，价值在标准对接而非替换执行引擎。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-07-16T03:00:00.000Z">
-<meta property="article:modified_time" content="2026-07-30T13:33:48.749Z">
+<meta property="article:modified_time" content="2026-08-01T04:43:53.406Z">
 <meta property="article:author" content="Lanky">
+<meta property="article:tag" content="湖仓">
 <meta property="article:tag" content="Apache Iceberg">
 <meta property="article:tag" content="Trino">
-<meta property="article:tag" content="湖仓">
 <meta property="article:tag" content="Polaris">
 <meta property="article:tag" content="开源">
 <meta name="twitter:card" content="summary">
@@ -51,6 +51,7 @@
 </script>
 
 
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -62,17 +63,17 @@
 }
 </script>
 
-
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "Iceberg-Trino-开源湖仓查询洞察",
-  "datePublished": "1784170800000",
-  "url": "https://lanky228.github.io/2026/07/16/Iceberg-Trino-开源湖仓查询洞察/",
-  "inLanguage": "zh-CN"
+  "@type": "Person",
+  "name": "Lanky",
+  "url": "https://lanky228.github.io",
+  "jobTitle": "Database & Data Lake Engineer",
+  "knowsAbout": ["Apache Calcite", "StarRocks", "ClickHouse", "Apache Iceberg", "OLAP", "Data Lakehouse", "TPC-DS Benchmark", "DuckDB", "Trino", "SQL Parser", "AI Coding"]
 }
 </script>
+
 
 <script type="application/ld+json">
 {
@@ -223,7 +224,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-07-30 21:33:48" itemprop="dateModified" datetime="2026-07-30T21:33:48+08:00">2026-07-30</time>
+                <time title="修改时间：2026-08-01 12:43:53" itemprop="dateModified" datetime="2026-08-01T12:43:53+08:00">2026-08-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -241,7 +242,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>5.4k</span>
+              <span>5.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -261,7 +262,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Apache-Iceberg-Trino：开源湖仓查询洞察"><a href="#Apache-Iceberg-Trino：开源湖仓查询洞察" class="headerlink" title="Apache Iceberg + Trino：开源湖仓查询洞察"></a>Apache Iceberg + Trino：开源湖仓查询洞察</h1><blockquote>
+        <details>
+<summary>📝 AI 摘要</summary>
+
+<p>Iceberg加Trino加Polaris构成开源湖仓三件套，Trino查询比StarRocks慢约5倍，价值在标准对接而非替换执行引擎。</p>
+</details>
+
+
+<h1 id="Apache-Iceberg-Trino：开源湖仓查询洞察"><a href="#Apache-Iceberg-Trino：开源湖仓查询洞察" class="headerlink" title="Apache Iceberg + Trino：开源湖仓查询洞察"></a>Apache Iceberg + Trino：开源湖仓查询洞察</h1><blockquote>
 <p>💡 一句话总结：Iceberg 表格式 + Trino 查询引擎 + Polaris 目录构成开源湖仓”三件套”，开放标准已成熟可用，但 Trino 查询性能比 StarRocks 慢约 5 倍，核心价值在标准对接而非替换执行引擎。</p>
 </blockquote>
 <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>数据湖正在从”只能存”走向”又能存又能查”。Apache Iceberg 提供了开放表格式标准，Trino 提供跨数据源联邦查询能力，Apache Polaris 提供开放目录服务。三者组合形成开源湖仓的”三件套”。</p>
@@ -374,6 +382,16 @@
 <li><strong>阶段三</strong>：联邦方案选型——Trino 连接器 vs SQL 转换对比验证</li>
 <li><strong>阶段四</strong>：跨源与语义层——评估 Trino 跨源 JOIN 替代方案</li>
 </ul>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://iceberg.apache.org/docs/latest/" target="_blank" rel="noopener">Apache Iceberg官方文档</a></li>
+<li><a href="https://iceberg.apache.org/spec/" target="_blank" rel="noopener">Iceberg表格式规范</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Apache_Iceberg" target="_blank" rel="noopener">Apache Iceberg Wikipedia</a></li>
+<li><a href="https://trino.io/docs/current/" target="_blank" rel="noopener">Trino官方文档</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Trino_(SQL_query_engine)" target="_blank" rel="noopener">Trino Wikipedia</a></li>
+<li><a href="https://trino.io/blog/2020/12/27/announcing-trino.html" target="_blank" rel="noopener">Presto到Trino的历史</a></li>
+<li><a href="https://polaris.apache.org/" target="_blank" rel="noopener">Apache Polaris文档</a></li>
+<li><a href="https://clickhouse.com/docs/en/" target="_blank" rel="noopener">ClickHouse官方文档</a></li>
+</ul>
 <h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><p><strong>Q: Trino为什么比StarRocks慢?</strong></p>
 <p>A: 多组基准显示，TPC-DS 1TB Iceberg上StarRocks较Trino快5.54倍。StarRocks在执行层优化更深（向量化、CBO），Trino的优势在跨源联邦查询而非单引擎性能。</p>
 <p><strong>Q: 开源湖仓三件套是什么?</strong></p>
@@ -385,6 +403,8 @@
 <p><strong>二、两种跨库查询方案各有适用边界。</strong> Trino 的优势在跨源 JOIN（单 SQL 跨多源），SQL 转换的优势在方言覆盖广。Druid 报文场景的等价函数依赖失败是方言兼容性问题，解决方案是在语义层增加引擎能力元数据，让 AI 生成时感知目标库能力直接生成对应 SQL。</p>
 <p><strong>三、Apache Polaris 是低风险高回报的布局项。</strong> StarRocks 已原生支持 Polaris 对接，下一步应推进对接验证，建立”一份 Iceberg 数据 + 一个 Polaris 目录 + 多引擎并发”拓扑，为未来多引擎协作打基础。同时需提前布局 Iceberg 维护操作自动化能力，避免小文件积累拖垮查询性能。</p>
 
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Iceberg-Trino-开源湖仓查询洞察","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-07-16","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/07/16/Iceberg-Trino-开源湖仓查询洞察/"},"url":"https://lanky228.github.io/2026/07/16/Iceberg-Trino-开源湖仓查询洞察/","inLanguage":"zh-CN","dateModified":"2026-08-01","description":"Iceberg加Trino加Polaris构成开源湖仓三件套，Trino查询比StarRocks慢约5倍，价值在标准对接而非替换执行引擎。","keywords":["湖仓","Apache Iceberg","Trino","Polaris","开源"]}</script>
+
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Trino为什么比StarRocks慢?","acceptedAnswer":{"@type":"Answer","text":"A: 多组基准显示，TPC-DS 1TB Iceberg上StarRocks较Trino快5.54倍。StarRocks在执行层优化更深（向量化、CBO），Trino的优势在跨源联邦查询而非单引擎性能。"}},{"@type":"Question","name":"开源湖仓三件套是什么?","acceptedAnswer":{"@type":"Answer","text":"A: Apache Iceberg（开放表格式）+ Trino（开放查询引擎）+ Apache Polaris（开放目录服务）。三者解耦组合，形成存算分离、多引擎共享一份数据的湖仓架构。"}},{"@type":"Question","name":"Polaris是什么?","acceptedAnswer":{"@type":"Answer","text":"A: Iceberg REST Catalog规范的100%开源实现，由Dremio和Snowflake创建并捐赠给Apache基金会。2026年2月毕业为顶级项目，提供厂商中立的目录、RBAC和临时凭证下发能力。\n总结✅ 三个核心观点："}}]}</script>
 
     </div>
@@ -395,9 +415,9 @@
 
       <footer class="post-footer">
           <div class="post-tags">
+              <a href="/tags/%E6%B9%96%E4%BB%93/" rel="tag"># 湖仓</a>
               <a href="/tags/Apache-Iceberg/" rel="tag"># Apache Iceberg</a>
               <a href="/tags/Trino/" rel="tag"># Trino</a>
-              <a href="/tags/%E6%B9%96%E4%BB%93/" rel="tag"># 湖仓</a>
               <a href="/tags/Polaris/" rel="tag"># Polaris</a>
               <a href="/tags/%E5%BC%80%E6%BA%90/" rel="tag"># 开源</a>
           </div>
@@ -473,7 +493,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Apache-Iceberg-Trino：开源湖仓查询洞察"><span class="nav-number">1.</span> <span class="nav-text">Apache Iceberg + Trino：开源湖仓查询洞察</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三大支柱"><span class="nav-number">1.2.</span> <span class="nav-text">三大支柱</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#支柱一：开放表格式标准"><span class="nav-number">1.2.1.</span> <span class="nav-text">支柱一：开放表格式标准</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#支柱二：连接器级联邦查询引擎"><span class="nav-number">1.2.2.</span> <span class="nav-text">支柱二：连接器级联邦查询引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#支柱三：开放目录标准"><span class="nav-number">1.2.3.</span> <span class="nav-text">支柱三：开放目录标准</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#整体架构"><span class="nav-number">1.3.</span> <span class="nav-text">整体架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Trino-执行模型"><span class="nav-number">1.3.1.</span> <span class="nav-text">Trino 执行模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Iceberg-元数据的价值"><span class="nav-number">1.3.2.</span> <span class="nav-text">Iceberg 元数据的价值</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iceberg-表格式深度解析"><span class="nav-number">1.4.</span> <span class="nav-text">Iceberg 表格式深度解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#隐藏分区"><span class="nav-number">1.4.1.</span> <span class="nav-text">隐藏分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#演进能力"><span class="nav-number">1.4.2.</span> <span class="nav-text">演进能力</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Time-Travel-与快照隔离"><span class="nav-number">1.4.3.</span> <span class="nav-text">Time Travel 与快照隔离</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#维护操作"><span class="nav-number">1.4.4.</span> <span class="nav-text">维护操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Trino-联邦查询深度解析"><span class="nav-number">1.5.</span> <span class="nav-text">Trino 联邦查询深度解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#连接器-SPI-架构"><span class="nav-number">1.5.1.</span> <span class="nav-text">连接器 SPI 架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成本优化器"><span class="nav-number">1.5.2.</span> <span class="nav-text">成本优化器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Iceberg-连接器特性"><span class="nav-number">1.5.3.</span> <span class="nav-text">Iceberg 连接器特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#性能对比"><span class="nav-number">1.6.</span> <span class="nav-text">性能对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基准数据"><span class="nav-number">1.6.1.</span> <span class="nav-text">基准数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#两种跨库查询路径"><span class="nav-number">1.6.2.</span> <span class="nav-text">两种跨库查询路径</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#现状与建议"><span class="nav-number">1.7.</span> <span class="nav-text">现状与建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#现状"><span class="nav-number">1.7.1.</span> <span class="nav-text">现状</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分层建议"><span class="nav-number">1.7.2.</span> <span class="nav-text">分层建议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#演进路径"><span class="nav-number">1.7.3.</span> <span class="nav-text">演进路径</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">1.8.</span> <span class="nav-text">常见问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">1.9.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Apache-Iceberg-Trino：开源湖仓查询洞察"><span class="nav-number">1.</span> <span class="nav-text">Apache Iceberg + Trino：开源湖仓查询洞察</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三大支柱"><span class="nav-number">1.2.</span> <span class="nav-text">三大支柱</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#支柱一：开放表格式标准"><span class="nav-number">1.2.1.</span> <span class="nav-text">支柱一：开放表格式标准</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#支柱二：连接器级联邦查询引擎"><span class="nav-number">1.2.2.</span> <span class="nav-text">支柱二：连接器级联邦查询引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#支柱三：开放目录标准"><span class="nav-number">1.2.3.</span> <span class="nav-text">支柱三：开放目录标准</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#整体架构"><span class="nav-number">1.3.</span> <span class="nav-text">整体架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Trino-执行模型"><span class="nav-number">1.3.1.</span> <span class="nav-text">Trino 执行模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Iceberg-元数据的价值"><span class="nav-number">1.3.2.</span> <span class="nav-text">Iceberg 元数据的价值</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iceberg-表格式深度解析"><span class="nav-number">1.4.</span> <span class="nav-text">Iceberg 表格式深度解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#隐藏分区"><span class="nav-number">1.4.1.</span> <span class="nav-text">隐藏分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#演进能力"><span class="nav-number">1.4.2.</span> <span class="nav-text">演进能力</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Time-Travel-与快照隔离"><span class="nav-number">1.4.3.</span> <span class="nav-text">Time Travel 与快照隔离</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#维护操作"><span class="nav-number">1.4.4.</span> <span class="nav-text">维护操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Trino-联邦查询深度解析"><span class="nav-number">1.5.</span> <span class="nav-text">Trino 联邦查询深度解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#连接器-SPI-架构"><span class="nav-number">1.5.1.</span> <span class="nav-text">连接器 SPI 架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成本优化器"><span class="nav-number">1.5.2.</span> <span class="nav-text">成本优化器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Iceberg-连接器特性"><span class="nav-number">1.5.3.</span> <span class="nav-text">Iceberg 连接器特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#性能对比"><span class="nav-number">1.6.</span> <span class="nav-text">性能对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基准数据"><span class="nav-number">1.6.1.</span> <span class="nav-text">基准数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#两种跨库查询路径"><span class="nav-number">1.6.2.</span> <span class="nav-text">两种跨库查询路径</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#现状与建议"><span class="nav-number">1.7.</span> <span class="nav-text">现状与建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#现状"><span class="nav-number">1.7.1.</span> <span class="nav-text">现状</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分层建议"><span class="nav-number">1.7.2.</span> <span class="nav-text">分层建议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#演进路径"><span class="nav-number">1.7.3.</span> <span class="nav-text">演进路径</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考链接"><span class="nav-number">1.8.</span> <span class="nav-text">参考链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">1.9.</span> <span class="nav-text">常见问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">1.10.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -542,12 +562,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">103k</span>
+    <span title="站点总字数">106k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:34</span>
+    <span title="站点阅读时长">1:36</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>

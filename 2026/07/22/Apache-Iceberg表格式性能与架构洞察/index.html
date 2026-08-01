@@ -28,7 +28,7 @@
 <meta property="og:description" content="TPC-DS 实测：Iceberg 公平对比仅快 4.7%，核心价值在架构治理而非裸性能">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-07-21T16:00:00.000Z">
-<meta property="article:modified_time" content="2026-07-31T19:44:29.982Z">
+<meta property="article:modified_time" content="2026-08-01T04:43:53.398Z">
 <meta property="article:author" content="Lanky">
 <meta property="article:tag" content="AI">
 <meta property="article:tag" content="数据湖">
@@ -49,6 +49,7 @@
 </script>
 
 
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -60,17 +61,17 @@
 }
 </script>
 
-
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "Apache Iceberg 表格式——性能基准测试与架构优势洞察",
-  "datePublished": "1784649600000",
-  "url": "https://lanky228.github.io/2026/07/22/Apache-Iceberg表格式性能与架构洞察/",
-  "inLanguage": "zh-CN"
+  "@type": "Person",
+  "name": "Lanky",
+  "url": "https://lanky228.github.io",
+  "jobTitle": "Database & Data Lake Engineer",
+  "knowsAbout": ["Apache Calcite", "StarRocks", "ClickHouse", "Apache Iceberg", "OLAP", "Data Lakehouse", "TPC-DS Benchmark", "DuckDB", "Trino", "SQL Parser", "AI Coding"]
 }
 </script>
+
 
 <script type="application/ld+json">
 {
@@ -221,7 +222,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-08-01 03:44:29" itemprop="dateModified" datetime="2026-08-01T03:44:29+08:00">2026-08-01</time>
+                <time title="修改时间：2026-08-01 12:43:53" itemprop="dateModified" datetime="2026-08-01T12:43:53+08:00">2026-08-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -239,7 +240,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>6.6k</span>
+              <span>6.7k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -259,7 +260,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>💡 <strong>一句话总结</strong></p>
+        <details>
+<summary>📝 AI 摘要</summary>
+
+<p>TPC-DS 实测：Iceberg 公平对比仅快 4.7%，核心价值在架构治理而非裸性能</p>
+</details>
+
+
+<p>💡 <strong>一句话总结</strong></p>
 <p>本地 DuckDB TPC-DS 实测发现：公平对比下 Iceberg 仅比裸 Parquet 快 4.7%，性能并非它的核心卖点。它真正的价值在不依赖元数据服务、Time Travel（历史时间查询）、Schema&#x2F;分区演进、ACID 事务，以及跨引擎表语义统一等架构治理能力。</p>
 <hr>
 <h2 id="为什么关注-Iceberg"><a href="#为什么关注-Iceberg" class="headerlink" title="为什么关注 Iceberg"></a>为什么关注 Iceberg</h2><p>企业内部统一 SQL 查询服务面临数据湖化与开放表格式选型问题。Apache Iceberg 是业界增速最快的开放表格式，AWS、Snowflake、Google 集体站队，需要评估是否值得引入。</p>
@@ -643,6 +651,16 @@
 </li>
 </ol>
 <hr>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://iceberg.apache.org/docs/latest/" target="_blank" rel="noopener">Apache Iceberg官方文档</a></li>
+<li><a href="https://iceberg.apache.org/spec/" target="_blank" rel="noopener">Iceberg表格式规范</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Apache_Iceberg" target="_blank" rel="noopener">Apache Iceberg Wikipedia</a></li>
+<li><a href="https://trino.io/docs/current/" target="_blank" rel="noopener">Trino官方文档</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Trino_(SQL_query_engine)" target="_blank" rel="noopener">Trino Wikipedia</a></li>
+<li><a href="https://trino.io/blog/2020/12/27/announcing-trino.html" target="_blank" rel="noopener">Presto到Trino的历史</a></li>
+<li><a href="https://duckdb.org/docs/" target="_blank" rel="noopener">DuckDB官方文档</a></li>
+<li><a href="https://en.wikipedia.org/wiki/DuckDB" target="_blank" rel="noopener">DuckDB Wikipedia</a></li>
+</ul>
 <h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><p><strong>Q: Iceberg 比 Parquet 快吗？</strong></p>
 <p>公平对比下（双方都分区），Iceberg 仅快 4.7%。所谓”+45.6%”的结论来自不对等对比——只有 Iceberg 用了分区。Iceberg 底层也是 Parquet，多了元数据层，在多表 JOIN 场景反而更慢。</p>
 <p><strong>Q: 既然性能没优势，为什么还要用 Iceberg？</strong></p>
@@ -673,6 +691,8 @@
 <li><a href="https://duckdb.org/docs/extensions/iceberg" target="_blank" rel="noopener">DuckDB Iceberg Extension</a></li>
 <li><a href="https://tabular.io/" target="_blank" rel="noopener">Tabular (acquired by Databricks)</a></li>
 </ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Apache Iceberg 表格式——性能基准测试与架构优势洞察","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-07-22","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/07/22/Apache-Iceberg表格式性能与架构洞察/"},"url":"https://lanky228.github.io/2026/07/22/Apache-Iceberg表格式性能与架构洞察/","inLanguage":"zh-CN","dateModified":"2026-08-01","description":"TPC-DS 实测：Iceberg 公平对比仅快 4.7%，核心价值在架构治理而非裸性能","keywords":["AI","数据湖","Iceberg"]}</script>
 
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Iceberg 比 Parquet 快吗？","acceptedAnswer":{"@type":"Answer","text":"公平对比下（双方都分区），Iceberg 仅快 4.7%。所谓”+45.6%”的结论来自不对等对比——只有 Iceberg 用了分区。Iceberg 底层也是 Parquet，多了元数据层，在多表 JOIN 场景反而更慢。"}},{"@type":"Question","name":"既然性能没优势，为什么还要用 Iceberg？","acceptedAnswer":{"@type":"Answer","text":"性能从来不是 Iceberg 的卖点。它的价值在于：不依赖外部元数据服务（消除 HMS 单点故障）、Time Travel（历史数据可追溯）、Schema&#x2F;分区无感演进、ACID 事务、跨引擎表语义统一。这些解决的是”数据能不能用得舒服”的问题，不是”跑得多快”。"}},{"@type":"Question","name":"Iceberg、Delta Lake、Hudi 怎么选？","acceptedAnswer":{"@type":"Answer","text":"多引擎多云场景选 Iceberg（中立性最优，引擎覆盖最广）；以 Spark&#x2F;Databricks 为核心选 Delta；流式 upsert 场景选 Hudi。若只引入一种，Iceberg 是最大公约数。"}},{"@type":"Question","name":"已经用了 StarRocks 本地表，还需要 Iceberg 吗？","acceptedAnswer":{"@type":"Answer","text":"建议分层存储而非二选一。热数据&#x2F;交互分析走 StarRocks 本地表保性能，冷数据&#x2F;治理数据&#x2F;跨引擎共享数据走 Iceberg 外表保开放性。两者解决不同问题。\n\n✅ 总结"}}]}</script>
 
@@ -760,7 +780,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么关注-Iceberg"><span class="nav-number">1.</span> <span class="nav-text">为什么关注 Iceberg</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iceberg-关键竞争力"><span class="nav-number">2.</span> <span class="nav-text">Iceberg 关键竞争力</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#软件架构"><span class="nav-number">3.</span> <span class="nav-text">软件架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#性能实测：四个场景对比"><span class="nav-number">4.</span> <span class="nav-text">性能实测：四个场景对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#测试环境与方法"><span class="nav-number">4.1.</span> <span class="nav-text">测试环境与方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试结果汇总"><span class="nav-number">4.2.</span> <span class="nav-text">测试结果汇总</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SF5-公平对比详细分析"><span class="nav-number">4.3.</span> <span class="nav-text">SF5 公平对比详细分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关键结论"><span class="nav-number">4.4.</span> <span class="nav-text">关键结论</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#架构优势解析"><span class="nav-number">5.</span> <span class="nav-text">架构优势解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#不依赖外部元数据服务"><span class="nav-number">5.1.</span> <span class="nav-text">不依赖外部元数据服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Time-Travel（历史时间查询）"><span class="nav-number">5.2.</span> <span class="nav-text">Time Travel（历史时间查询）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Schema-演进与隐藏分区"><span class="nav-number">5.3.</span> <span class="nav-text">Schema 演进与隐藏分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据维护"><span class="nav-number">5.4.</span> <span class="nav-text">数据维护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Parquet-vs-Iceberg-能力对比"><span class="nav-number">5.5.</span> <span class="nav-text">Parquet vs Iceberg 能力对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#业界采纳"><span class="nav-number">5.6.</span> <span class="nav-text">业界采纳</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三大表格式对比"><span class="nav-number">6.</span> <span class="nav-text">三大表格式对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iceberg-与-StarRocks-本地表对比"><span class="nav-number">7.</span> <span class="nav-text">Iceberg 与 StarRocks 本地表对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">8.</span> <span class="nav-text">常见问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">9.</span> <span class="nav-text">✅ 总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">10.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么关注-Iceberg"><span class="nav-number">1.</span> <span class="nav-text">为什么关注 Iceberg</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iceberg-关键竞争力"><span class="nav-number">2.</span> <span class="nav-text">Iceberg 关键竞争力</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#软件架构"><span class="nav-number">3.</span> <span class="nav-text">软件架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#性能实测：四个场景对比"><span class="nav-number">4.</span> <span class="nav-text">性能实测：四个场景对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#测试环境与方法"><span class="nav-number">4.1.</span> <span class="nav-text">测试环境与方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试结果汇总"><span class="nav-number">4.2.</span> <span class="nav-text">测试结果汇总</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SF5-公平对比详细分析"><span class="nav-number">4.3.</span> <span class="nav-text">SF5 公平对比详细分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关键结论"><span class="nav-number">4.4.</span> <span class="nav-text">关键结论</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#架构优势解析"><span class="nav-number">5.</span> <span class="nav-text">架构优势解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#不依赖外部元数据服务"><span class="nav-number">5.1.</span> <span class="nav-text">不依赖外部元数据服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Time-Travel（历史时间查询）"><span class="nav-number">5.2.</span> <span class="nav-text">Time Travel（历史时间查询）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Schema-演进与隐藏分区"><span class="nav-number">5.3.</span> <span class="nav-text">Schema 演进与隐藏分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据维护"><span class="nav-number">5.4.</span> <span class="nav-text">数据维护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Parquet-vs-Iceberg-能力对比"><span class="nav-number">5.5.</span> <span class="nav-text">Parquet vs Iceberg 能力对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#业界采纳"><span class="nav-number">5.6.</span> <span class="nav-text">业界采纳</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三大表格式对比"><span class="nav-number">6.</span> <span class="nav-text">三大表格式对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Iceberg-与-StarRocks-本地表对比"><span class="nav-number">7.</span> <span class="nav-text">Iceberg 与 StarRocks 本地表对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考链接"><span class="nav-number">8.</span> <span class="nav-text">参考链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">9.</span> <span class="nav-text">常见问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">10.</span> <span class="nav-text">✅ 总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">11.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -829,12 +849,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">103k</span>
+    <span title="站点总字数">106k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:34</span>
+    <span title="站点阅读时长">1:36</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
