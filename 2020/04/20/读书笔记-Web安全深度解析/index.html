@@ -20,17 +20,19 @@
     var CONFIG = {"hostname":"lanky228.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Web 安全深度解析HTTP 代理工具 Burp Suite Proxy Fiddler WinsockExpert  搜索引擎 site 命令 site：域名 intext：正文关键字 intitle：标题关键字 info：基本信息 inurl：URL 关键字 filetype：文件类型  信息探测工具 Nmap DirBuster  漏洞扫描工具 Burp Suite AWVS AppScan">
+  <meta name="description" content="💡 所有Web漏洞有一个共同根因：不可信输入未经校验到达了敏感操作。防御的核心原则只有一条——永远不信任输入。 Web安全的底层逻辑Web安全看起来漏洞类型繁多：SQL注入、XSS、CSRF、文件上传、命令执行……但如果你退后一步看，所有漏洞遵循同一个模式： 用户输入 → 未经校验 → 到达敏感操作 → 漏洞 SQL注入：用户输入到达SQL执行器。XSS：用户输入到达HTML渲染。命令执行：用户">
 <meta property="og:type" content="article">
 <meta property="og:title" content="读书笔记 Web安全深度解析">
 <meta property="og:url" content="https://lanky228.github.io/2020/04/20/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-Web%E5%AE%89%E5%85%A8%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/index.html">
 <meta property="og:site_name" content="Lanky的博客">
-<meta property="og:description" content="Web 安全深度解析HTTP 代理工具 Burp Suite Proxy Fiddler WinsockExpert  搜索引擎 site 命令 site：域名 intext：正文关键字 intitle：标题关键字 info：基本信息 inurl：URL 关键字 filetype：文件类型  信息探测工具 Nmap DirBuster  漏洞扫描工具 Burp Suite AWVS AppScan">
+<meta property="og:description" content="💡 所有Web漏洞有一个共同根因：不可信输入未经校验到达了敏感操作。防御的核心原则只有一条——永远不信任输入。 Web安全的底层逻辑Web安全看起来漏洞类型繁多：SQL注入、XSS、CSRF、文件上传、命令执行……但如果你退后一步看，所有漏洞遵循同一个模式： 用户输入 → 未经校验 → 到达敏感操作 → 漏洞 SQL注入：用户输入到达SQL执行器。XSS：用户输入到达HTML渲染。命令执行：用户">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-04-19T16:09:37.000Z">
-<meta property="article:modified_time" content="2026-07-30T13:23:17.734Z">
+<meta property="article:modified_time" content="2026-08-02T04:52:37.403Z">
 <meta property="article:author" content="Lanky">
-<meta property="article:tag" content="计算机">
+<meta property="article:tag" content="软件工程">
+<meta property="article:tag" content="Web安全">
+<meta property="article:tag" content="网络安全">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://lanky228.github.io/2020/04/20/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-Web%E5%AE%89%E5%85%A8%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">
@@ -47,8 +49,6 @@
 </script>
 
 
-
-<meta name="robots" content="noindex,nofollow">
 
 <script type="application/ld+json">
 {
@@ -222,7 +222,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-07-30 21:23:17" itemprop="dateModified" datetime="2026-07-30T21:23:17+08:00">2026-07-30</time>
+                <time title="修改时间：2026-08-02 12:52:37" itemprop="dateModified" datetime="2026-08-02T12:52:37+08:00">2026-08-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -240,14 +240,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1k</span>
+              <span>2.1k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>2 分钟</span>
             </span>
 
         </div>
@@ -259,173 +259,94 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Web-安全深度解析"><a href="#Web-安全深度解析" class="headerlink" title="Web 安全深度解析"></a>Web 安全深度解析</h1><h2 id="HTTP-代理工具"><a href="#HTTP-代理工具" class="headerlink" title="HTTP 代理工具"></a>HTTP 代理工具</h2><ul>
-<li>Burp Suite Proxy</li>
-<li>Fiddler</li>
-<li>WinsockExpert</li>
-</ul>
-<h2 id="搜索引擎-site-命令"><a href="#搜索引擎-site-命令" class="headerlink" title="搜索引擎 site 命令"></a>搜索引擎 site 命令</h2><ul>
-<li>site：域名</li>
-<li>intext：正文关键字</li>
-<li>intitle：标题关键字</li>
-<li>info：基本信息</li>
-<li>inurl：URL 关键字</li>
-<li>filetype：文件类型</li>
-</ul>
-<h2 id="信息探测工具"><a href="#信息探测工具" class="headerlink" title="信息探测工具"></a>信息探测工具</h2><ul>
-<li>Nmap</li>
-<li>DirBuster</li>
-</ul>
-<h2 id="漏洞扫描工具"><a href="#漏洞扫描工具" class="headerlink" title="漏洞扫描工具"></a>漏洞扫描工具</h2><ul>
-<li>Burp Suite</li>
-<li>AWVS</li>
-<li>AppScan</li>
-</ul>
-<h2 id="SQL-注入漏洞"><a href="#SQL-注入漏洞" class="headerlink" title="SQL 注入漏洞"></a>SQL 注入漏洞</h2><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>用户输入被 SQL 执行器执行。</p>
-<h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ul>
-<li>数字型注入</li>
-<li>字符型注入</li>
-</ul>
-<h3 id="注入工具"><a href="#注入工具" class="headerlink" title="注入工具"></a>注入工具</h3><ul>
-<li>SQLMap</li>
-<li>MySQL</li>
-<li>Oracle</li>
-</ul>
-<h3 id="防御措施"><a href="#防御措施" class="headerlink" title="防御措施"></a>防御措施</h3><ul>
-<li>数据类型校验</li>
-<li>特殊字符转义</li>
-<li>预编译语句</li>
-<li>框架技术</li>
-<li>存储过程</li>
-</ul>
-<h2 id="上传漏洞"><a href="#上传漏洞" class="headerlink" title="上传漏洞"></a>上传漏洞</h2><h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><ul>
-<li>IIS 解析漏洞</li>
-<li>Apache 解析漏洞</li>
-<li>PHP CGI 解析漏洞</li>
-</ul>
-<h3 id="防御措施-1"><a href="#防御措施-1" class="headerlink" title="防御措施"></a>防御措施</h3><ul>
-<li>客户端检测</li>
-</ul>
-<p>绕过方法：FireBug、中间人攻击。</p>
+        <p>💡 所有Web漏洞有一个共同根因：不可信输入未经校验到达了敏感操作。防御的核心原则只有一条——永远不信任输入。</p>
+<h2 id="Web安全的底层逻辑"><a href="#Web安全的底层逻辑" class="headerlink" title="Web安全的底层逻辑"></a>Web安全的底层逻辑</h2><p>Web安全看起来漏洞类型繁多：SQL注入、XSS、CSRF、文件上传、命令执行……但如果你退后一步看，所有漏洞遵循同一个模式：</p>
+<p><strong>用户输入 → 未经校验 → 到达敏感操作 → 漏洞</strong></p>
+<p>SQL注入：用户输入到达SQL执行器。XSS：用户输入到达HTML渲染。命令执行：用户输入到达系统命令。文件包含：用户输入到达文件路径。</p>
+<p><strong>防御只有一条原则：在输入和敏感操作之间，必须有校验层。</strong> 所有防御措施都是这条原则的具体实现。</p>
+<h2 id="核心漏洞类型"><a href="#核心漏洞类型" class="headerlink" title="核心漏洞类型"></a>核心漏洞类型</h2><h3 id="SQL注入：最经典的注入攻击"><a href="#SQL注入：最经典的注入攻击" class="headerlink" title="SQL注入：最经典的注入攻击"></a>SQL注入：最经典的注入攻击</h3><p>用户输入被拼接到SQL语句中执行。</p>
+<p>攻击者输入 <code>&#39; OR 1=1 --</code>，SQL变成 <code>SELECT * FROM users WHERE name=&#39;&#39; OR 1=1 --&#39;</code>，绕过认证。</p>
+<p><strong>防御</strong>：</p>
 <ul>
-<li>服务端检测</li>
+<li><strong>预编译语句（参数化查询）</strong>：最根本的解决方案。输入永远是数据，不会被当作SQL语法。</li>
+<li>数据类型校验：数字型输入强制转int</li>
+<li>特殊字符转义：兜底方案，但不如预编译可靠</li>
 </ul>
-<p>方法：白名单和黑名单校验、MIME 校验、目录校验。</p>
-<p>绕过方法：截断上传攻击。</p>
-<h3 id="文本编辑器上传漏洞"><a href="#文本编辑器上传漏洞" class="headerlink" title="文本编辑器上传漏洞"></a>文本编辑器上传漏洞</h3><ul>
-<li>敏感信息暴露</li>
-<li>黑名单策略错误</li>
-<li>任意文件上传漏洞</li>
-</ul>
-<p>原因：目录过滤不严、文件未重命名。</p>
-<p>解决措施：接受文件保存在临时路径、白名单校验扩展名、文件重命名。</p>
-<h2 id="XSS-跨站脚本漏洞"><a href="#XSS-跨站脚本漏洞" class="headerlink" title="XSS 跨站脚本漏洞"></a>XSS 跨站脚本漏洞</h2><h3 id="原理-2"><a href="#原理-2" class="headerlink" title="原理"></a>原理</h3><p>网页嵌入恶意脚本。</p>
-<h3 id="分类-1"><a href="#分类-1" class="headerlink" title="分类"></a>分类</h3><ul>
-<li>反射型</li>
-<li>存储型</li>
-<li>DOM 型</li>
-</ul>
-<h3 id="检查工具"><a href="#检查工具" class="headerlink" title="检查工具"></a>检查工具</h3><ul>
-<li>AppScan</li>
-<li>AWVS</li>
-<li>Burp Suite</li>
-</ul>
-<h3 id="XSS-危害"><a href="#XSS-危害" class="headerlink" title="XSS 危害"></a>XSS 危害</h3><ul>
-<li>XSS 会话劫持</li>
-<li>XSS Framework</li>
-<li>XSS GetShell</li>
-<li>XSS 蠕虫</li>
-</ul>
-<h3 id="防御措施-2"><a href="#防御措施-2" class="headerlink" title="防御措施"></a>防御措施</h3><ul>
-<li>输入输出校验转码</li>
-<li>HttpOnly</li>
-</ul>
-<h2 id="命令执行漏洞"><a href="#命令执行漏洞" class="headerlink" title="命令执行漏洞"></a>命令执行漏洞</h2><h3 id="分类-2"><a href="#分类-2" class="headerlink" title="分类"></a>分类</h3><ul>
-<li>模型漏洞</li>
-</ul>
-<p>PHP、Java。</p>
+<p><strong>为什么预编译是终极方案</strong>：它从机制上保证了输入只能是数据，不是代码。这比任何过滤都可靠——你不需要预测攻击者会输入什么。</p>
+<h3 id="XSS跨站脚本：浏览器端的注入"><a href="#XSS跨站脚本：浏览器端的注入" class="headerlink" title="XSS跨站脚本：浏览器端的注入"></a>XSS跨站脚本：浏览器端的注入</h3><p>恶意脚本被嵌入网页，在其他用户浏览器中执行。</p>
+<p>三种类型：</p>
 <ul>
-<li>框架漏洞</li>
+<li><strong>反射型</strong>：脚本在URL中，服务器直接返回到页面</li>
+<li><strong>存储型</strong>：脚本存储在数据库（如评论区），所有访问者中招</li>
+<li><strong>DOM型</strong>：脚本不经过服务器，纯前端JS处理用户输入时触发</li>
 </ul>
-<p>Struts2、ThinkPHP。</p>
-<h3 id="防御措施-3"><a href="#防御措施-3" class="headerlink" title="防御措施"></a>防御措施</h3><ul>
-<li>避免使用系统执行命令</li>
-<li>参数校验转义</li>
-<li>函数白名单</li>
-<li>PHP 中无法控制的函数不使用</li>
-</ul>
-<h2 id="文件包含漏洞"><a href="#文件包含漏洞" class="headerlink" title="文件包含漏洞"></a>文件包含漏洞</h2><h3 id="类型"><a href="#类型" class="headerlink" title="类型"></a>类型</h3><ul>
-<li>PHP 包含</li>
-<li>JSP 包含</li>
-</ul>
-<h3 id="防御措施-4"><a href="#防御措施-4" class="headerlink" title="防御措施"></a>防御措施</h3><ul>
-<li>参数校验</li>
-<li>路径限制</li>
-<li>文件白名单</li>
-<li>避免使用动态包含</li>
-</ul>
-<h2 id="其他漏洞"><a href="#其他漏洞" class="headerlink" title="其他漏洞"></a>其他漏洞</h2><ul>
-<li>CSRF</li>
-<li>逻辑错误漏洞</li>
-</ul>
-<p>绕过授权验证、密码找回逻辑漏洞、支付逻辑漏洞、指定账户恶意攻击。</p>
+<p><strong>防御</strong>：</p>
 <ul>
-<li>代码注入</li>
+<li>输出编码：根据上下文（HTML&#x2F;JS&#x2F;CSS&#x2F;URL）对特殊字符转义</li>
+<li>HttpOnly Cookie：防止JS读取Cookie，阻断会话劫持</li>
+<li>CSP（内容安全策略）：限制可执行脚本来源</li>
 </ul>
-<p>XML 注入、XPath 注入、JSON 注入、HTTP Parameter Pollution。</p>
+<h3 id="文件上传漏洞：最容易被忽视"><a href="#文件上传漏洞：最容易被忽视" class="headerlink" title="文件上传漏洞：最容易被忽视"></a>文件上传漏洞：最容易被忽视</h3><p>看起来无害的”上传图片”功能，可能是最危险的入口。</p>
+<p>攻击思路：上传一个<code>.php</code>文件 disguised as图片，利用服务器解析漏洞执行它。</p>
 <ul>
-<li>URL 跳转与钓鱼</li>
-<li>WebServer 远程部署</li>
+<li>IIS解析漏洞：<code>test.asp;.jpg</code>被当作ASP执行</li>
+<li>Apache解析漏洞：<code>test.php.jpg</code>从右往左解析，遇到php扩展名执行</li>
+<li>PHP CGI解析漏洞：<code>test.jpg/.php</code>被当作PHP执行</li>
 </ul>
-<p>Tomcat、Jboss、WebLogic。</p>
-<h2 id="常见防御措施"><a href="#常见防御措施" class="headerlink" title="常见防御措施"></a>常见防御措施</h2><ul>
-<li>0day 漏洞修复</li>
-<li>前后台安全框架</li>
-<li>三方件、加密算法安全</li>
-<li>数据库安全</li>
-<li>安全扫描与评估</li>
+<p><strong>防御</strong>：</p>
+<ul>
+<li>白名单校验扩展名（不要用黑名单——总有你没想到的）</li>
+<li>文件重命名（随机UUID，不要保留用户上传的文件名）</li>
+<li>存储到Web根目录外（用户不能直接通过URL访问）</li>
+<li>MIME类型校验（但不能只靠MIME——可以被伪造）</li>
 </ul>
-<h2 id="常见攻击"><a href="#常见攻击" class="headerlink" title="常见攻击"></a>常见攻击</h2><h3 id="账户暴力破解"><a href="#账户暴力破解" class="headerlink" title="账户暴力破解"></a>账户暴力破解</h3><h3 id="旁注攻击"><a href="#旁注攻击" class="headerlink" title="旁注攻击"></a>旁注攻击</h3><ul>
-<li>IP 逆向查询</li>
-<li>SQL 跨库查询</li>
-<li>目录越权</li>
+<h3 id="命令执行漏洞"><a href="#命令执行漏洞" class="headerlink" title="命令执行漏洞"></a>命令执行漏洞</h3><p>用户输入到达系统命令执行函数（如PHP的<code>system()</code>、<code>exec()</code>）。</p>
+<p>攻击者输入 <code>; rm -rf /</code>，系统执行了原命令后又执行了删除。</p>
+<p><strong>防御</strong>：避免使用系统执行命令。如果必须用，参数校验+转义+函数白名单。</p>
+<h2 id="CSRF：冒充用户身份"><a href="#CSRF：冒充用户身份" class="headerlink" title="CSRF：冒充用户身份"></a>CSRF：冒充用户身份</h2><p>CSRF（跨站请求伪造）利用的是浏览器自动携带Cookie的机制。</p>
+<p>用户在银行网站登录后，访问恶意网站。恶意网站发一个向银行转账的请求，浏览器自动带上银行Cookie——银行以为是用户本人操作。</p>
+<p><strong>与XSS的区别</strong>：XSS是注入脚本到受害者页面执行；CSRF是冒充受害者发请求。XSS不需要用户访问恶意网站，CSRF需要。</p>
+<p><strong>防御</strong>：</p>
+<ul>
+<li>CSRF Token：每个请求带一个随机token，攻击者无法获取</li>
+<li>SameSite Cookie属性：限制跨站Cookie发送</li>
+<li>Referer校验：检查请求来源</li>
 </ul>
-<p>防御措施：CDN。</p>
-<h2 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h2><ul>
-<li>溢出提权</li>
-<li>三方件提权</li>
-<li>虚拟主机提权</li>
+<h2 id="安全测试的工具链"><a href="#安全测试的工具链" class="headerlink" title="安全测试的工具链"></a>安全测试的工具链</h2><h3 id="信息收集阶段"><a href="#信息收集阶段" class="headerlink" title="信息收集阶段"></a>信息收集阶段</h3><ul>
+<li><strong>搜索引擎site命令</strong>：<code>site:example.com filetype:pdf</code> 搜索敏感文件</li>
+<li><strong>Nmap</strong>：端口扫描，发现开放服务</li>
+<li><strong>DirBuster</strong>：目录爆破，发现隐藏路径</li>
 </ul>
-<h3 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h3><ul>
-<li>3389 端口</li>
-<li>端口转发</li>
-<li>启动项提权</li>
-<li>DLL 劫持</li>
-<li>提权后门</li>
+<h3 id="漏洞扫描阶段"><a href="#漏洞扫描阶段" class="headerlink" title="漏洞扫描阶段"></a>漏洞扫描阶段</h3><ul>
+<li><strong>Burp Suite</strong>：代理拦截+修改请求，Web安全测试瑞士军刀</li>
+<li><strong>AWVS&#x2F;AppScan</strong>：自动化漏洞扫描</li>
+<li><strong>SQLMap</strong>：自动化SQL注入检测和利用</li>
 </ul>
-<h3 id="防御措施-5"><a href="#防御措施-5" class="headerlink" title="防御措施"></a>防御措施</h3><ul>
-<li>服务器补丁</li>
-<li>关闭危险端口</li>
-<li>删除敏感可执行文件</li>
-<li>删除不安全组件</li>
-<li>安装安全配置软件</li>
+<h3 id="真正的安全测试思路"><a href="#真正的安全测试思路" class="headerlink" title="真正的安全测试思路"></a>真正的安全测试思路</h3><p>工具只是辅助。真正的安全测试是<strong>对抗性思维</strong>：</p>
+<ol>
+<li>找到所有用户输入点（表单、URL参数、Header、Cookie、文件上传）</li>
+<li>对每个输入点，问：如果我输入恶意数据，它会到达什么操作？</li>
+<li>如果到达数据库→测SQL注入。到达HTML→测XSS。到达文件系统→测文件包含。到达命令行→测命令执行。</li>
+</ol>
+<p><strong>安全测试不是”用工具扫一遍”，是”像攻击者一样思考”。</strong></p>
+<h2 id="防御哲学：纵深防御"><a href="#防御哲学：纵深防御" class="headerlink" title="防御哲学：纵深防御"></a>防御哲学：纵深防御</h2><p>单一防御措施总会被绕过。真正的安全是多层防御：</p>
+<ul>
+<li><strong>第一层</strong>：输入校验（白名单 &gt; 黑名单）</li>
+<li><strong>第二层</strong>：参数化查询&#x2F;输出编码（机制级防护）</li>
+<li><strong>第三层</strong>：WAF（Web应用防火墙，拦截已知攻击模式）</li>
+<li><strong>第四层</strong>：最小权限原则（数据库用户只给必要权限）</li>
+<li><strong>第五层</strong>：日志监控+应急响应</li>
 </ul>
-<h2 id="ARP-欺骗攻击"><a href="#ARP-欺骗攻击" class="headerlink" title="ARP 欺骗攻击"></a>ARP 欺骗攻击</h2><h3 id="检查工具-1"><a href="#检查工具-1" class="headerlink" title="检查工具"></a>检查工具</h3><ul>
-<li>Cain</li>
-<li>Ettercap</li>
-<li>NetFuke</li>
-</ul>
-<h3 id="防御措施-6"><a href="#防御措施-6" class="headerlink" title="防御措施"></a>防御措施</h3><ul>
-<li>静态绑定</li>
-<li>ARP 防火墙</li>
-</ul>
-<h2 id="社会工程学"><a href="#社会工程学" class="headerlink" title="社会工程学"></a>社会工程学</h2><ul>
-<li>信息收集</li>
-<li>沟通</li>
-<li>伪造</li>
+<p><strong>没有任何一层是足够的。但每一层都能挡住一部分攻击，组合起来大幅提高攻击成本。</strong></p>
+<p>安全不是”绝对不被攻破”，而是”攻破的代价大于收益”。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li>所有Web漏洞共享同一根因：不可信输入未经校验到达敏感操作</li>
+<li>预编译语句从机制上消灭SQL注入——输入永远是数据不是代码</li>
+<li>安全测试的核心是对抗性思维：找到输入点→追踪到达什么操作→测试能否注入</li>
+<li>纵深防御：没有单层足够，但多层组合能大幅提高攻击成本</li>
 </ul>
 
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"读书笔记 Web安全深度解析","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2020-04-20","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2020/04/20/读书笔记-Web安全深度解析/"},"url":"https://lanky228.github.io/2020/04/20/读书笔记-Web安全深度解析/","inLanguage":"zh-CN","dateModified":"2026-07-30","keywords":["计算机"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"读书笔记 Web安全深度解析","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2020-04-20","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2020/04/20/读书笔记-Web安全深度解析/"},"url":"https://lanky228.github.io/2020/04/20/读书笔记-Web安全深度解析/","inLanguage":"zh-CN","dateModified":"2026-08-02","keywords":["软件工程","Web安全","网络安全"]}</script>
 
     </div>
 
@@ -435,7 +356,9 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA/" rel="tag"># 计算机</a>
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" rel="tag"># 软件工程</a>
+              <a href="/tags/Web%E5%AE%89%E5%85%A8/" rel="tag"># Web安全</a>
+              <a href="/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" rel="tag"># 网络安全</a>
           </div>
 
         
@@ -509,7 +432,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Web-安全深度解析"><span class="nav-number">1.</span> <span class="nav-text">Web 安全深度解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP-代理工具"><span class="nav-number">1.1.</span> <span class="nav-text">HTTP 代理工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#搜索引擎-site-命令"><span class="nav-number">1.2.</span> <span class="nav-text">搜索引擎 site 命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#信息探测工具"><span class="nav-number">1.3.</span> <span class="nav-text">信息探测工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞扫描工具"><span class="nav-number">1.4.</span> <span class="nav-text">漏洞扫描工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL-注入漏洞"><span class="nav-number">1.5.</span> <span class="nav-text">SQL 注入漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#原理"><span class="nav-number">1.5.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分类"><span class="nav-number">1.5.2.</span> <span class="nav-text">分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注入工具"><span class="nav-number">1.5.3.</span> <span class="nav-text">注入工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#防御措施"><span class="nav-number">1.5.4.</span> <span class="nav-text">防御措施</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#上传漏洞"><span class="nav-number">1.6.</span> <span class="nav-text">上传漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#原理-1"><span class="nav-number">1.6.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#防御措施-1"><span class="nav-number">1.6.2.</span> <span class="nav-text">防御措施</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文本编辑器上传漏洞"><span class="nav-number">1.6.3.</span> <span class="nav-text">文本编辑器上传漏洞</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XSS-跨站脚本漏洞"><span class="nav-number">1.7.</span> <span class="nav-text">XSS 跨站脚本漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#原理-2"><span class="nav-number">1.7.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分类-1"><span class="nav-number">1.7.2.</span> <span class="nav-text">分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检查工具"><span class="nav-number">1.7.3.</span> <span class="nav-text">检查工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XSS-危害"><span class="nav-number">1.7.4.</span> <span class="nav-text">XSS 危害</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#防御措施-2"><span class="nav-number">1.7.5.</span> <span class="nav-text">防御措施</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#命令执行漏洞"><span class="nav-number">1.8.</span> <span class="nav-text">命令执行漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分类-2"><span class="nav-number">1.8.1.</span> <span class="nav-text">分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#防御措施-3"><span class="nav-number">1.8.2.</span> <span class="nav-text">防御措施</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件包含漏洞"><span class="nav-number">1.9.</span> <span class="nav-text">文件包含漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#类型"><span class="nav-number">1.9.1.</span> <span class="nav-text">类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#防御措施-4"><span class="nav-number">1.9.2.</span> <span class="nav-text">防御措施</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他漏洞"><span class="nav-number">1.10.</span> <span class="nav-text">其他漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见防御措施"><span class="nav-number">1.11.</span> <span class="nav-text">常见防御措施</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见攻击"><span class="nav-number">1.12.</span> <span class="nav-text">常见攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#账户暴力破解"><span class="nav-number">1.12.1.</span> <span class="nav-text">账户暴力破解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#旁注攻击"><span class="nav-number">1.12.2.</span> <span class="nav-text">旁注攻击</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#提权"><span class="nav-number">1.13.</span> <span class="nav-text">提权</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#攻击方法"><span class="nav-number">1.13.1.</span> <span class="nav-text">攻击方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#防御措施-5"><span class="nav-number">1.13.2.</span> <span class="nav-text">防御措施</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARP-欺骗攻击"><span class="nav-number">1.14.</span> <span class="nav-text">ARP 欺骗攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#检查工具-1"><span class="nav-number">1.14.1.</span> <span class="nav-text">检查工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#防御措施-6"><span class="nav-number">1.14.2.</span> <span class="nav-text">防御措施</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#社会工程学"><span class="nav-number">1.15.</span> <span class="nav-text">社会工程学</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Web安全的底层逻辑"><span class="nav-number">1.</span> <span class="nav-text">Web安全的底层逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#核心漏洞类型"><span class="nav-number">2.</span> <span class="nav-text">核心漏洞类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SQL注入：最经典的注入攻击"><span class="nav-number">2.1.</span> <span class="nav-text">SQL注入：最经典的注入攻击</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XSS跨站脚本：浏览器端的注入"><span class="nav-number">2.2.</span> <span class="nav-text">XSS跨站脚本：浏览器端的注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文件上传漏洞：最容易被忽视"><span class="nav-number">2.3.</span> <span class="nav-text">文件上传漏洞：最容易被忽视</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#命令执行漏洞"><span class="nav-number">2.4.</span> <span class="nav-text">命令执行漏洞</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSRF：冒充用户身份"><span class="nav-number">3.</span> <span class="nav-text">CSRF：冒充用户身份</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安全测试的工具链"><span class="nav-number">4.</span> <span class="nav-text">安全测试的工具链</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#信息收集阶段"><span class="nav-number">4.1.</span> <span class="nav-text">信息收集阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#漏洞扫描阶段"><span class="nav-number">4.2.</span> <span class="nav-text">漏洞扫描阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#真正的安全测试思路"><span class="nav-number">4.3.</span> <span class="nav-text">真正的安全测试思路</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#防御哲学：纵深防御"><span class="nav-number">5.</span> <span class="nav-text">防御哲学：纵深防御</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">6.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -534,7 +457,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">76</span>
+        <span class="site-state-item-count">90</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -578,12 +501,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">106k</span>
+    <span title="站点总字数">113k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:36</span>
+    <span title="站点阅读时长">1:43</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
