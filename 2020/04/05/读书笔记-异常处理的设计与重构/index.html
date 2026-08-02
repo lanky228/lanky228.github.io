@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"lanky228.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="💡 异常处理的本质不是”捕获错误”，而是”在错误发生时保持系统可控”。这本书彻底改变了我对异常处理的认知——从”写try-catch”升级到”设计容错系统”。 背景：一次线上事故读这本书的契机，是一次线上P0事故。 当时我们有个支付接口，调用的下游服务超时了。代码里catch了超时异常，记了日志，然后返回了一个默认值。看起来没问题——直到发现这个”默认值”被后续流程当作正常结果处理，导致一批用户">
+  <meta name="description" content="💡 异常处理的本质不是”捕获错误”，而是”在错误发生时保持系统可控”。catch了不等于处理了，消除错误状态才是处理。 背景：一次线上事故读这本书的契机，是一次线上P0事故。 当时我们有个支付接口，调用的下游服务超时了。代码里catch了超时异常，记了日志，然后返回了一个默认值。看起来没问题——直到发现这个”默认值”被后续流程当作正常结果处理，导致一批用户的订单状态错乱。 排查时发现：catch">
 <meta property="og:type" content="article">
 <meta property="og:title" content="读书笔记 异常处理的设计与重构">
 <meta property="og:url" content="https://lanky228.github.io/2020/04/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%87%8D%E6%9E%84/index.html">
 <meta property="og:site_name" content="Lanky的博客">
-<meta property="og:description" content="💡 异常处理的本质不是”捕获错误”，而是”在错误发生时保持系统可控”。这本书彻底改变了我对异常处理的认知——从”写try-catch”升级到”设计容错系统”。 背景：一次线上事故读这本书的契机，是一次线上P0事故。 当时我们有个支付接口，调用的下游服务超时了。代码里catch了超时异常，记了日志，然后返回了一个默认值。看起来没问题——直到发现这个”默认值”被后续流程当作正常结果处理，导致一批用户">
+<meta property="og:description" content="💡 异常处理的本质不是”捕获错误”，而是”在错误发生时保持系统可控”。catch了不等于处理了，消除错误状态才是处理。 背景：一次线上事故读这本书的契机，是一次线上P0事故。 当时我们有个支付接口，调用的下游服务超时了。代码里catch了超时异常，记了日志，然后返回了一个默认值。看起来没问题——直到发现这个”默认值”被后续流程当作正常结果处理，导致一批用户的订单状态错乱。 排查时发现：catch">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-04-05T15:48:15.000Z">
-<meta property="article:modified_time" content="2026-08-02T05:35:50.692Z">
+<meta property="article:modified_time" content="2026-08-02T07:25:39.298Z">
 <meta property="article:author" content="Lanky">
 <meta property="article:tag" content="软件工程">
 <meta property="article:tag" content="代码质量">
@@ -222,7 +222,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-08-02 13:35:50" itemprop="dateModified" datetime="2026-08-02T13:35:50+08:00">2026-08-02</time>
+                <time title="修改时间：2026-08-02 15:25:39" itemprop="dateModified" datetime="2026-08-02T15:25:39+08:00">2026-08-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -240,14 +240,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.7k</span>
+              <span>3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
+              <span>3 分钟</span>
             </span>
 
         </div>
@@ -259,19 +259,19 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>💡 异常处理的本质不是”捕获错误”，而是”在错误发生时保持系统可控”。这本书彻底改变了我对异常处理的认知——从”写try-catch”升级到”设计容错系统”。</p>
+        <p>💡 异常处理的本质不是”捕获错误”，而是”在错误发生时保持系统可控”。catch了不等于处理了，消除错误状态才是处理。</p>
 <h2 id="背景：一次线上事故"><a href="#背景：一次线上事故" class="headerlink" title="背景：一次线上事故"></a>背景：一次线上事故</h2><p>读这本书的契机，是一次线上P0事故。</p>
 <p>当时我们有个支付接口，调用的下游服务超时了。代码里catch了超时异常，记了日志，然后返回了一个默认值。看起来没问题——直到发现这个”默认值”被后续流程当作正常结果处理，导致一批用户的订单状态错乱。</p>
 <p>排查时发现：catch了异常，但没有恢复状态；记了日志，但没有阻断错误传播。异常被”处理”了，系统却不可控了。</p>
 <p>这就是大多数开发者对异常处理的认知盲区——以为catch了就是处理了。这本书让我意识到，异常处理是系统设计问题，不是语法问题。</p>
 <h2 id="四个概念别混着用"><a href="#四个概念别混着用" class="headerlink" title="四个概念别混着用"></a>四个概念别混着用</h2><p>很多人混用”错误”和”异常”，但它们是不同的东西：</p>
 <ul>
-<li><strong>Fault（缺陷）</strong>：代码写错了。空指针、逻辑错误。这是根因。</li>
-<li><strong>Error（错误）</strong>：缺陷导致系统进入错误状态。比如接口内部出错。</li>
-<li><strong>Failure（失败）</strong>：错误状态传播到外部，用户可见的功能丧失。比如页面白屏。</li>
-<li><strong>Exception（异常）</strong>：编程语言中传递上述信息的对象机制。</li>
+<li>Fault（缺陷）：代码写错了。空指针、逻辑错误。这是根因。</li>
+<li>Error（错误）：缺陷导致系统进入错误状态。比如接口内部出错。</li>
+<li>Failure（失败）：错误状态传播到外部，用户可见的功能丧失。比如页面白屏。</li>
+<li>Exception（异常）：编程语言中传递上述信息的对象机制。</li>
 </ul>
-<p><strong>缺陷→错误→失败，是一条传播链。</strong></p>
+<p>缺陷→错误→失败，是一条传播链。</p>
 <p>我那个支付事故就是典型的：下游超时（Fault导致的Error）→ catch后返回默认值（Error没消除）→ 订单状态错乱（Failure）。</p>
 <p>异常处理的目标是在传播链的每一环截断它。我的代码在第一环就失败了——catch了异常但没消除错误状态。</p>
 <h2 id="最被忽视的原则：不要返回null"><a href="#最被忽视的原则：不要返回null" class="headerlink" title="最被忽视的原则：不要返回null"></a>最被忽视的原则：不要返回null</h2><p>这本书里让我触动最深的一条：返回null是bug的温床。</p>
@@ -282,66 +282,54 @@
 <li>返回空List代替null集合</li>
 <li>使用Null Object模式（返回一个行为正确的空对象）</li>
 </ul>
-<p><strong>null逼调用方写防御代码，空对象让调用方无感知。</strong></p>
+<p>null逼调用方写防御代码，空对象让调用方无感知。</p>
 <p>这不是技巧，是设计哲学。我后来在团队里推了一条规范：禁止方法返回null，必须用Optional或空集合替代。推行三个月后，NPE类bug减少了约70%。</p>
 <h2 id="异常处理的四个等级"><a href="#异常处理的四个等级" class="headerlink" title="异常处理的四个等级"></a>异常处理的四个等级</h2><p>书里把异常处理能力分成四级，这个框架特别实用：</p>
 <h3 id="等级0：未定义"><a href="#等级0：未定义" class="headerlink" title="等级0：未定义"></a>等级0：未定义</h3><p>系统没有异常意识。HTTP 200，return code 0，但功能是否正常不确定。出了问题也不知道。</p>
 <h3 id="等级1：错误报告"><a href="#等级1：错误报告" class="headerlink" title="等级1：错误报告"></a>等级1：错误报告</h3><p>接口失败时返回具体错误码。至少告诉你”出了什么错”。</p>
-<p>规则：</p>
-<ul>
-<li>不忽略已查异常</li>
-<li>不捕获未查异常（Runtime异常说明代码有bug，该修不该catch）</li>
-<li>转抛异常时不记日志（日志在最外层记）</li>
-<li>最外层捕获所有异常</li>
-</ul>
-<h3 id="等级2：状态恢复"><a href="#等级2：状态恢复" class="headerlink" title="等级2：状态恢复"></a>等级2：状态恢复</h3><p>不仅报告错误，还恢复系统状态。</p>
-<ul>
-<li>向后恢复：撤销操作、恢复原数据</li>
-<li>内存清理、资源释放</li>
-</ul>
-<h3 id="等级3：行为恢复"><a href="#等级3：行为恢复" class="headerlink" title="等级3：行为恢复"></a>等级3：行为恢复</h3><p>异常时执行备用逻辑，系统继续工作。</p>
-<ul>
-<li>诊断、隔离、重新配置</li>
-<li>重试</li>
-<li>向前恢复：使用备用数据继续处理</li>
-</ul>
-<p><strong>等级越高，系统越健壮。但大多数项目停在等级1——只报告不恢复。</strong></p>
+<p>规则：不忽略已查异常；不捕获未查异常（Runtime异常说明代码有bug，该修不该catch）；转抛异常时不记日志（日志在最外层记）；最外层捕获所有异常。</p>
+<h3 id="等级2：状态恢复"><a href="#等级2：状态恢复" class="headerlink" title="等级2：状态恢复"></a>等级2：状态恢复</h3><p>不仅报告错误，还恢复系统状态。包括向后恢复（撤销操作、恢复原数据）和内存清理、资源释放。</p>
+<h3 id="等级3：行为恢复"><a href="#等级3：行为恢复" class="headerlink" title="等级3：行为恢复"></a>等级3：行为恢复</h3><p>异常时执行备用逻辑，系统继续工作。包括诊断、隔离、重新配置、重试、向前恢复（使用备用数据继续处理）。</p>
+<p>等级越高，系统越健壮。但大多数项目停在等级1——只报告不恢复。</p>
 <p>我的支付事故就是典型的等级1：catch了异常，记了日志，返回默认值。如果做到等级2，应该在catch后回滚事务状态。如果做到等级3，应该重试或走降级逻辑。</p>
 <h2 id="我在实际项目中的应用"><a href="#我在实际项目中的应用" class="headerlink" title="我在实际项目中的应用"></a>我在实际项目中的应用</h2><p>读完这本书后，在团队里推了几项实践：</p>
-<p><strong>第一，异常处理策略文档化。</strong> 每个核心接口明确标注：哪些异常预期会发生、各自走什么恢复策略。不再是”catch了再说”，而是先设计后编码。</p>
-<p><strong>第二，分层异常处理。</strong> DAO层抛基础设施异常（SQLException），Service层包装成业务异常（PaymentFailedException），Controller层统一兜底转HTTP响应。每层只处理自己层的关注点。</p>
-<p><strong>第三，消除null返回。</strong> 全局搜索所有return null，逐一替换为Optional或空集合。改动量大，但收益最明显——NPE类事故几乎消失。</p>
-<p><strong>第四，finally只做资源释放。</strong> 之前有人在finally里写业务逻辑（比如状态更新），一旦try块异常，finally里的逻辑可能基于错误状态执行，造成二次问题。改成只做资源释放后，这类问题消失了。</p>
+<p>第一，异常处理策略文档化。每个核心接口明确标注：哪些异常预期会发生、各自走什么恢复策略。不再是”catch了再说”，而是先设计后编码。</p>
+<p>第二，分层异常处理。DAO层抛基础设施异常（SQLException），Service层包装成业务异常（PaymentFailedException），Controller层统一兜底转HTTP响应。每层只处理自己层的关注点。</p>
+<p>第三，消除null返回。全局搜索所有return null，逐一替换为Optional或空集合。改动量大，但收益最明显——NPE类事故几乎消失。</p>
+<p>第四，finally只做资源释放。之前有人在finally里写业务逻辑（比如状态更新），一旦try块异常，finally里的逻辑可能基于错误状态执行，造成二次问题。改成只做资源释放后，这类问题消失了。</p>
 <h2 id="资源管理的陷阱"><a href="#资源管理的陷阱" class="headerlink" title="资源管理的陷阱"></a>资源管理的陷阱</h2><h3 id="finally会吞掉异常"><a href="#finally会吞掉异常" class="headerlink" title="finally会吞掉异常"></a>finally会吞掉异常</h3><p>如果try块抛出异常A，finally块又抛出异常B，最终抛出的是B——A被吞掉了。</p>
 <p>这是Java异常处理的经典陷阱。解决方案：try-with-resources（Java 7+）。它自动关闭资源，且不会丢失try块的异常。</p>
 <h3 id="try-catch-finally的职责"><a href="#try-catch-finally的职责" class="headerlink" title="try&#x2F;catch&#x2F;finally的职责"></a>try&#x2F;catch&#x2F;finally的职责</h3><ul>
-<li><strong>try</strong>：资源初始化 + 逻辑处理。只放可能抛异常的代码。</li>
-<li><strong>catch</strong>：异常处理 + 流程重试。捕获你预期会发生的异常。</li>
-<li><strong>finally</strong>：只做资源释放。不要放业务逻辑。</li>
+<li>try：资源初始化 + 逻辑处理。只放可能抛异常的代码。</li>
+<li>catch：异常处理 + 流程重试。捕获你预期会发生的异常。</li>
+<li>finally：只做资源释放。不要放业务逻辑。</li>
 </ul>
 <p>这三个块的职责混淆是代码坏味道的重灾区。</p>
 <h2 id="异常设计的原则"><a href="#异常设计的原则" class="headerlink" title="异常设计的原则"></a>异常设计的原则</h2><h3 id="命名要表达内容"><a href="#命名要表达内容" class="headerlink" title="命名要表达内容"></a>命名要表达内容</h3><p><code>NotFoundException</code>比<code>Exception12</code>好一万倍。异常名本身就是文档。</p>
 <h3 id="低级异常转高级异常"><a href="#低级异常转高级异常" class="headerlink" title="低级异常转高级异常"></a>低级异常转高级异常</h3><p>底层抛出的<code>SQLException</code>应该被包装成<code>UserNotFoundException</code>。调用方不需要知道你用的是MySQL还是Oracle。</p>
-<h3 id="已查异常vs未查异常"><a href="#已查异常vs未查异常" class="headerlink" title="已查异常vs未查异常"></a>已查异常vs未查异常</h3><ul>
-<li><strong>已查异常（Checked）</strong>：可恢复的异常，编译器强制处理。比如文件不存在。</li>
-<li><strong>未查异常（Unchecked&#x2F;Runtime）</strong>：程序bug，开发者应该修复而非catch。比如空指针。</li>
-</ul>
+<h3 id="已查异常vs未查异常"><a href="#已查异常vs未查异常" class="headerlink" title="已查异常vs未查异常"></a>已查异常vs未查异常</h3><p>已查异常（Checked）：可恢复的异常，编译器强制处理。比如文件不存在。</p>
+<p>未查异常（Unchecked&#x2F;Runtime）：程序bug，开发者应该修复而非catch。比如空指针。</p>
 <p>原则：如果调用方能恢复，用已查异常。如果调用方无能为力，用未查异常。</p>
-<h3 id="通道异常"><a href="#通道异常" class="headerlink" title="通道异常"></a>通道异常</h3><p>回调函数中，已查异常无法直接抛出（接口不声明）。用未查异常<code>TunnelingException</code>包装已查异常穿过回调边界，在另一端解包。</p>
 <h2 id="异常处理的坏味道"><a href="#异常处理的坏味道" class="headerlink" title="异常处理的坏味道"></a>异常处理的坏味道</h2><p>这些模式出现在代码里就是red flag：</p>
 <ul>
-<li><strong>返回码代替异常</strong>：异常比返回码强大得多，能携带堆栈信息、自动传播</li>
-<li><strong>忽略已查异常</strong>：catch后空块，等于吞掉错误</li>
-<li><strong>捕获Throwable</strong>：连Error都catch了，OutOfMemoryError你catch了能干嘛？</li>
-<li><strong>最外层没有兜底</strong>：异常逃逸到框架，用户看到500错误</li>
-<li><strong>异常处理只记日志</strong>：记了日志但不恢复，系统仍然不可用</li>
-<li><strong>catch块里写重试</strong>：重试逻辑应该抽成独立方法，不该塞在catch里</li>
+<li>返回码代替异常：异常比返回码强大得多，能携带堆栈信息、自动传播</li>
+<li>忽略已查异常：catch后空块，等于吞掉错误</li>
+<li>捕获Throwable：连Error都catch了，OutOfMemoryError你catch了能干嘛</li>
+<li>最外层没有兜底：异常逃逸到框架，用户看到500错误</li>
+<li>异常处理只记日志：记了日志但不恢复，系统仍然不可用</li>
+<li>catch块里写重试：重试逻辑应该抽成独立方法，不该塞在catch里</li>
 </ul>
+<h2 id="回头看：如果重来一次"><a href="#回头看：如果重来一次" class="headerlink" title="回头看：如果重来一次"></a>回头看：如果重来一次</h2><p>几年后再看那次支付事故，如果重来一次，我会做三件事 differently：</p>
+<p>第一，不在catch里返回默认值。默认值的问题是调用方无法区分”正常结果”和”异常兜底”。应该抛出业务异常，让上层决策。</p>
+<p>第二，引入熔断机制。下游服务超时不只是单次请求的问题——如果连续超时，说明下游已经不可用。继续调用只会堆积超时请求，拖垮自己的线程池。熔断器在连续失败时直接拒绝请求，保护自身可用性。</p>
+<p>第三，事务边界和异常边界对齐。支付接口的事务应该在catch块里回滚，而不是依赖框架的自动回滚——因为你可能在catch里做了部分恢复操作，这些操作本身可能不在事务内。</p>
+<p>这几条都是”早该做但当时不知道”的事。经验的意义就在于把”早该知道”变成”现在就知道”。</p>
 <h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
-<li>异常处理的核心是在错误传播链每一环截断：缺陷→错误→失败。catch了不等于处理了，消除错误状态才是处理。</li>
-<li>不要返回null，用空对象代替——推这条规范后团队NPE类bug降了70%。</li>
-<li>异常处理分四级，大多数项目停在”只报告不恢复”。健壮的系统要做到状态恢复甚至行为恢复。</li>
-<li>分层异常处理：DAO抛基础设施异常，Service包装业务异常，Controller统一兜底。每层只关注自己的职责。</li>
+<li>异常处理的核心是在错误传播链每一环截断：缺陷→错误→失败。catch了不等于处理了，消除错误状态才是处理</li>
+<li>不要返回null，用空对象代替——推这条规范后团队NPE类bug降了70%</li>
+<li>异常处理分四级，大多数项目停在”只报告不恢复”。健壮的系统要做到状态恢复甚至行为恢复</li>
+<li>分层异常处理：DAO抛基础设施异常，Service包装业务异常，Controller统一兜底。每层只关注自己的职责</li>
+<li>熔断机制和事务边界对齐是异常处理的进阶实践——保护自身可用性比处理单个异常更重要</li>
 </ul>
 
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"读书笔记 异常处理的设计与重构","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2020-04-05","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2020/04/05/读书笔记-异常处理的设计与重构/"},"url":"https://lanky228.github.io/2020/04/05/读书笔记-异常处理的设计与重构/","inLanguage":"zh-CN","dateModified":"2026-08-02","keywords":["软件工程","代码质量","异常处理"]}</script>
@@ -430,7 +418,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景：一次线上事故"><span class="nav-number">1.</span> <span class="nav-text">背景：一次线上事故</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四个概念别混着用"><span class="nav-number">2.</span> <span class="nav-text">四个概念别混着用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最被忽视的原则：不要返回null"><span class="nav-number">3.</span> <span class="nav-text">最被忽视的原则：不要返回null</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常处理的四个等级"><span class="nav-number">4.</span> <span class="nav-text">异常处理的四个等级</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#等级0：未定义"><span class="nav-number">4.1.</span> <span class="nav-text">等级0：未定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#等级1：错误报告"><span class="nav-number">4.2.</span> <span class="nav-text">等级1：错误报告</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#等级2：状态恢复"><span class="nav-number">4.3.</span> <span class="nav-text">等级2：状态恢复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#等级3：行为恢复"><span class="nav-number">4.4.</span> <span class="nav-text">等级3：行为恢复</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#我在实际项目中的应用"><span class="nav-number">5.</span> <span class="nav-text">我在实际项目中的应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资源管理的陷阱"><span class="nav-number">6.</span> <span class="nav-text">资源管理的陷阱</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#finally会吞掉异常"><span class="nav-number">6.1.</span> <span class="nav-text">finally会吞掉异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#try-catch-finally的职责"><span class="nav-number">6.2.</span> <span class="nav-text">try&#x2F;catch&#x2F;finally的职责</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常设计的原则"><span class="nav-number">7.</span> <span class="nav-text">异常设计的原则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#命名要表达内容"><span class="nav-number">7.1.</span> <span class="nav-text">命名要表达内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#低级异常转高级异常"><span class="nav-number">7.2.</span> <span class="nav-text">低级异常转高级异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#已查异常vs未查异常"><span class="nav-number">7.3.</span> <span class="nav-text">已查异常vs未查异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通道异常"><span class="nav-number">7.4.</span> <span class="nav-text">通道异常</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常处理的坏味道"><span class="nav-number">8.</span> <span class="nav-text">异常处理的坏味道</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">9.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景：一次线上事故"><span class="nav-number">1.</span> <span class="nav-text">背景：一次线上事故</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四个概念别混着用"><span class="nav-number">2.</span> <span class="nav-text">四个概念别混着用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最被忽视的原则：不要返回null"><span class="nav-number">3.</span> <span class="nav-text">最被忽视的原则：不要返回null</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常处理的四个等级"><span class="nav-number">4.</span> <span class="nav-text">异常处理的四个等级</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#等级0：未定义"><span class="nav-number">4.1.</span> <span class="nav-text">等级0：未定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#等级1：错误报告"><span class="nav-number">4.2.</span> <span class="nav-text">等级1：错误报告</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#等级2：状态恢复"><span class="nav-number">4.3.</span> <span class="nav-text">等级2：状态恢复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#等级3：行为恢复"><span class="nav-number">4.4.</span> <span class="nav-text">等级3：行为恢复</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#我在实际项目中的应用"><span class="nav-number">5.</span> <span class="nav-text">我在实际项目中的应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资源管理的陷阱"><span class="nav-number">6.</span> <span class="nav-text">资源管理的陷阱</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#finally会吞掉异常"><span class="nav-number">6.1.</span> <span class="nav-text">finally会吞掉异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#try-catch-finally的职责"><span class="nav-number">6.2.</span> <span class="nav-text">try&#x2F;catch&#x2F;finally的职责</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常设计的原则"><span class="nav-number">7.</span> <span class="nav-text">异常设计的原则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#命名要表达内容"><span class="nav-number">7.1.</span> <span class="nav-text">命名要表达内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#低级异常转高级异常"><span class="nav-number">7.2.</span> <span class="nav-text">低级异常转高级异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#已查异常vs未查异常"><span class="nav-number">7.3.</span> <span class="nav-text">已查异常vs未查异常</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常处理的坏味道"><span class="nav-number">8.</span> <span class="nav-text">异常处理的坏味道</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#回头看：如果重来一次"><span class="nav-number">9.</span> <span class="nav-text">回头看：如果重来一次</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">10.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -499,12 +487,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">120k</span>
+    <span title="站点总字数">119k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:49</span>
+    <span title="站点阅读时长">1:48</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>

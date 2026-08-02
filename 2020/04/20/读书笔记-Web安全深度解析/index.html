@@ -28,7 +28,7 @@
 <meta property="og:description" content="💡 所有Web漏洞有一个共同根因：不可信输入未经校验到达了敏感操作。读完这本书最大的收获不是学会多少种攻击手法，而是建立了一个统一的安全思维模型。 背景：为什么要读这本书读这本书是因为团队做了一次安全审计，查出十几个漏洞，大部分中危以上。最尴尬的是其中有几个SQL注入和XSS，是我自己写的代码。 当时我的反应是”我明明做了参数校验啊”。但安全团队给我看了一堆绕过方式——我做的校验是黑名单式的，攻">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-04-19T16:09:37.000Z">
-<meta property="article:modified_time" content="2026-08-02T05:35:50.700Z">
+<meta property="article:modified_time" content="2026-08-02T07:27:09.494Z">
 <meta property="article:author" content="Lanky">
 <meta property="article:tag" content="软件工程">
 <meta property="article:tag" content="Web安全">
@@ -222,7 +222,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-08-02 13:35:50" itemprop="dateModified" datetime="2026-08-02T13:35:50+08:00">2026-08-02</time>
+                <time title="修改时间：2026-08-02 15:27:09" itemprop="dateModified" datetime="2026-08-02T15:27:09+08:00">2026-08-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -240,7 +240,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.8k</span>
+              <span>3.2k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -264,22 +264,22 @@
 <p>当时我的反应是”我明明做了参数校验啊”。但安全团队给我看了一堆绕过方式——我做的校验是黑名单式的，攻击者用编码绕过、大小写变体、双写绕过，轻松穿透。</p>
 <p>这件事让我意识到：安全不是”加几行校验代码”的事，是需要一套系统性思维的。这本书帮我把碎片化的安全知识串成了一个框架。</p>
 <h2 id="Web安全的底层逻辑"><a href="#Web安全的底层逻辑" class="headerlink" title="Web安全的底层逻辑"></a>Web安全的底层逻辑</h2><p>Web安全看起来漏洞类型繁多：SQL注入、XSS、CSRF、文件上传、命令执行……但退后一步看，所有漏洞遵循同一个模式：</p>
-<p><strong>用户输入 → 未经校验 → 到达敏感操作 → 漏洞</strong></p>
+<p>用户输入 → 未经校验 → 到达敏感操作 → 漏洞</p>
 <p>SQL注入：用户输入到达SQL执行器。XSS：用户输入到达HTML渲染。命令执行：用户输入到达系统命令。文件包含：用户输入到达文件路径。</p>
-<p><strong>防御只有一条原则：在输入和敏感操作之间，必须有校验层。</strong></p>
+<p>防御只有一条原则：在输入和敏感操作之间，必须有校验层。</p>
 <p>理解了这一点，不需要背每种漏洞的防御方法——只要问”用户输入能不能到达敏感操作”就够了。</p>
 <h2 id="核心漏洞类型"><a href="#核心漏洞类型" class="headerlink" title="核心漏洞类型"></a>核心漏洞类型</h2><h3 id="SQL注入：输入变成了代码"><a href="#SQL注入：输入变成了代码" class="headerlink" title="SQL注入：输入变成了代码"></a>SQL注入：输入变成了代码</h3><p>用户输入被拼接到SQL语句中执行。攻击者输入 <code>&#39; OR 1=1 --</code>，SQL变成 <code>SELECT * FROM users WHERE name=&#39;&#39; OR 1=1 --&#39;</code>，绕过认证。</p>
-<p><strong>防御</strong>：预编译语句（参数化查询）是最根本的方案。输入永远是数据，不会被当作SQL语法。</p>
+<p>防御：预编译语句（参数化查询）是最根本的方案。输入永远是数据，不会被当作SQL语法。</p>
 <p>为什么预编译是终极方案？它从机制上保证了输入只能是数据，不是代码。你不需要预测攻击者会输入什么——这就是它比任何过滤都可靠的原因。</p>
 <p>我之前的黑名单校验之所以被绕过，就是因为黑名单在跟攻击者博弈——你封<code>&#39;</code>，他用<code>%27</code>；你封<code>%27</code>，他用双编码。预编译直接终结了这个博弈。</p>
 <h3 id="XSS：浏览器端的注入"><a href="#XSS：浏览器端的注入" class="headerlink" title="XSS：浏览器端的注入"></a>XSS：浏览器端的注入</h3><p>恶意脚本被嵌入网页，在其他用户浏览器中执行。</p>
 <p>三种类型：</p>
 <ul>
-<li><strong>反射型</strong>：脚本在URL中，服务器直接返回到页面</li>
-<li><strong>存储型</strong>：脚本存在数据库（如评论区），所有访问者中招</li>
-<li><strong>DOM型</strong>：不经过服务器，纯前端JS处理用户输入时触发</li>
+<li>反射型：脚本在URL中，服务器直接返回到页面</li>
+<li>存储型：脚本存在数据库（如评论区），所有访问者中招</li>
+<li>DOM型：不经过服务器，纯前端JS处理用户输入时触发</li>
 </ul>
-<p><strong>防御</strong>：输出编码（根据上下文转义）+ HttpOnly Cookie + CSP（内容安全策略）。</p>
+<p>防御：输出编码（根据上下文转义）+ HttpOnly Cookie + CSP（内容安全策略）。</p>
 <p>XSS的本质和SQL注入一样——用户输入到达了执行环境。只不过一个是数据库引擎，一个是浏览器JS引擎。</p>
 <h3 id="文件上传：最容易被忽视的入口"><a href="#文件上传：最容易被忽视的入口" class="headerlink" title="文件上传：最容易被忽视的入口"></a>文件上传：最容易被忽视的入口</h3><p>看起来无害的”上传图片”功能，可能是最危险的入口。</p>
 <p>攻击思路：上传一个伪装成图片的<code>.php</code>文件，利用服务器解析漏洞执行它。</p>
@@ -288,48 +288,54 @@
 <li>Apache：<code>test.php.jpg</code>从右往左解析遇到php执行</li>
 <li>PHP CGI：<code>test.jpg/.php</code>被当作PHP执行</li>
 </ul>
-<p><strong>防御</strong>：白名单校验扩展名 + 文件重命名（随机UUID）+ 存储到Web根目录外。</p>
+<p>防御：白名单校验扩展名 + 文件重命名（随机UUID）+ 存储到Web根目录外。</p>
 <p>这里有个认知陷阱：很多人以为校验了MIME类型就安全了。但MIME是客户端声明的，可以被伪造。我见过一个项目只检查<code>Content-Type: image/jpeg</code>就放行，攻击者改个Header就绕过了。</p>
 <h3 id="命令执行漏洞"><a href="#命令执行漏洞" class="headerlink" title="命令执行漏洞"></a>命令执行漏洞</h3><p>用户输入到达系统命令执行函数（如PHP的<code>system()</code>、<code>exec()</code>）。攻击者输入 <code>; rm -rf /</code>，系统执行了原命令后又执行了删除。</p>
-<p><strong>防御</strong>：避免使用系统执行命令。如果必须用，参数校验+转义+函数白名单。</p>
+<p>防御：避免使用系统执行命令。如果必须用，参数校验+转义+函数白名单。</p>
 <h2 id="CSRF：冒充用户身份"><a href="#CSRF：冒充用户身份" class="headerlink" title="CSRF：冒充用户身份"></a>CSRF：冒充用户身份</h2><p>CSRF（跨站请求伪造）利用浏览器自动携带Cookie的机制。</p>
 <p>用户在银行网站登录后，访问恶意网站。恶意网站发一个向银行转账的请求，浏览器自动带上银行Cookie——银行以为是用户本人操作。</p>
-<p><strong>与XSS的区别</strong>：XSS是注入脚本到受害者页面执行；CSRF是冒充受害者发请求。XSS不需要用户访问恶意网站，CSRF需要。</p>
-<p><strong>防御</strong>：CSRF Token + SameSite Cookie属性 + Referer校验。</p>
+<p>与XSS的区别：XSS是注入脚本到受害者页面执行；CSRF是冒充受害者发请求。XSS不需要用户访问恶意网站，CSRF需要。</p>
+<p>防御：CSRF Token + SameSite Cookie属性 + Referer校验。</p>
 <h2 id="安全测试：从”用工具扫”到”像攻击者思考”"><a href="#安全测试：从”用工具扫”到”像攻击者思考”" class="headerlink" title="安全测试：从”用工具扫”到”像攻击者思考”"></a>安全测试：从”用工具扫”到”像攻击者思考”</h2><p>这是我读这本书收获最大的部分。</p>
-<p>很多人以为安全测试就是用Burp Suite扫一遍，看有没有红色告警。但工具只是辅助，真正的安全测试是<strong>对抗性思维</strong>：</p>
+<p>很多人以为安全测试就是用Burp Suite扫一遍，看有没有红色告警。但工具只是辅助，真正的安全测试是对抗性思维：</p>
 <ol>
 <li>找到所有用户输入点（表单、URL参数、Header、Cookie、文件上传）</li>
 <li>对每个输入点，问：如果我输入恶意数据，它会到达什么操作？</li>
 <li>到达数据库→测SQL注入。到达HTML→测XSS。到达文件系统→测文件包含。到达命令行→测命令执行。</li>
 </ol>
-<p><strong>安全测试不是”用工具扫一遍”，是”像攻击者一样思考”。</strong></p>
+<p>安全测试不是”用工具扫一遍”，是”像攻击者一样思考”。</p>
 <p>这个思维方式我后来用在代码review里。每次review都问自己：这个接口的输入点在哪？输入能到达什么敏感操作？校验层在哪？校验是白名单还是黑名单？能不能绕过？</p>
 <h3 id="工具链"><a href="#工具链" class="headerlink" title="工具链"></a>工具链</h3><ul>
-<li><strong>信息收集</strong>：搜索引擎site命令、Nmap端口扫描、DirBuster目录爆破</li>
-<li><strong>漏洞扫描</strong>：Burp Suite（代理拦截+修改请求）、AWVS&#x2F;AppScan（自动化扫描）、SQLMap（SQL注入检测）</li>
+<li>信息收集：搜索引擎site命令、Nmap端口扫描、DirBuster目录爆破</li>
+<li>漏洞扫描：Burp Suite（代理拦截+修改请求）、AWVS&#x2F;AppScan（自动化扫描）、SQLMap（SQL注入检测）</li>
 </ul>
 <p>工具的价值在于效率，不在于判断。判断永远是人做的。</p>
 <h2 id="防御哲学：纵深防御"><a href="#防御哲学：纵深防御" class="headerlink" title="防御哲学：纵深防御"></a>防御哲学：纵深防御</h2><p>单一防御措施总会被绕过。真正的安全是多层防御：</p>
 <ul>
-<li><strong>第一层</strong>：输入校验（白名单 &gt; 黑名单）</li>
-<li><strong>第二层</strong>：参数化查询&#x2F;输出编码（机制级防护）</li>
-<li><strong>第三层</strong>：WAF（Web应用防火墙，拦截已知攻击模式）</li>
-<li><strong>第四层</strong>：最小权限原则（数据库用户只给必要权限）</li>
-<li><strong>第五层</strong>：日志监控+应急响应</li>
+<li>第一层：输入校验（白名单 &gt; 黑名单）</li>
+<li>第二层：参数化查询&#x2F;输出编码（机制级防护）</li>
+<li>第三层：WAF（Web应用防火墙，拦截已知攻击模式）</li>
+<li>第四层：最小权限原则（数据库用户只给必要权限）</li>
+<li>第五层：日志监控+应急响应</li>
 </ul>
-<p><strong>没有一层是足够的。但每层都能挡住一部分攻击，组合起来大幅提高攻击成本。</strong></p>
+<p>没有一层是足够的。但每层都能挡住一部分攻击，组合起来大幅提高攻击成本。</p>
 <p>安全不是”绝对不被攻破”，而是”攻破的代价大于收益”。攻击者也是理性经济人——当防御成本让他觉得不划算，他就换目标了。</p>
+<h2 id="2020年后的安全格局变化"><a href="#2020年后的安全格局变化" class="headerlink" title="2020年后的安全格局变化"></a>2020年后的安全格局变化</h2><p>写这篇文章是在2020年。几年过去，安全领域发生了一些重要变化，补充几点观察：</p>
+<p>第一，API安全成为新的主战场。随着前后端分离和微服务普及，传统Web漏洞（XSS、CSRF）的占比在下降，但API层面的漏洞（越权访问、批量数据拉取、未认证接口）大幅上升。OWASP在2023年专门发布了API安全Top 10。</p>
+<p>第二，供应链攻击成为现实。Log4j漏洞（2021年）让所有人意识到：你依赖的第三方库本身就是攻击面。一个看似无害的日志组件，可以让全球数十万系统瞬间暴露。这催生了SCA（软件成分分析）工具的普及。</p>
+<p>第三，AI既是攻击工具也是防御工具。攻击者用AI生成更逼真的钓鱼邮件、自动发现漏洞模式。防御方用AI做异常检测、自动化代码审计。这场军备竞赛才刚开始。</p>
+<p>底层逻辑没有变：不可信输入到达敏感操作，就是漏洞。变化的只是输入的入口和操作的类型。</p>
 <h2 id="我在工作中的应用"><a href="#我在工作中的应用" class="headerlink" title="我在工作中的应用"></a>我在工作中的应用</h2><p>读完这本书后，在实践中做了几件事：</p>
-<p><strong>代码review加安全检查清单。</strong> 每个接口review时明确标注：输入点有哪些、各自走什么校验、校验是白名单还是黑名单、输出有没有编码。让安全从”事后审计”变成”开发时内置”。</p>
-<p><strong>推动参数化查询全覆盖。</strong> 团队里还有些老代码用字符串拼接SQL。写了CI检查规则，扫描SQL拼接模式，强制改用预编译。改完后SQL注入类漏洞归零。</p>
-<p><strong>从黑名单思维转向白名单思维。</strong> 以前写校验是”封掉危险的”，现在是”只允许安全的”。比如文件上传不再判断”是不是.php”，而是判断”是不是.jpg&#x2F;.png&#x2F;.gif之一”。思维方向反过来了，但安全性强了一个量级。</p>
+<p>代码review加安全检查清单。每个接口review时明确标注：输入点有哪些、各自走什么校验、校验是白名单还是黑名单、输出有没有编码。让安全从”事后审计”变成”开发时内置”。</p>
+<p>推动参数化查询全覆盖。团队里还有些老代码用字符串拼接SQL。写了CI检查规则，扫描SQL拼接模式，强制改用预编译。改完后SQL注入类漏洞归零。</p>
+<p>从黑名单思维转向白名单思维。以前写校验是”封掉危险的”，现在是”只允许安全的”。比如文件上传不再判断”是不是.php”，而是判断”是不是.jpg&#x2F;.png&#x2F;.gif之一”。思维方向反过来了，但安全性强了一个量级。</p>
 <h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
-<li>所有Web漏洞共享同一根因：不可信输入未经校验到达敏感操作。理解了这一点就掌握了安全的核心模型。</li>
-<li>预编译语句从机制上消灭SQL注入——输入永远是数据不是代码，终结了与攻击者的博弈。</li>
-<li>安全测试的核心是对抗性思维：找到输入点→追踪到达什么操作→测试能否注入。不是”用工具扫一遍”。</li>
-<li>纵深防御：没有单层足够，但多层组合大幅提高攻击成本。安全的目标是让攻破代价大于收益。</li>
-<li>从黑名单思维转向白名单思维——“只允许安全的”比”封掉危险的”强一个量级。</li>
+<li>所有Web漏洞共享同一根因：不可信输入未经校验到达敏感操作。理解了这一点就掌握了安全的核心模型</li>
+<li>预编译语句从机制上消灭SQL注入——输入永远是数据不是代码，终结了与攻击者的博弈</li>
+<li>安全测试的核心是对抗性思维：找到输入点→追踪到达什么操作→测试能否注入。不是”用工具扫一遍”</li>
+<li>纵深防御：没有单层足够，但多层组合大幅提高攻击成本。安全的目标是让攻破代价大于收益</li>
+<li>从黑名单思维转向白名单思维——“只允许安全的”比”封掉危险的”强一个量级</li>
+<li>2020年后格局变化：API安全成主战场、供应链攻击成现实、AI军备竞赛开始。但底层逻辑不变</li>
 </ul>
 
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"读书笔记 Web安全深度解析","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2020-04-20","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2020/04/20/读书笔记-Web安全深度解析/"},"url":"https://lanky228.github.io/2020/04/20/读书笔记-Web安全深度解析/","inLanguage":"zh-CN","dateModified":"2026-08-02","keywords":["软件工程","Web安全","网络安全"]}</script>
@@ -418,7 +424,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景：为什么要读这本书"><span class="nav-number">1.</span> <span class="nav-text">背景：为什么要读这本书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web安全的底层逻辑"><span class="nav-number">2.</span> <span class="nav-text">Web安全的底层逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#核心漏洞类型"><span class="nav-number">3.</span> <span class="nav-text">核心漏洞类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SQL注入：输入变成了代码"><span class="nav-number">3.1.</span> <span class="nav-text">SQL注入：输入变成了代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XSS：浏览器端的注入"><span class="nav-number">3.2.</span> <span class="nav-text">XSS：浏览器端的注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文件上传：最容易被忽视的入口"><span class="nav-number">3.3.</span> <span class="nav-text">文件上传：最容易被忽视的入口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#命令执行漏洞"><span class="nav-number">3.4.</span> <span class="nav-text">命令执行漏洞</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSRF：冒充用户身份"><span class="nav-number">4.</span> <span class="nav-text">CSRF：冒充用户身份</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安全测试：从”用工具扫”到”像攻击者思考”"><span class="nav-number">5.</span> <span class="nav-text">安全测试：从”用工具扫”到”像攻击者思考”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#工具链"><span class="nav-number">5.1.</span> <span class="nav-text">工具链</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#防御哲学：纵深防御"><span class="nav-number">6.</span> <span class="nav-text">防御哲学：纵深防御</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#我在工作中的应用"><span class="nav-number">7.</span> <span class="nav-text">我在工作中的应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">8.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景：为什么要读这本书"><span class="nav-number">1.</span> <span class="nav-text">背景：为什么要读这本书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web安全的底层逻辑"><span class="nav-number">2.</span> <span class="nav-text">Web安全的底层逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#核心漏洞类型"><span class="nav-number">3.</span> <span class="nav-text">核心漏洞类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SQL注入：输入变成了代码"><span class="nav-number">3.1.</span> <span class="nav-text">SQL注入：输入变成了代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XSS：浏览器端的注入"><span class="nav-number">3.2.</span> <span class="nav-text">XSS：浏览器端的注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文件上传：最容易被忽视的入口"><span class="nav-number">3.3.</span> <span class="nav-text">文件上传：最容易被忽视的入口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#命令执行漏洞"><span class="nav-number">3.4.</span> <span class="nav-text">命令执行漏洞</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSRF：冒充用户身份"><span class="nav-number">4.</span> <span class="nav-text">CSRF：冒充用户身份</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安全测试：从”用工具扫”到”像攻击者思考”"><span class="nav-number">5.</span> <span class="nav-text">安全测试：从”用工具扫”到”像攻击者思考”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#工具链"><span class="nav-number">5.1.</span> <span class="nav-text">工具链</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#防御哲学：纵深防御"><span class="nav-number">6.</span> <span class="nav-text">防御哲学：纵深防御</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2020年后的安全格局变化"><span class="nav-number">7.</span> <span class="nav-text">2020年后的安全格局变化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#我在工作中的应用"><span class="nav-number">8.</span> <span class="nav-text">我在工作中的应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">9.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -487,12 +493,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">120k</span>
+    <span title="站点总字数">119k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:49</span>
+    <span title="站点阅读时长">1:48</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>

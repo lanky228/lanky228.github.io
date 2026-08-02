@@ -28,7 +28,7 @@
 <meta property="og:description" content="跨库SQL适配有三条路线（联邦引擎、语义层、引擎统一），统一SQL加方言转换方案存在等价函数结构性风险。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-07-15T08:00:00.000Z">
-<meta property="article:modified_time" content="2026-08-01T04:43:53.414Z">
+<meta property="article:modified_time" content="2026-08-02T07:28:59.314Z">
 <meta property="article:author" content="Lanky">
 <meta property="article:tag" content="语义层">
 <meta property="article:tag" content="SQL">
@@ -224,7 +224,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-08-01 12:43:53" itemprop="dateModified" datetime="2026-08-01T12:43:53+08:00">2026-08-01</time>
+                <time title="修改时间：2026-08-02 15:28:59" itemprop="dateModified" datetime="2026-08-02T15:28:59+08:00">2026-08-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -242,14 +242,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.9k</span>
+              <span>2.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
+              <span>2 分钟</span>
             </span>
             <div class="post-description">跨库SQL适配有三条路线（联邦引擎、语义层、引擎统一），统一SQL加方言转换方案存在等价函数结构性风险。</div>
 
@@ -262,41 +262,35 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <details>
-<summary>📝 AI 摘要</summary>
-
-<p>跨库SQL适配有三条路线（联邦引擎、语义层、引擎统一），统一SQL加方言转换方案存在等价函数结构性风险。</p>
-</details>
-
-
-<h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><p>业界跨库 SQL 适配有三条成熟路线（联邦引擎、语义层、引擎统一），均不依赖事后 SQL 方言转换（将统一 SQL 中的函数改写为各库兼容的写法）。当前”统一 SQL + 方言转换”方案存在等价函数依赖的结构性风险，应向语义层直接生成各库 SQL 演进。</p>
+        <p>💡 跨库SQL适配有三条成熟路线（联邦引擎、语义层、引擎统一），没有一条依赖”事后方言转换”。当前”统一SQL+方言转换”方案存在等价函数结构性风险，应向语义层直接生成各库SQL演进。</p>
 <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>五个子域需要跨 StarRocks&#x2F;Druid&#x2F;GaussDB 三个异构数据库查询，AI 需生成一种 SQL 让三库都能执行。当前采用”统一 SQL + 函数映射改写”方案，但已发现 Druid 报文场景查询报错的结构性风险。</p>
 <p>业界已有多条成熟路线解决跨库 SQL 适配问题，需对比研判正确的演进方向。</p>
 <h2 id="当前方案的问题"><a href="#当前方案的问题" class="headerlink" title="当前方案的问题"></a>当前方案的问题</h2><p>当前流程：AI 生成统一 SQL（不感知目标库）→ 引擎层函数映射改写 → 分别下推各库执行。</p>
 <p>具体表现：</p>
 <ul>
-<li><strong>StarRocks</strong>：原生支持该函数，零改写，执行成功 ✅</li>
-<li><strong>GaussDB</strong>：原生支持该函数，零改写，执行成功 ✅</li>
-<li><strong>Druid 报文</strong>：FROM_UNIXTIME 函数不下推，内存计算报错 ❌</li>
-<li><strong>Druid SQL</strong>：改写为等价函数，执行成功（降级路径）✅</li>
+<li>StarRocks：原生支持该函数，零改写，执行成功</li>
+<li>GaussDB：原生支持该函数，零改写，执行成功</li>
+<li>Druid 报文：FROM_UNIXTIME 函数不下推，内存计算报错</li>
+<li>Druid SQL：改写为等价函数，执行成功（降级路径）</li>
 </ul>
-<p>⚠️ <strong>核心问题</strong>：生成统一 SQL 后再改写，某库不支持等价函数即失败。方案依赖每个数据库均存在等价函数可映射，新增不支持等价函数的库即失效。</p>
-<h2 id="业界三种路线"><a href="#业界三种路线" class="headerlink" title="业界三种路线"></a>业界三种路线</h2><h3 id="路线一：联邦引擎——不推-SQL-给源库，引擎层统一执行"><a href="#路线一：联邦引擎——不推-SQL-给源库，引擎层统一执行" class="headerlink" title="路线一：联邦引擎——不推 SQL 给源库，引擎层统一执行"></a>路线一：联邦引擎——不推 SQL 给源库，引擎层统一执行</h3><p>Trino 收到查询请求后，不推 SQL 给源库，而是从各库拉取数据到引擎层统一执行 JOIN 和聚合。</p>
-<p>✅ <strong>为什么不依赖等价函数</strong>：SQL 不在源库执行，源库只需吐数据，不需要支持任何特定函数。</p>
+<p>核心问题是：生成统一 SQL 后再改写，某库不支持等价函数即失败。方案依赖每个数据库都存在等价函数可映射，新增不支持等价函数的库就失效。</p>
+<p>这不是一个偶然的bug，而是方案的结构性缺陷——把”感知目标库”这个该在生成阶段做的事，推迟到了改写阶段。</p>
+<h2 id="业界三种路线"><a href="#业界三种路线" class="headerlink" title="业界三种路线"></a>业界三种路线</h2><h3 id="路线一：联邦引擎——不推-SQL-给源库"><a href="#路线一：联邦引擎——不推-SQL-给源库" class="headerlink" title="路线一：联邦引擎——不推 SQL 给源库"></a>路线一：联邦引擎——不推 SQL 给源库</h3><p>Trino 收到查询请求后，不推 SQL 给源库，而是从各库拉取数据到引擎层统一执行 JOIN 和聚合。</p>
+<p>为什么不依赖等价函数：SQL 不在源库执行，源库只需吐数据，不需要支持任何特定函数。</p>
 <p>代表实践：Meta 日处理数千万查询、EB 级数据；Uber 15 集群、5000+ 节点、日 50 万查询。</p>
-<h3 id="路线二：语义层——定义指标一次，感知目标库自动生成该库-SQL"><a href="#路线二：语义层——定义指标一次，感知目标库自动生成该库-SQL" class="headerlink" title="路线二：语义层——定义指标一次，感知目标库自动生成该库 SQL"></a>路线二：语义层——定义指标一次，感知目标库自动生成该库 SQL</h3><p>语义层定义指标（如”CPU 均值 &#x3D; 按月聚合 CPU 平均值”），感知目标库，自动生成各库专属 SQL。</p>
+<h3 id="路线二：语义层——定义指标一次，感知目标库自动生成"><a href="#路线二：语义层——定义指标一次，感知目标库自动生成" class="headerlink" title="路线二：语义层——定义指标一次，感知目标库自动生成"></a>路线二：语义层——定义指标一次，感知目标库自动生成</h3><p>语义层定义指标（如”CPU 均值 &#x3D; 按月聚合 CPU 平均值”），感知目标库，自动生成各库专属 SQL。</p>
 <ul>
-<li>StarRocks → 生成 StarRocks 方言 SQL → 执行 ✅</li>
-<li>Druid → 生成 Druid 方言 SQL → 执行 ✅</li>
-<li>GaussDB → 生成 GaussDB 方言 SQL → 执行 ✅</li>
+<li>StarRocks → 生成 StarRocks 方言 SQL → 执行</li>
+<li>Druid → 生成 Druid 方言 SQL → 执行</li>
+<li>GaussDB → 生成 GaussDB 方言 SQL → 执行</li>
 </ul>
-<p>✅ <strong>为什么不依赖等价函数</strong>：每个库拿到的是语义层为自己专属生成的 SQL，不存在”映射不了”的问题。</p>
-<p>💡 <strong>对大模型的友好性</strong>：AI 只需声明查什么指标，语义层自动完成方言适配，降低 AI 生成 SQL 的复杂度。</p>
+<p>为什么不依赖等价函数：每个库拿到的是语义层为自己专属生成的 SQL，不存在”映射不了”的问题。</p>
+<p>对大模型的友好性：AI 只需声明查什么指标，语义层自动完成方言适配，降低 AI 生成 SQL 的复杂度。</p>
 <p>代表实践：dbt MetricFlow、Cube、Netflix DataJunction、Airbnb Minerva。局限：指标建模投入较大（中型企业数百指标 &#x3D; 数月建模）。</p>
-<h3 id="路线三：引擎统一——只用一个引擎，消除方言问题"><a href="#路线三：引擎统一——只用一个引擎，消除方言问题" class="headerlink" title="路线三：引擎统一——只用一个引擎，消除方言问题"></a>路线三：引擎统一——只用一个引擎，消除方言问题</h3><p>AI 生成 SQL（只有一种方言，因为只有一个引擎），统一引擎直接执行。</p>
-<p>✅ <strong>为什么不依赖等价函数</strong>：只有一个引擎、一种方言，不存在跨库映射。</p>
+<h3 id="路线三：引擎统一——只用一个引擎"><a href="#路线三：引擎统一——只用一个引擎" class="headerlink" title="路线三：引擎统一——只用一个引擎"></a>路线三：引擎统一——只用一个引擎</h3><p>AI 生成 SQL（只有一种方言，因为只有一个引擎），统一引擎直接执行。</p>
+<p>为什么不依赖等价函数：只有一个引擎、一种方言，不存在跨库映射。</p>
 <p>代表实践：Meta 四引擎收敛到 Presto 一个，节省”数十万行代码和数千台机器”；滴滴四引擎收敛到 StarRocks，查询性能 4 倍、总成本降 80%。</p>
-<p>⚠️ <strong>关键教训</strong>：性能问题可以用工程手段解决，但运维复杂度无法用工程手段消除——这是引擎统一的根本驱动力。局限：迁移成本高，已有异构库存量场景不适用。</p>
+<p>关键教训：性能问题可以用工程手段解决，但运维复杂度无法用工程手段消除——这是引擎统一的根本驱动力。局限：迁移成本高，已有异构库存量场景不适用。</p>
 <h2 id="三种路线对比与选型"><a href="#三种路线对比与选型" class="headerlink" title="三种路线对比与选型"></a>三种路线对比与选型</h2><table>
 <thead>
 <tr>
@@ -309,30 +303,30 @@
 </thead>
 <tbody><tr>
 <td>适配方式</td>
-<td>不推 SQL 给源库</td>
+<td>不推SQL给源库</td>
 <td>感知目标库直接生成</td>
 <td>单引擎无跨库</td>
-<td>统一 SQL + 运行时改写</td>
+<td>统一SQL+运行时改写</td>
 </tr>
 <tr>
-<td>依赖源库 SQL 能力</td>
+<td>依赖源库SQL能力</td>
 <td>否</td>
 <td>否</td>
 <td>否</td>
-<td><strong>是</strong></td>
+<td>是</td>
 </tr>
 <tr>
 <td>等价函数依赖风险</td>
 <td>无</td>
 <td>无</td>
 <td>无</td>
-<td><strong>有（已失败）</strong></td>
+<td>有（已失败）</td>
 </tr>
 <tr>
-<td>跨源 JOIN</td>
+<td>跨源JOIN</td>
 <td>支持</td>
 <td>不支持</td>
-<td>不支持</td>
+<td>不适用</td>
 <td>不支持</td>
 </tr>
 </tbody></table>
@@ -347,8 +341,8 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>SQL 下推执行</td>
-<td>否（引擎层执行）</td>
+<td>SQL下推执行</td>
+<td>否</td>
 <td>是</td>
 <td>不适用</td>
 <td>是</td>
@@ -362,57 +356,42 @@
 </tr>
 <tr>
 <td>适用本系统</td>
-<td>❌ 单数据源更慢</td>
-<td>✅ 三库不动成本最低</td>
-<td>❌ 三库功能互补</td>
-<td>当前方案（有风险）</td>
+<td>不适合</td>
+<td>最适合</td>
+<td>不适合</td>
+<td>有风险</td>
 </tr>
 </tbody></table>
-<h3 id="选型结论"><a href="#选型结论" class="headerlink" title="选型结论"></a>选型结论</h3><p>业界三种路线均不依赖事后 SQL 方言转换，选型如下：</p>
-<ol>
-<li><p><strong>联邦引擎——不采用。</strong> 查询以单数据源为主，不需要跨源 JOIN；联邦引擎拉取数据到引擎层执行，单数据源查询比原生更慢；需额外部署维护 Trino 集群。</p>
-</li>
-<li><p><strong>引擎统一——不采用。</strong> 三库功能互补（StarRocks 高性能 OLAP、Druid 时序实时、GaussDB 关系型配置），单一引擎无法同时最优；迁移三个生产库业务中断风险大。</p>
-</li>
-<li><p><strong>语义层——采用。</strong> 三库不动迁移成本最低；感知目标库直接生成该库 SQL，消除等价函数依赖；可与当前方言翻译并行运行，平滑过渡。</p>
-</li>
-</ol>
+<h3 id="选型结论"><a href="#选型结论" class="headerlink" title="选型结论"></a>选型结论</h3><p>联邦引擎不采用。查询以单数据源为主，不需要跨源 JOIN；联邦引擎拉取数据到引擎层执行，单数据源查询比原生更慢；需额外部署维护 Trino 集群。</p>
+<p>引擎统一不采用。三库功能互补（StarRocks 高性能 OLAP、Druid 时序实时、GaussDB 关系型配置），单一引擎无法同时最优；迁移三个生产库业务中断风险大。</p>
+<p>语义层采用。三库不动迁移成本最低；感知目标库直接生成该库 SQL，消除等价函数依赖；可与当前方言翻译并行运行，平滑过渡。</p>
 <h2 id="方言翻译的结构性风险"><a href="#方言翻译的结构性风险" class="headerlink" title="方言翻译的结构性风险"></a>方言翻译的结构性风险</h2><p>当前方案分三步，三个风险均发生在第二步（引擎层函数映射改写）：</p>
 <ul>
 <li>Step 1：AI 生成统一 SQL（不感知目标库）</li>
-<li>Step 2：引擎层函数映射改写 ← ⚠️ 三个风险均在此</li>
+<li>Step 2：引擎层函数映射改写 ← 三个风险均在此</li>
 <li>Step 3：改写后的 SQL 下推各库执行</li>
 </ul>
-<p>⚠️ <strong>风险① 等价函数依赖</strong>：每个库必须存在等价函数可替换，否则改写失败。已发生：Druid 报文无等价函数下推，场景失败。</p>
-<p>⚠️ <strong>风险② 语义差异不可处理</strong>：仅能做函数名替换，无法处理 NULL 聚合行为、时区默认值、时间精度等语义级差异。</p>
-<p>⚠️ <strong>风险③ 维护负担</strong>：每个新函数 × 每个新数据库需新增一条映射规则。5 个函数 × 4 个数据源 &#x3D; 20 条规则，新增 1 个库则变为 25 条。</p>
-<p>当前 SQL 方言转换器基于 Apache Calcite 框架实现函数映射。Druid 报文场景失败已验证风险①，风险②③尚未触发但属结构性隐患。</p>
+<p>风险一，等价函数依赖：每个库必须存在等价函数可替换，否则改写失败。已发生：Druid 报文无等价函数下推，场景失败。</p>
+<p>风险二，语义差异不可处理：仅能做函数名替换，无法处理 NULL 聚合行为、时区默认值、时间精度等语义级差异。</p>
+<p>风险三，维护负担：每个新函数 × 每个新数据库需新增一条映射规则。5 个函数 × 4 个数据源 &#x3D; 20 条规则，新增 1 个库则变为 25 条。</p>
+<p>当前 SQL 方言转换器基于 Apache Calcite 框架实现函数映射。Druid 报文场景失败已验证风险一，风险二三尚未触发但属结构性隐患。</p>
 <h2 id="目标架构"><a href="#目标架构" class="headerlink" title="目标架构"></a>目标架构</h2><p>核心变化：从”不感知底层 → 统一生成 → 事后改写”到”感知底层 → 直接生成该库 SQL”。</p>
 <p>感知机制：语义层维护表-数据库路由映射（metrics 表 → StarRocks、alerts 表 → Druid）。AI 声明指标后，语义层追溯到底层表，查路由映射确定目标库，直接生成该库 SQL。</p>
 <p>业界验证：Netflix、Airbnb、Spotify 均已落地。OSI Initiative 40+ 公司参与，语义层正成为产业标准。</p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a href="https://trino.io/docs/current/" target="_blank" rel="noopener">Trino官方文档</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Trino_(SQL_query_engine)" target="_blank" rel="noopener">Trino Wikipedia</a></li>
-<li><a href="https://trino.io/blog/2020/12/27/announcing-trino.html" target="_blank" rel="noopener">Presto到Trino的历史</a></li>
-<li><a href="https://docs.starrocks.io/" target="_blank" rel="noopener">StarRocks官方文档</a></li>
-<li><a href="https://github.com/StarRocks/starrocks" target="_blank" rel="noopener">StarRocks GitHub</a></li>
-<li><a href="https://en.wikipedia.org/wiki/StarRocks" target="_blank" rel="noopener">StarRocks Wikipedia</a></li>
-<li><a href="https://docs.getdbt.com/" target="_blank" rel="noopener">dbt官方文档</a></li>
-<li><a href="https://github.com/dbt-labs/dbt-core" target="_blank" rel="noopener">dbt GitHub</a></li>
+<h2 id="这个洞察对其他项目的意义"><a href="#这个洞察对其他项目的意义" class="headerlink" title="这个洞察对其他项目的意义"></a>这个洞察对其他项目的意义</h2><p>这个选型结论不只适用于我们的系统。任何需要跨异构数据库查询的项目，都会面对同样的分叉：</p>
+<p>如果你只有一个数据库，引擎统一是最优解——消除方言问题，运维最简。</p>
+<p>如果你需要跨源 JOIN，联邦引擎是唯一选择——牺牲单数据源性能换取跨源能力。</p>
+<p>如果你有多个功能互补的数据库但不需跨源 JOIN，语义层是最优解——三库不动、感知目标库直接生成，从根源消除”改不动”的风险。</p>
+<p>关键判断标准：问自己”SQL 是在源库执行还是在引擎层执行”。如果源库执行，就必须感知目标库的方言能力——推迟到运行时改写，就是结构性风险的根源。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li>当前”统一 SQL + 方言转换”方案存在结构性风险：依赖各库存在等价函数，Druid 报文场景失败已验证此风险</li>
+<li>业界三种路线（联邦引擎、语义层、引擎统一）均不依赖事后 SQL 方言转换</li>
+<li>应向语义层感知底层数据库直接生成各库 SQL 演进：三库不动、迁移成本最低，从根源消除”改不动”的风险</li>
+<li>选型标准：单库选引擎统一，跨源JOIN选联邦引擎，多库互补选语义层</li>
+<li>关键判断：SQL 在源库执行就必须感知目标库方言——推迟到运行时改写就是结构性风险</li>
 </ul>
-<h2 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h2><p><strong>Q: 什么是SQL方言转换？</strong><br>A: SQL方言转换是统一SQL方案的第二步，在引擎层把统一SQL中的函数映射改写为各库兼容的写法。它依赖每个目标库都存在等价函数，某库不支持即失败（如Druid报文场景）。当前基于Apache Calcite框架实现。</p>
-<p><strong>Q: 联邦引擎和语义层有什么区别？</strong><br>A: 联邦引擎（如Trino）不推SQL给源库，而是从各库拉取数据到引擎层统一执行JOIN和聚合；语义层则感知目标库，自动生成该库专属SQL后下推执行。前者支持跨源JOIN但单数据源更慢，后者三库不动迁移成本最低。</p>
-<p><strong>Q: 多数据库怎么统一查询？</strong><br>A: 业界有三条成熟路线：联邦引擎（引擎层统一执行）、语义层（感知目标库生成专属SQL）、引擎统一（收敛为单一引擎消除方言）。本文场景推荐语义层方案，三库功能互补且迁移成本最低。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
-<li><p><strong>当前”统一 SQL + 方言转换”方案存在结构性风险。</strong> 它依赖各库存在等价函数，Druid 报文场景失败已验证此风险。业界三种路线均不依赖事后 SQL 方言转换。</p>
-</li>
-<li><p><strong>应向语义层感知底层数据库直接生成各库 SQL 演进。</strong> 语义层通过路由映射感知底层，生成时就对了，从根源消除”改不动”的风险。三库不动、迁移成本最低，可与当前方案并行过渡。</p>
-</li>
-</ol>
 
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"基于统一SQL的大模型友好查询洞察分享","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-07-15","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/07/15/基于统一SQL的大模型友好查询洞察分享/"},"url":"https://lanky228.github.io/2026/07/15/基于统一SQL的大模型友好查询洞察分享/","inLanguage":"zh-CN","dateModified":"2026-08-01","description":"跨库SQL适配有三条路线（联邦引擎、语义层、引擎统一），统一SQL加方言转换方案存在等价函数结构性风险。","keywords":["语义层","SQL","联邦查询","方言转换","多数据库"]}</script>
-
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"什么是SQL方言转换？","acceptedAnswer":{"@type":"Answer","text":"A: SQL方言转换是统一SQL方案的第二步，在引擎层把统一SQL中的函数映射改写为各库兼容的写法。它依赖每个目标库都存在等价函数，某库不支持即失败（如Druid报文场景）。当前基于Apache Calcite框架实现。"}},{"@type":"Question","name":"联邦引擎和语义层有什么区别？","acceptedAnswer":{"@type":"Answer","text":"A: 联邦引擎（如Trino）不推SQL给源库，而是从各库拉取数据到引擎层统一执行JOIN和聚合；语义层则感知目标库，自动生成该库专属SQL后下推执行。前者支持跨源JOIN但单数据源更慢，后者三库不动迁移成本最低。"}},{"@type":"Question","name":"多数据库怎么统一查询？","acceptedAnswer":{"@type":"Answer","text":"A: 业界有三条成熟路线：联邦引擎（引擎层统一执行）、语义层（感知目标库生成专属SQL）、引擎统一（收敛为单一引擎消除方言）。本文场景推荐语义层方案，三库功能互补且迁移成本最低。\n总结"}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"基于统一SQL的大模型友好查询洞察分享","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-07-15","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/07/15/基于统一SQL的大模型友好查询洞察分享/"},"url":"https://lanky228.github.io/2026/07/15/基于统一SQL的大模型友好查询洞察分享/","inLanguage":"zh-CN","dateModified":"2026-08-02","description":"跨库SQL适配有三条路线（联邦引擎、语义层、引擎统一），统一SQL加方言转换方案存在等价函数结构性风险。","keywords":["语义层","SQL","联邦查询","方言转换","多数据库"]}</script>
 
     </div>
 
@@ -500,7 +479,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一句话总结"><span class="nav-number">1.</span> <span class="nav-text">一句话总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">2.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#当前方案的问题"><span class="nav-number">3.</span> <span class="nav-text">当前方案的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#业界三种路线"><span class="nav-number">4.</span> <span class="nav-text">业界三种路线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#路线一：联邦引擎——不推-SQL-给源库，引擎层统一执行"><span class="nav-number">4.1.</span> <span class="nav-text">路线一：联邦引擎——不推 SQL 给源库，引擎层统一执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#路线二：语义层——定义指标一次，感知目标库自动生成该库-SQL"><span class="nav-number">4.2.</span> <span class="nav-text">路线二：语义层——定义指标一次，感知目标库自动生成该库 SQL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#路线三：引擎统一——只用一个引擎，消除方言问题"><span class="nav-number">4.3.</span> <span class="nav-text">路线三：引擎统一——只用一个引擎，消除方言问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三种路线对比与选型"><span class="nav-number">5.</span> <span class="nav-text">三种路线对比与选型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#选型结论"><span class="nav-number">5.1.</span> <span class="nav-text">选型结论</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方言翻译的结构性风险"><span class="nav-number">6.</span> <span class="nav-text">方言翻译的结构性风险</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标架构"><span class="nav-number">7.</span> <span class="nav-text">目标架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考链接"><span class="nav-number">8.</span> <span class="nav-text">参考链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FAQ"><span class="nav-number">9.</span> <span class="nav-text">FAQ</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">10.</span> <span class="nav-text">总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#当前方案的问题"><span class="nav-number">2.</span> <span class="nav-text">当前方案的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#业界三种路线"><span class="nav-number">3.</span> <span class="nav-text">业界三种路线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#路线一：联邦引擎——不推-SQL-给源库"><span class="nav-number">3.1.</span> <span class="nav-text">路线一：联邦引擎——不推 SQL 给源库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#路线二：语义层——定义指标一次，感知目标库自动生成"><span class="nav-number">3.2.</span> <span class="nav-text">路线二：语义层——定义指标一次，感知目标库自动生成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#路线三：引擎统一——只用一个引擎"><span class="nav-number">3.3.</span> <span class="nav-text">路线三：引擎统一——只用一个引擎</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三种路线对比与选型"><span class="nav-number">4.</span> <span class="nav-text">三种路线对比与选型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#选型结论"><span class="nav-number">4.1.</span> <span class="nav-text">选型结论</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方言翻译的结构性风险"><span class="nav-number">5.</span> <span class="nav-text">方言翻译的结构性风险</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标架构"><span class="nav-number">6.</span> <span class="nav-text">目标架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#这个洞察对其他项目的意义"><span class="nav-number">7.</span> <span class="nav-text">这个洞察对其他项目的意义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">8.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -569,12 +548,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">120k</span>
+    <span title="站点总字数">119k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:49</span>
+    <span title="站点阅读时长">1:48</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
