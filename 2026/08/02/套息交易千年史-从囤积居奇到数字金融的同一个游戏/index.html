@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lanky228.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="💡 套息交易不是现代发明，而是”囤积居奇”的数字升级版。底层逻辑千年未变：借贷成本远低于囤积收益时，资本必然无限加杠杆，直到崩溃或外力介入。 背景：借钱生钱的古老游戏古代有商人遇到灾年，粮价飞涨。他们借钱囤粮，等粮价更高时卖出还债，净赚差价。 这叫”囤积居奇”，历朝历代都禁，但禁不绝。因为利润太厚，总有人冒险。 今天这套玩法换了个名字——套息交易。借低息日元，买高息美元资产，吃利差。 牌桌变了，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="套息交易千年史——从囤积居奇到数字金融的同一个游戏">
+<meta property="og:url" content="https://lanky228.github.io/2026/08/02/%E5%A5%97%E6%81%AF%E4%BA%A4%E6%98%93%E5%8D%83%E5%B9%B4%E5%8F%B2-%E4%BB%8E%E5%9B%A4%E7%A7%AF%E5%B1%85%E5%A5%87%E5%88%B0%E6%95%B0%E5%AD%97%E9%87%91%E8%9E%8D%E7%9A%84%E5%90%8C%E4%B8%80%E4%B8%AA%E6%B8%B8%E6%88%8F/index.html">
+<meta property="og:site_name" content="Lanky的博客">
+<meta property="og:description" content="💡 套息交易不是现代发明，而是”囤积居奇”的数字升级版。底层逻辑千年未变：借贷成本远低于囤积收益时，资本必然无限加杠杆，直到崩溃或外力介入。 背景：借钱生钱的古老游戏古代有商人遇到灾年，粮价飞涨。他们借钱囤粮，等粮价更高时卖出还债，净赚差价。 这叫”囤积居奇”，历朝历代都禁，但禁不绝。因为利润太厚，总有人冒险。 今天这套玩法换了个名字——套息交易。借低息日元，买高息美元资产，吃利差。 牌桌变了，">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-08-02T15:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-03T05:07:42.983Z">
+<meta property="article:author" content="Lanky">
+<meta property="article:tag" content="金融">
+<meta property="article:tag" content="套息交易">
+<meta property="article:tag" content="宏观经济">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lanky228.github.io/2026/08/02/%E5%A5%97%E6%81%AF%E4%BA%A4%E6%98%93%E5%8D%83%E5%B9%B4%E5%8F%B2-%E4%BB%8E%E5%9B%A4%E7%A7%AF%E5%B1%85%E5%A5%87%E5%88%B0%E6%95%B0%E5%AD%97%E9%87%91%E8%9E%8D%E7%9A%84%E5%90%8C%E4%B8%80%E4%B8%AA%E6%B8%B8%E6%88%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Lanky的技术博客",
+  "url": "https://lanky228.github.io",
+  "description": "Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。",
+  "inLanguage": "zh-CN"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Lanky",
+  "url": "https://lanky228.github.io",
+  "jobTitle": "Database & Data Lake Engineer",
+  "knowsAbout": ["Apache Calcite", "StarRocks", "ClickHouse", "Apache Iceberg", "OLAP", "Data Lakehouse", "TPC-DS Benchmark", "DuckDB", "Trino", "SQL Parser", "AI Coding"]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://lanky228.github.io" },
+    { "@type": "ListItem", "position": 2, "name": "套息交易千年史——从囤积居奇到数字金融的同一个游戏", "item": "https://lanky228.github.io/2026/08/02/套息交易千年史-从囤积居奇到数字金融的同一个游戏/" }
+  ]
+}
+</script>
+
+
+  <title>套息交易千年史——从囤积居奇到数字金融的同一个游戏 | Lanky的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lanky的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">生活 学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/08/02/%E5%A5%97%E6%81%AF%E4%BA%A4%E6%98%93%E5%8D%83%E5%B9%B4%E5%8F%B2-%E4%BB%8E%E5%9B%A4%E7%A7%AF%E5%B1%85%E5%A5%87%E5%88%B0%E6%95%B0%E5%AD%97%E9%87%91%E8%9E%8D%E7%9A%84%E5%90%8C%E4%B8%80%E4%B8%AA%E6%B8%B8%E6%88%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          套息交易千年史——从囤积居奇到数字金融的同一个游戏
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-08-02 23:00:00" itemprop="dateCreated datePublished" datetime="2026-08-02T23:00:00+08:00">2026-08-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-03 13:07:42" itemprop="dateModified" datetime="2026-08-03T13:07:42+08:00">2026-08-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>💡 套息交易不是现代发明，而是”囤积居奇”的数字升级版。底层逻辑千年未变：借贷成本远低于囤积收益时，资本必然无限加杠杆，直到崩溃或外力介入。</p>
+<h2 id="背景：借钱生钱的古老游戏"><a href="#背景：借钱生钱的古老游戏" class="headerlink" title="背景：借钱生钱的古老游戏"></a>背景：借钱生钱的古老游戏</h2><p>古代有商人遇到灾年，粮价飞涨。他们借钱囤粮，等粮价更高时卖出还债，净赚差价。</p>
+<p>这叫”囤积居奇”，历朝历代都禁，但禁不绝。因为利润太厚，总有人冒险。</p>
+<p>今天这套玩法换了个名字——套息交易。借低息日元，买高息美元资产，吃利差。</p>
+<p>牌桌变了，筹码变了，规则没变。</p>
+<h2 id="同一个游戏：正反馈的自我强化"><a href="#同一个游戏：正反馈的自我强化" class="headerlink" title="同一个游戏：正反馈的自我强化"></a>同一个游戏：正反馈的自我强化</h2><p>套息交易的底层逻辑可以拆成一句话：借贷成本远低于囤积收益时，资本会无限加杠杆。</p>
+<p>这里有个反常识的点。普通商品是”越贵越没人买”，金融资产却是”越贵越有人买”。</p>
+<p>涨价本身制造了赚钱预期，赚钱预期吸引更多资金，更多资金推高价格。这是一个正反馈循环。</p>
+<p>市场的”自然均衡”在这里失灵。古典经济学假设价格会自我修正，但套息游戏的逻辑恰恰相反——价格涨得越高，杠杆加得越凶，系统越不稳定。</p>
+<p>直到两种结局：要么自己崩（杠杆断裂），要么外力强行介入（监管或汇率干预）。</p>
+<h2 id="日本：看懂了却动不了的国家"><a href="#日本：看懂了却动不了的国家" class="headerlink" title="日本：看懂了却动不了的国家"></a>日本：看懂了却动不了的国家</h2><p>日本是套息交易的”水源地”。日元利息接近零，全世界都来借日元买美元资产。</p>
+<p>日本央行看不懂这个问题吗？看得懂。但它在制度上主动”缴械”了。</p>
+<p>财政上不敢加息。一加息，日本国债利息支出就吃掉财政收入，政府事实破产。</p>
+<p>主权上不敢管制。一旦资本管制，国际金融市场就把日本踢出局，失去”发达经济体”的身份。</p>
+<p>只剩外汇干预一张牌——日元贬值太狠时，央行抛美元买日元，撑一下汇率。</p>
+<p>这像晚清被盐商绑架的朝廷。盐税收不上来，盐商垄断盐利，朝廷动他们财政就垮。明知弊病在身，却投鼠忌器。</p>
+<p>日本的困局不是认知问题，是制度锁定问题。</p>
+<h2 id="中国：把古代策略翻译成现代工具"><a href="#中国：把古代策略翻译成现代工具" class="headerlink" title="中国：把古代策略翻译成现代工具"></a>中国：把古代策略翻译成现代工具</h2><p>中国面对同样的套息压力，处理方式完全不同。它把古代”截流、断粮、抬价、抄家”的治乱策略，翻译成了现代金融监管工具。</p>
+<h3 id="城墙：资本管制"><a href="#城墙：资本管制" class="headerlink" title="城墙：资本管制"></a>城墙：资本管制</h3><p>钱不能随便进出。这等于古代筑城墙，把水源围在境内，投机者没法自由搬粮。</p>
+<h3 id="抽干水源：离岸流动性管理"><a href="#抽干水源：离岸流动性管理" class="headerlink" title="抽干水源：离岸流动性管理"></a>抽干水源：离岸流动性管理</h3><p>央行通过发行离岸央票、调节离岸人民币流动性，让海外做空人民币的成本飙升。这等于把囤积者外面的水源抽干。</p>
+<h3 id="抬高借粮成本：宏观审慎调节"><a href="#抬高借粮成本：宏观审慎调节" class="headerlink" title="抬高借粮成本：宏观审慎调节"></a>抬高借粮成本：宏观审慎调节</h3><p>对银行跨境放贷加风险权重，对企业境外融资设上限。借钱的成本被人为抬高，套息利润空间被压缩。</p>
+<h3 id="稽查走私：打击虚假贸易"><a href="#稽查走私：打击虚假贸易" class="headerlink" title="稽查走私：打击虚假贸易"></a>稽查走私：打击虚假贸易</h3><p>贸易项下虚假发票、循环报关，是套息资金伪装进出的通道。海关和外汇局严查这些”走私”行为，把后门堵死。</p>
+<p>四招合起来做一件事：管住源头，让囤积游戏开不了局。</p>
+<h2 id="三个追问：看穿任何金融概念"><a href="#三个追问：看穿任何金融概念" class="headerlink" title="三个追问：看穿任何金融概念"></a>三个追问：看穿任何金融概念</h2><p>复杂金融概念让人头晕。但任何套息类操作，问三个问题就能见底牌。</p>
+<h3 id="限制谁借钱"><a href="#限制谁借钱" class="headerlink" title="限制谁借钱"></a>限制谁借钱</h3><p>谁是投机主体？是散户、对冲基金、还是跨国银行？识别出主体，才知道监管该指向谁。</p>
+<h3 id="提高谁的成本"><a href="#提高谁的成本" class="headerlink" title="提高谁的成本"></a>提高谁的成本</h3><p>套息的代价是什么？是利息、汇率风险、还是流动性风险？调节这些代价，就能控制杠杆规模。</p>
+<h3 id="抽干哪里的钱"><a href="#抽干哪里的钱" class="headerlink" title="抽干哪里的钱"></a>抽干哪里的钱</h3><p>杠杆的资金源头在哪？是离岸市场、银行间市场、还是贸易融资通道？切断源头，杠杆就加不起来。</p>
+<p>这三个问题不只是分析工具，也是政策工具。日本的失败在于第一个问题答不出（谁都管不了），中国的成功在于三个问题都有答案。</p>
+<h2 id="经济学教错了什么"><a href="#经济学教错了什么" class="headerlink" title="经济学教错了什么"></a>经济学教错了什么</h2><p>经济学教育有个毛病：把”道理”教成了”公式”。</p>
+<p>学生背了一堆IS-LM曲线、利率平价公式、蒙代尔-弗莱明模型，以为这些就是金融世界的全部。</p>
+<p>但真功夫不是套公式。真功夫是领会那个永恒的人性博弈道理——囤积居奇的逻辑——然后看懂它在当代演化出的种种方法。</p>
+<p>公式会过时，方法会更新，但人性的贪婪和恐惧千年不变。看懂这一点，才算看懂金融。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li>套息交易本质是”囤积居奇”的数字升级版，底层逻辑千年未变</li>
+<li>金融资产”越贵越买”的正反馈让市场自然均衡失灵，必然走向崩溃或外力干预</li>
+<li>日本困局在制度锁定：不敢加息、不敢管制，只剩外汇干预一张牌</li>
+<li>中国成功在把古代治乱策略翻译成现代工具：资本管制、离岸流动性管理、宏观审慎、打击虚假贸易</li>
+<li>看穿任何套息概念问三个问题：限制谁借钱、提高谁的成本、抽干哪里的钱</li>
+<li>经济学教的是公式，真功夫是领会永恒的人性博弈道理</li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"套息交易千年史——从囤积居奇到数字金融的同一个游戏","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-08-02","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/08/02/套息交易千年史-从囤积居奇到数字金融的同一个游戏/"},"url":"https://lanky228.github.io/2026/08/02/套息交易千年史-从囤积居奇到数字金融的同一个游戏/","inLanguage":"zh-CN","dateModified":"2026-08-03","keywords":["金融","套息交易","宏观经济"]}</script>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%87%91%E8%9E%8D/" rel="tag"># 金融</a>
+              <a href="/tags/%E5%A5%97%E6%81%AF%E4%BA%A4%E6%98%93/" rel="tag"># 套息交易</a>
+              <a href="/tags/%E5%AE%8F%E8%A7%82%E7%BB%8F%E6%B5%8E/" rel="tag"># 宏观经济</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/07/31/%E4%BB%8E%E4%B8%AD%E8%AF%81500%E6%8C%87%E6%95%B0%E5%A2%9E%E5%BC%BA%E7%9C%8B%E4%B8%AD%E5%9B%BD%E9%87%91%E8%9E%8D%E4%B8%9A%E7%9A%84%E6%96%B9%E6%B3%95%E8%AE%BA%E4%B8%8E%E6%9C%AC%E8%B4%A8/" rel="prev" title="从中证500指数增强看中国金融业的方法论与本质">
+      <i class="fa fa-chevron-left"></i> 从中证500指数增强看中国金融业的方法论与本质
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景：借钱生钱的古老游戏"><span class="nav-number">1.</span> <span class="nav-text">背景：借钱生钱的古老游戏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同一个游戏：正反馈的自我强化"><span class="nav-number">2.</span> <span class="nav-text">同一个游戏：正反馈的自我强化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#日本：看懂了却动不了的国家"><span class="nav-number">3.</span> <span class="nav-text">日本：看懂了却动不了的国家</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#中国：把古代策略翻译成现代工具"><span class="nav-number">4.</span> <span class="nav-text">中国：把古代策略翻译成现代工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#城墙：资本管制"><span class="nav-number">4.1.</span> <span class="nav-text">城墙：资本管制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抽干水源：离岸流动性管理"><span class="nav-number">4.2.</span> <span class="nav-text">抽干水源：离岸流动性管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抬高借粮成本：宏观审慎调节"><span class="nav-number">4.3.</span> <span class="nav-text">抬高借粮成本：宏观审慎调节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#稽查走私：打击虚假贸易"><span class="nav-number">4.4.</span> <span class="nav-text">稽查走私：打击虚假贸易</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三个追问：看穿任何金融概念"><span class="nav-number">5.</span> <span class="nav-text">三个追问：看穿任何金融概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#限制谁借钱"><span class="nav-number">5.1.</span> <span class="nav-text">限制谁借钱</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#提高谁的成本"><span class="nav-number">5.2.</span> <span class="nav-text">提高谁的成本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抽干哪里的钱"><span class="nav-number">5.3.</span> <span class="nav-text">抽干哪里的钱</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#经济学教错了什么"><span class="nav-number">6.</span> <span class="nav-text">经济学教错了什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">7.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lanky</p>
+  <div class="site-description" itemprop="description">Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">94</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lanky228" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lanky228" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1289206629@qq.com" title="E-Mail → mailto:1289206629@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lanky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">121k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:50</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
