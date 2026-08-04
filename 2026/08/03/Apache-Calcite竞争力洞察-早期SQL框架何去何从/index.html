@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lanky228.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="💡 一个没有执行层的优化器框架，在向量化+分布式+全栈自研时代，究竟是被颠覆的旧物，还是不可替代的底座？答案是：当中间件用，它五年内仍不可替代；当引擎用，它已经输了。 背景数据通信产品线查询服务的核心命题是”统一 SQL、感知底层库、生成该库 SQL”。这条路线天然要把 SQL 解析优化和底层执行解耦——Calcite 正是这种解耦哲学的最成熟实现。 但环顾四周，StarRocks、DuckDB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache Calcite竞争力洞察——早期SQL框架何去何从">
+<meta property="og:url" content="https://lanky228.github.io/2026/08/03/Apache-Calcite%E7%AB%9E%E4%BA%89%E5%8A%9B%E6%B4%9E%E5%AF%9F-%E6%97%A9%E6%9C%9FSQL%E6%A1%86%E6%9E%B6%E4%BD%95%E5%8E%BB%E4%BD%95%E4%BB%8E/index.html">
+<meta property="og:site_name" content="Lanky的博客">
+<meta property="og:description" content="💡 一个没有执行层的优化器框架，在向量化+分布式+全栈自研时代，究竟是被颠覆的旧物，还是不可替代的底座？答案是：当中间件用，它五年内仍不可替代；当引擎用，它已经输了。 背景数据通信产品线查询服务的核心命题是”统一 SQL、感知底层库、生成该库 SQL”。这条路线天然要把 SQL 解析优化和底层执行解耦——Calcite 正是这种解耦哲学的最成熟实现。 但环顾四周，StarRocks、DuckDB">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-08-02T19:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-04T18:34:24.932Z">
+<meta property="article:author" content="Lanky">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="Apache Calcite">
+<meta property="article:tag" content="优化器">
+<meta property="article:tag" content="查询引擎">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lanky228.github.io/2026/08/03/Apache-Calcite%E7%AB%9E%E4%BA%89%E5%8A%9B%E6%B4%9E%E5%AF%9F-%E6%97%A9%E6%9C%9FSQL%E6%A1%86%E6%9E%B6%E4%BD%95%E5%8E%BB%E4%BD%95%E4%BB%8E/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Lanky的技术博客",
+  "url": "https://lanky228.github.io",
+  "description": "Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。",
+  "inLanguage": "zh-CN"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Lanky",
+  "url": "https://lanky228.github.io",
+  "jobTitle": "Database & Data Lake Engineer",
+  "knowsAbout": ["Apache Calcite", "StarRocks", "ClickHouse", "Apache Iceberg", "OLAP", "Data Lakehouse", "TPC-DS Benchmark", "DuckDB", "Trino", "SQL Parser", "AI Coding"]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://lanky228.github.io" },
+    { "@type": "ListItem", "position": 2, "name": "Apache Calcite竞争力洞察——早期SQL框架何去何从", "item": "https://lanky228.github.io/2026/08/03/Apache-Calcite竞争力洞察-早期SQL框架何去何从/" }
+  ]
+}
+</script>
+
+
+  <title>Apache Calcite竞争力洞察——早期SQL框架何去何从 | Lanky的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lanky的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">生活 学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/08/03/Apache-Calcite%E7%AB%9E%E4%BA%89%E5%8A%9B%E6%B4%9E%E5%AF%9F-%E6%97%A9%E6%9C%9FSQL%E6%A1%86%E6%9E%B6%E4%BD%95%E5%8E%BB%E4%BD%95%E4%BB%8E/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Apache Calcite竞争力洞察——早期SQL框架何去何从
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-08-03 03:00:00" itemprop="dateCreated datePublished" datetime="2026-08-03T03:00:00+08:00">2026-08-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-05 02:34:24" itemprop="dateModified" datetime="2026-08-05T02:34:24+08:00">2026-08-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>10k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>9 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>💡 一个没有执行层的优化器框架，在向量化+分布式+全栈自研时代，究竟是被颠覆的旧物，还是不可替代的底座？答案是：当中间件用，它五年内仍不可替代；当引擎用，它已经输了。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>数据通信产品线查询服务的核心命题是”统一 SQL、感知底层库、生成该库 SQL”。这条路线天然要把 SQL 解析优化和底层执行解耦——Calcite 正是这种解耦哲学的最成熟实现。</p>
+<p>但环顾四周，StarRocks、DuckDB、ClickHouse、Trino 这些标杆无一使用 Calcite。使用 Calcite 的项目（Flink、Drill、Phoenix、Hive、Kylin）多在流式或遗留大数据场景。”优化器框架”这条路线在新一代 OLAP 引擎中几乎零采用。</p>
+<p>这就引出核心问题：Calcite 这种早期单体 SQL 框架，竞争力还在不在？还有生命力吗？这不是学术问题——它直接决定产品线查询服务选型，是拥抱 Calcite 做联邦与方言改写，还是走 StarRocks&#x2F;DuckDB 式全栈自研。</p>
+<h2 id="五个核心判断"><a href="#五个核心判断" class="headerlink" title="五个核心判断"></a>五个核心判断</h2><p>📌 先把结论摆出来，下面再展开。</p>
+<h3 id="Calcite-没有死，反而很健康"><a href="#Calcite-没有死，反而很健康" class="headerlink" title="Calcite 没有死，反而很健康"></a>Calcite 没有死，反而很健康</h3><p>2026 年 5 月发布的 1.42.0 单版本解决 249 个 issue、39 位贡献者参与。ASF 董事会连续多季度评为”Super healthy”，82 位 committer、33 位 PMC，社区活跃度不降反升。把它当”过时的旧框架”是事实层面的误判。</p>
+<h3 id="新框架绕开是性能竞争的必然"><a href="#新框架绕开是性能竞争的必然" class="headerlink" title="新框架绕开是性能竞争的必然"></a>新框架绕开是性能竞争的必然</h3><p>StarRocks、DuckDB、ClickHouse、Trino 都自研 SQL 全栈。根本原因是优化器与执行器的紧耦合才能榨取极限性能——这与 Calcite 的”模块化、可组合”哲学直接冲突。不是 Calcite 不好，是性能护城河要求协同设计。</p>
+<h3 id="DataFusion-不基于-Calcite"><a href="#DataFusion-不基于-Calcite" class="headerlink" title="DataFusion 不基于 Calcite"></a>DataFusion 不基于 Calcite</h3><p>一个被广泛传播的误解需要纠正：DataFusion 并不”基于 Calcite 的 SQL 前端”。它使用 Rust 的 <code>sqlparser-rs</code> 自建解析与计划链路。SIGMOD 2024 论文明确将其与 Calcite 并列为”可组合数据系统”的两类不同实现。</p>
+<h3 id="真正独特价值是方言改写与联邦适配"><a href="#真正独特价值是方言改写与联邦适配" class="headerlink" title="真正独特价值是方言改写与联邦适配"></a>真正独特价值是方言改写与联邦适配</h3><p>1.37 起陆续加入 StarRocks、Doris、DuckDB、SQLite、Trino 方言。它正在做一件讽刺但正确的事：为不使用自己的竞争对手提供方言互译能力。</p>
+<h3 id="生命力上限是中间件不是引擎"><a href="#生命力上限是中间件不是引擎" class="headerlink" title="生命力上限是中间件不是引擎"></a>生命力上限是中间件不是引擎</h3><p>作为”SQL 优化器中间件”在 5 年内仍有持续需求。但天花板清晰——它永远成不了执行引擎，”嵌入式优化器即服务”是唯一有想象力的突破口。</p>
+<h2 id="Calcite-现状：被低估的优化器中间件"><a href="#Calcite-现状：被低估的优化器中间件" class="headerlink" title="Calcite 现状：被低估的优化器中间件"></a>Calcite 现状：被低估的优化器中间件</h2><h3 id="项目基本面：远比想象的健康"><a href="#项目基本面：远比想象的健康" class="headerlink" title="项目基本面：远比想象的健康"></a>项目基本面：远比想象的健康</h3><p>把 Calcite 描述成”早期单体、正在衰退”是常见但错误的印象。从 ASF 董事会会议纪要看，Calcite 在 2025 年 Q4 的状态是”ongoing (high activity)”，社区自评”Super healthy”。</p>
+<p>2025 年 Q4 单季度 142 个 JIRA 开、151 个关，关闭速度快于开启速度——这在开源项目中相当罕见。GitHub 5.1k star、2.5k fork，1.42.0 于 2026-05-31 发布，39 位贡献者、249 个 issue；1.41.0 于 2025-11-01 发布，41 位贡献者、155 个 issue。</p>
+<p>人员构成上，创始人 Julian Hyde（2251 次贡献）仍是核心，但已形成去中心化的贡献群体：xiedeyantu、mihaibudiu、zabetak、NobiGo、asolimando、silundong 等多人长期活跃，2025 年 12 月还新增了 3 位 committer。</p>
+<p>⚠️ 关键判断：<strong>没有单一商业厂商主导</strong>这一点被社区分析者认为是 Calcite 长期健康的关键——它不像某些项目会被一家公司的战略转向拖垮。</p>
+<h3 id="架构定位：三层结构，明确”不做执行”边界"><a href="#架构定位：三层结构，明确”不做执行”边界" class="headerlink" title="架构定位：三层结构，明确”不做执行”边界"></a>架构定位：三层结构，明确”不做执行”边界</h3><p>Calcite 官方自我定位是”The foundation for your next high-performance database”，提供三件事：标准 SQL 解析器与 JDBC 驱动、基于关系代数的查询优化、连接第三方数据源的适配器。</p>
+<p>它有两个子项目：Avatica（JDBC&#x2F;ODBC 驱动框架，与 Arrow Flight SQL、ADBC 竞争）和 Enumerable（编译式查询执行引擎，与 Velox、DataFusion 竞争）。</p>
+<p>这里有一个关键判断：<strong>Enumerable 是 Calcite 的软肋</strong>。社区分析者直言”Apache Calcite has very advanced query optimization but weak execution”——它的优化器很强，但执行层无法与向量化引擎竞争。这决定了 Calcite 在”全栈性能竞赛”中天然处于劣势。</p>
+<h3 id="近年技术演进：优化器深度和方言广度两条线"><a href="#近年技术演进：优化器深度和方言广度两条线" class="headerlink" title="近年技术演进：优化器深度和方言广度两条线"></a>近年技术演进：优化器深度和方言广度两条线</h3><p>从 1.36 到 1.42 的发布亮点能清楚看到 Calcite 的发力方向：</p>
+<ul>
+<li><strong>优化器深度</strong>：1.39 引入基于动态规划的 DPhyp 最优连接枚举算法、INTERSECT→semi-join、MINUS→anti-join 改写规则、复杂连接条件下的谓词扩展；1.40 进一步增强集合操作优化与 UNION 同源去重。这些都是优化器理论的前沿落地。</li>
+<li><strong>方言广度</strong>：1.37 加入 StarRocks 方言（CALCITE-6257）和 Apache Arrow 适配器；1.40 加入 Doris、DuckDB、SQLite、Trino 方言并改进 ClickHouse 支持。这是极具战略意味的动作——下文展开。</li>
+</ul>
+<h2 id="新一代框架为何集体绕开-Calcite"><a href="#新一代框架为何集体绕开-Calcite" class="headerlink" title="新一代框架为何集体绕开 Calcite"></a>新一代框架为何集体绕开 Calcite</h2><h3 id="竞争格局：六款主流引擎，零采用-Calcite"><a href="#竞争格局：六款主流引擎，零采用-Calcite" class="headerlink" title="竞争格局：六款主流引擎，零采用 Calcite"></a>竞争格局：六款主流引擎，零采用 Calcite</h3><p>把六款新一代查询框架摆在一起，结论非常刺眼：<strong>没有一款使用 Calcite</strong>。</p>
+<ul>
+<li><strong>StarRocks</strong>：MPP 架构（大规模并行处理，多节点并行执行查询的架构），Frontend（FE）负责 SQL 解析与计划、Backend（BE）执行，CBO + 全向量化执行 + 列式存储 + 物化视图透明改写，完全自研 SQL 全栈。</li>
+<li><strong>DuckDB</strong>：嵌入式分析数据库，C++ 实现，进程内向量化执行 + 列式存储 + ACID，PostgreSQL 兼容 SQL，自研解析器。</li>
+<li><strong>DataFusion</strong>：Rust 向量化查询引擎框架，<strong>使用 <code>sqlparser-rs</code> 而非 Calcite</strong> 解析 SQL，自建 LogicalPlan&#x2F;ExecutionPlan 全链路。</li>
+<li><strong>Trino&#x2F;Presto</strong>：分布式联邦 MPP，coordinator-worker 架构，自研 SQL 解析与优化。</li>
+<li><strong>ClickHouse</strong>：列式存储 + 向量化执行，极致 OLAP 性能，自研 SQL。</li>
+<li><strong>Spark SQL</strong>：大规模分布式 SQL，自研 Catalyst 优化器 + AQE 适应性执行。</li>
+</ul>
+<h3 id="根本原因：紧耦合才能榨取极限性能"><a href="#根本原因：紧耦合才能榨取极限性能" class="headerlink" title="根本原因：紧耦合才能榨取极限性能"></a>根本原因：紧耦合才能榨取极限性能</h3><p>新框架不选 Calcite，不是因为”不了解”或”集成难”——根本原因是<strong>现代 OLAP 性能的护城河来自优化器与执行器的协同设计</strong>。</p>
+<p>SIGMOD 2024 的 DataFusion 论文点破了这一点：”in real products, there are no clear boundaries between query optimization and query execution”——好的优化器要简化表达式就需要执行器配合，执行器要在运行时收集统计反馈再优化计划，二者必须紧耦合。</p>
+<p>Calcite 的哲学恰好相反：<strong>把优化器做成可插拔的中间件</strong>。这种解耦在”快速搭建能用的系统”时是优势，但在追求极致性能时变成负担——你需要跨越 JVM&#x2F;Native 边界、对接两套内存模型、在不能改执行器的前提下做优化假设。</p>
+<p>Querifylabs 的分析很直白：”maintaining a good query engine and query optimizer in the same project is twice as hard as maintaining one of them”，但现实是<strong>主流高性能引擎都选择了 twice as hard 的全栈自研</strong>。</p>
+<h3 id="DataFusion-特例：另一种可组合实现"><a href="#DataFusion-特例：另一种可组合实现" class="headerlink" title="DataFusion 特例：另一种可组合实现"></a>DataFusion 特例：另一种可组合实现</h3><p>DataFusion 是这个格局中的一个特例。它和 Calcite 一样走”可组合”路线，但实现路径完全不同：Rust 原生、Arrow 内存格式、向量化执行、<code>sqlparser-rs</code> 解析。</p>
+<p>SIGMOD 2024 论文的核心论点是”open standards and extensible design do not preclude state-of-the-art performance”——DataFusion 在多个 benchmark 上接近 DuckDB，证明了模块化设计不必然牺牲性能。</p>
+<p>⚠️ 但要注意：<strong>DataFusion 不是 Calcite 的替代品，而是另一种可组合实现</strong>。Calcite 强在优化器、弱在执行；DataFusion 强在执行、弱在优化器。二者在”可组合数据系统”谱系上是互补关系而非替代关系。把 DataFusion 描述成”基于 Calcite”是事实错误——它从头到尾是 Rust 自研链路。</p>
+<h2 id="优化器理论前沿：Cascades、学习型与适应性"><a href="#优化器理论前沿：Cascades、学习型与适应性" class="headerlink" title="优化器理论前沿：Cascades、学习型与适应性"></a>优化器理论前沿：Cascades、学习型与适应性</h2><p>Calcite 的生命力很大程度上取决于”优化器”这件事本身是否还在演进、是否还有独立价值。从理论前沿看，答案是肯定的——而且方向比”传统 CBO”丰富得多。</p>
+<h3 id="Cascades：Calcite-TopDownRuleDriver-的理论源头"><a href="#Cascades：Calcite-TopDownRuleDriver-的理论源头" class="headerlink" title="Cascades：Calcite TopDownRuleDriver 的理论源头"></a>Cascades：Calcite TopDownRuleDriver 的理论源头</h3><p>Goetz Graefe 1995 年的 Cascades 框架是现代顶级优化器的共同祖先：Microsoft SQL Server、Greenplum Orca 都基于它，Calcite 的 <code>TopDownRuleDriver</code> 也是其实现。</p>
+<p>Cascades 相比 Volcano 的关键改进是：把优化拆成任务对象（task as data structure）、用规则插入 property enforcer、按”promise”动态排序任务、逻辑&#x2F;物理规则统一表示。</p>
+<p>CMU 15-799（2025 Spring）讲义指出，Cascades 的四 ideas 仍是现代优化器的核心：任务化、enforcer 规则化、promise 排序、规则算子统一。这意味着 <strong>Calcite 在优化器骨架上并没有落后</strong>——它用的是和 SQL Server 同源的理论框架。</p>
+<p>问题在于骨架对了不等于肌肉够强：Cascades 论文里的多阶段优化（Simplification→Pre-Exploration→Exploration→Post-optimization）、并行搜索（Orca 实现）、精确 cardinality 估计反馈，这些 Calcite 都有不同程度的缺失或薄弱。</p>
+<h3 id="Neo：端到端学习型优化器的挑战"><a href="#Neo：端到端学习型优化器的挑战" class="headerlink" title="Neo：端到端学习型优化器的挑战"></a>Neo：端到端学习型优化器的挑战</h3><p>Ryan Marcus 等人 2019 年的 Neo 是第一个<strong>端到端用机器学习替换传统优化器所有组件</strong>的系统：查询用特征表示而非算子树、代价模型用 DNN 而非手工公式、搜索用 DNN 引导的 best-first 而非枚举&#x2F;DP、cardinality 估计用 word2vec row vector 而非直方图。</p>
+<p>Neo 在 JOB benchmark 上比 PostgreSQL 优化器快 5.6×–6.7×，证明了学习型优化的潜力。</p>
+<p>但 Neo 至今没有大规模工业落地，原因是它的根本限制：<strong>需要代表性样本工作负载 + 离线训练 + 持续再训练</strong>，且泛化到未见过的查询模式是开放问题。</p>
+<p>📌 对 Calcite 的启示是：学习型优化器短期内不会取代规则&#x2F;代价驱动的主流路线，但”用 ML 辅助 cardinality 估计”和”用学习指导规则排序”是更现实的渐进方向。</p>
+<h3 id="AQP：简单适应性技术往往胜过复杂学习"><a href="#AQP：简单适应性技术往往胜过复杂学习" class="headerlink" title="AQP：简单适应性技术往往胜过复杂学习"></a>AQP：简单适应性技术往往胜过复杂学习</h3><p>更值得注意的发现是：<strong>简单的适应性查询处理（AQP）在很多时候能匹敌甚至超过学习型优化器</strong>。</p>
+<p>NSF 资助的研究表明，仅用 LIP（Lookahead Information Passing，半连接 + 布隆过滤器下推）+ AJA（Adaptive Join Algorithm，运行时切换 hash&#x2F;nested-loop join）两项简单技术，在 JOB-Slow 工作负载上比 PostgreSQL 快 2.0×，而学习型 Balsa 和 Bao 只快 1.4×。</p>
+<p>AQORA（2025）进一步把 LQO（学习型优化）和 AQP（适应性执行）结合，在 Spark SQL 上比学习型方法减少 90% 执行时间、比默认 AQE 减少 70%。Spark SQL 3.0 的 AQE 本身就是 AQP 的工业实现：推迟 join 策略决定、按 shuffle 分区大小重优化、合并小分区、修复倾斜 join。</p>
+<p>⚠️ 这对 Calcite 的判断很关键：<strong>优化器的未来不是”更复杂的离线 CBO”，而是”运行时反馈 + 适应性调整”</strong>。而 Calcite 恰恰没有执行层——它无法在执行中收集真实 cardinality、无法做运行时重优化。这是它的结构性短板。</p>
+<h2 id="Calcite-定位过时了吗"><a href="#Calcite-定位过时了吗" class="headerlink" title="Calcite 定位过时了吗"></a>Calcite 定位过时了吗</h2><h3 id="优化器框架在全栈自研时代还有价值吗"><a href="#优化器框架在全栈自研时代还有价值吗" class="headerlink" title="优化器框架在全栈自研时代还有价值吗"></a>优化器框架在全栈自研时代还有价值吗</h3><p>有，但价值区间收窄了。从 Calcite 的实际采用方看，它仍服务于三类不可替代的场景：</p>
+<ol>
+<li><strong>流式 SQL</strong>：Flink 用 Calcite 解析流式与批式 SQL 并做查询优化，2026 年 5 月还在升级到 Calcite 1.38.0，6 月继续升 1.39.0。流式 SQL 语法标准化这件事，除 Calcite 外几乎没有替代品。</li>
+<li><strong>联邦查询的适配器模式</strong>：Calcite 的适配器能连接 JDBC、HBase、Elasticsearch、Geode、Arrow 等多种数据源，在”一个 SQL 查多个源”的场景仍有结构优势。</li>
+<li><strong>方言改写</strong>：1.37–1.40 加入 StarRocks、Doris、DuckDB、SQLite、Trino 方言，意味着 Calcite 能把一条标准 SQL 改写成各引擎的方言——这正是产品线查询服务”感知底层库直接生成该库 SQL”需要的核心能力。</li>
+</ol>
+<p>但要在”高性能 OLAP 执行”场景里找 Calcite 的位置，答案是没有。StarRocks&#x2F;DuckDB&#x2F;ClickHouse 的性能护城河是存储+向量化+优化器协同设计，Calcite 只能提供其中三分之一，且是最容易被自研替代的三分之一。</p>
+<h3 id="Flink-差点-fork-Calcite-的信号"><a href="#Flink-差点-fork-Calcite-的信号" class="headerlink" title="Flink 差点 fork Calcite 的信号"></a>Flink 差点 fork Calcite 的信号</h3><p>ASF 纪要里有一处值得注意的细节：”an interesting discussion in both the Apache Calcite and Apache Flink communities about the pros and cons of forking Calcite by the latter”，Calcite 社区”advised against this idea, due to the elevated maintenance costs in long term”。</p>
+<p>这说明两件事：一是 Calcite 对大型消费者（Flink）的演进节奏和定制能力已经不够用，Flink 才会认真考虑 fork；二是 fork 的长期维护成本被公认为高到不值得——这反过来证明 <strong>Calcite 作为公共基础设施的”中位线”价值仍在</strong>，只是天花板用户会感到受限。</p>
+<h3 id="采用方现状"><a href="#采用方现状" class="headerlink" title="采用方现状"></a>采用方现状</h3><p>从 Calcite “powered by” 页面看，采用方包括 Alibaba MaxCompute、Apache Drill、Apache Flink、Apache Hive、Apache Kylin、Apache Phoenix、Apache Samza、Apache Beam、Dremio、Feldera、OmniSci 等。其中：</p>
+<ul>
+<li><strong>Flink</strong> 仍是 Calcite 最重要的使用者，2026 年持续升级版本。</li>
+<li><strong>Drill</strong> 项目活跃度大幅下降，已非主流。</li>
+<li><strong>Phoenix</strong> 在 Calcite 文档里仍标注”under development”，集成深度有限。</li>
+<li><strong>Hive</strong> 与 <strong>Kylin</strong> 作为遗留大数据组件仍在维护期。</li>
+<li><strong>Feldera</strong> 是 1.42 新加入”powered by”的新采用者，代表流式数据库新场景。</li>
+<li>用户任务中提到的 “Blast” 在 Calcite 官方采用方页面未出现，无法核实，可能为小众或已停更项目。</li>
+</ul>
+<p>净结论：<strong>Calcite 的采用方以流式&#x2F;遗留大数据为主，在新兴 OLAP 引擎中零采用</strong>。这不是衰退信号——流式 SQL 标准化是 Calcite 的稳固阵地——但确实意味着它在”高性能分析查询”主战场被边缘化了。</p>
+<h2 id="竞争力分析：独特价值与劣势"><a href="#竞争力分析：独特价值与劣势" class="headerlink" title="竞争力分析：独特价值与劣势"></a>竞争力分析：独特价值与劣势</h2><h3 id="Calcite-的独特价值"><a href="#Calcite-的独特价值" class="headerlink" title="Calcite 的独特价值"></a>Calcite 的独特价值</h3><ol>
+<li><strong>方言改写能力</strong>：能在标准 SQL 与 StarRocks&#x2F;Doris&#x2F;DuckDB&#x2F;ClickHouse&#x2F;Trino&#x2F;Spark&#x2F;Oracle&#x2F;PostgreSQL 等十多种方言间互译。对产品线”统一 SQL、感知底层库”的需求，这是<strong>唯一现成的开源实现</strong>。</li>
+<li><strong>联邦查询适配器</strong>：JDBC、HBase、Elasticsearch、Geode、Arrow 等适配器，配合优化器的下推决策，能实现”一个 SQL 查多个源”。Trino 用 connector 级联邦，Calcite 用 optimizer 级改写——两条路线各有适用场景。</li>
+<li><strong>优化器即服务</strong>：把 CBO&#x2F;RBO、Volcano&#x2F;Cascades 规则系统、DPhyp 连接枚举打包成可嵌入的库，新引擎不必从零写优化器。</li>
+<li><strong>社区去中心化</strong>：无单一厂商主导，长期可持续性高于商业引擎。</li>
+</ol>
+<h3 id="Calcite-的劣势"><a href="#Calcite-的劣势" class="headerlink" title="Calcite 的劣势"></a>Calcite 的劣势</h3><ol>
+<li><strong>无向量化执行层</strong>：Enumerable 是编译式但非向量化，无法与 Velox&#x2F;DataFusion&#x2F;DuckDB 的向量化执行竞争。</li>
+<li><strong>JVM 单体进程</strong>：跨语言集成需 JNI&#x2F;IPC，与 Rust&#x2F;C++ 原生引擎对接成本高。</li>
+<li><strong>无分布式集群能力</strong>：没有 MPP 调度、没有 shuffle、没有分布式容错——这些都要使用者自建。</li>
+<li><strong>无运行时适应性</strong>：缺少 AQE 式的执行中重优化，无法利用真实 cardinality 反馈。</li>
+<li><strong>文档定位错位</strong>：社区分析者指出 Calcite 文档导向了错误场景（端到端引擎和 JDBC），而非”可组合查询优化”，导致新用户理解成本高。</li>
+</ol>
+<h3 id="生命周期判断"><a href="#生命周期判断" class="headerlink" title="生命周期判断"></a>生命周期判断</h3><p>作为”SQL 优化器中间件”，Calcite 在 5 年内仍有持续需求，需求来源是：流式 SQL 标准化（Flink 类）、联邦查询（Dremio 类）、方言互译（产品线查询服务类）。</p>
+<p>但在”高性能 OLAP 执行引擎”赛道，它已经退出竞争——这不是预测，是已经发生的事实。它的生命力上限是”中间件”，不是”引擎”。</p>
+<h2 id="与产品线查询服务的关联"><a href="#与产品线查询服务的关联" class="headerlink" title="与产品线查询服务的关联"></a>与产品线查询服务的关联</h2><p>产品线查询服务的演进方向是”向语义层演进，感知底层库直接生成该库 SQL”。在这个语境下，Calcite 的价值不在”用它做执行引擎”，而在两层：</p>
+<ol>
+<li><strong>方言改写层</strong>：用 Calcite 的方言支持把语义层下发的标准 SQL 改写成 StarRocks&#x2F;DuckDB&#x2F;ClickHouse 等底层引擎的方言。这是 Calcite 当前最不可替代的能力——1.37–1.40 主动加入竞争对手的方言，正是看到了这个市场需求。</li>
+<li><strong>联邦优化层</strong>：当查询跨多个底层库时，用 Calcite 优化器做下推决策与跨源改写。但这条路线要和 Trino 的 connector 级联邦比较——Trino 在分布式执行上更强，Calcite 在改写灵活度上更强。</li>
+</ol>
+<p>⚠️ 需要警惕的陷阱是：<strong>不要把 Calcite 当作执行引擎来用</strong>。Enumerable 跑不出向量化引擎的性能，强行用它做全栈查询会陷入”中间件性能天花板”。正确用法是”Calcite 做优化与改写，执行交给底层引擎”——这与产品线的”感知底层库”理念天然契合。</p>
+<h2 id="下一步行动"><a href="#下一步行动" class="headerlink" title="下一步行动"></a>下一步行动</h2><p>按”验证项&#x2F;观察项&#x2F;布局项”三层划分：</p>
+<h3 id="验证项（短期可落地）"><a href="#验证项（短期可落地）" class="headerlink" title="验证项（短期可落地）"></a>验证项（短期可落地）</h3><ul>
+<li>用 Calcite 1.42 的方言改写能力做”标准 SQL → StarRocks&#x2F;DuckDB&#x2F;ClickHouse 方言”的自动转换，验证在产品线查询服务中的改写准确率与覆盖面。</li>
+<li>评估 Calcite 的 Arrow 适配器能否对接向量化执行后端（DataFusion&#x2F;Velox），形成”Calcite 优化 + 向量化执行”的混合栈。</li>
+</ul>
+<h3 id="观察项（中期跟踪）"><a href="#观察项（中期跟踪）" class="headerlink" title="观察项（中期跟踪）"></a>观察项（中期跟踪）</h3><ul>
+<li>跟踪 Flink 升级 Calcite 的节奏与 fork 讨论——若 Flink 真的 fork，意味着 Calcite 公共版本可能失去最大贡献者，需重新评估依赖风险。</li>
+<li>跟踪 DataFusion 优化器的演进——若其优化器能力追上 Calcite，”Rust 全栈可组合”将直接威胁 Calcite 的”优化器即服务”定位。</li>
+<li>跟踪学习型优化器（Neo&#x2F;Balsa&#x2F;AQORA）的工业落地节奏，判断是否需要在 Calcite 之上叠加 ML 辅助 cardinality 估计。</li>
+</ul>
+<h3 id="布局项（长期方向）"><a href="#布局项（长期方向）" class="headerlink" title="布局项（长期方向）"></a>布局项（长期方向）</h3><ul>
+<li>探索”Calcite 优化器 + DataFusion&#x2F;Velox 执行器”的混合架构，规避 Calcite 无向量化执行的短板，同时保留其方言与联邦能力。</li>
+<li>探索 Calcite 与语义层（LookML&#x2F;Cube&#x2F;MetricFlow）的结合——语义层产出标准 SQL，Calcite 改写成方言，底层引擎执行，形成”语义层→Calcite→多引擎”的三段式。</li>
+<li>评估近似查询与采样优化在产品线的适用性——AQP 的简单技术（LIP&#x2F;AJA）往往比复杂学习更实用，可作为 Calcite 优化器的补充规则。</li>
+</ul>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://whimsy.apache.org/board/minutes/Calcite.html" target="_blank" rel="noopener">Apache Calcite 董事会会议纪要（ASF Whimsy）</a></li>
+<li><a href="https://calcite.apache.org/news/releases/" target="_blank" rel="noopener">Apache Calcite Releases 页面</a></li>
+<li><a href="https://www.querifylabs.com/blog/composable-data-systems-lessons-from-apache-calcite-success" target="_blank" rel="noopener">Composable Data Systems: Lessons from Apache Calcite Success（Querifylabs）</a></li>
+<li><a href="https://aicodeinvest.com/lakehouse-query-engines-trino-starrocks-duckdb-comparison/" target="_blank" rel="noopener">Lakehouse Query Engines: Trino vs StarRocks vs DuckDB</a></li>
+<li><a href="https://andrew.nerdnetworks.org/other/SIGMOD-2024-lamb.pdf" target="_blank" rel="noopener">Apache Arrow DataFusion: a Fast, Embeddable, Modular Analytic Query Engine（SIGMOD 2024）</a></li>
+<li><a href="https://datafusion.apache.org/" target="_blank" rel="noopener">Apache DataFusion 官方文档</a></li>
+<li><a href="https://calcite.apache.org/docs/powered_by.html" target="_blank" rel="noopener">Apache Calcite Powered By 列表</a></li>
+<li><a href="https://calcite.apache.org/" target="_blank" rel="noopener">Apache Calcite 官方站点</a></li>
+<li><a href="https://calcite.apache.org/docs/history.html" target="_blank" rel="noopener">Apache Calcite History（贡献者与发布亮点）</a></li>
+<li><a href="https://docs.starrocks.io/docs/introduction/Architecture/" target="_blank" rel="noopener">StarRocks 架构文档</a></li>
+<li><a href="https://spice.ai/learn/apache-datafusion-vs-duckdb" target="_blank" rel="noopener">Apache DataFusion vs DuckDB（Spice.ai）</a></li>
+<li><a href="https://duckdb.org/" target="_blank" rel="noopener">DuckDB 官方站点</a></li>
+<li><a href="https://clickhouse.com/docs" target="_blank" rel="noopener">ClickHouse 官方文档</a></li>
+<li><a href="https://spark.apache.org/docs/latest/sql-performance-tuning.html" target="_blank" rel="noopener">Apache Spark SQL Adaptive Query Execution 文档</a></li>
+<li><a href="https://15721.courses.cs.cmu.edu/spring2016/papers/graefe-ieee1995.pdf" target="_blank" rel="noopener">The Cascades Framework for Query Optimization（Graefe 1995, IEEE Data Engineering Bulletin）</a></li>
+<li><a href="https://15799.courses.cs.cmu.edu/spring2025/notes/05-cascades.pdf" target="_blank" rel="noopener">CMU 15-799 Query Optimization, Spring 2025 — Cascades Lecture Notes</a></li>
+<li><a href="https://courses.cs.washington.edu/courses/csep590d/22sp/lectures/CascadesUW.pdf" target="_blank" rel="noopener">The Cascades Framework for Query Optimization at Microsoft（UW CSEP590D Lecture）</a></li>
+<li><a href="https://arxiv.org/pdf/1904.03711" target="_blank" rel="noopener">Neo: A Learned Query Optimizer（VLDB 2019, Marcus et al.）</a></li>
+<li><a href="https://www.vldb.org/pvldb/vol12/p1705-marcus.pdf" target="_blank" rel="noopener">Neo: A Learned Query Optimizer（VLDB Proceedings）</a></li>
+<li><a href="https://par.nsf.gov/servlets/purl/10480096" target="_blank" rel="noopener">Simple Adaptive Query Processing vs. Learned Query Optimizers（NSF PAR）</a></li>
+<li><a href="https://arxiv.org/html/2510.10580v1" target="_blank" rel="noopener">AQORA: A Learned Adaptive Query Optimizer for Spark SQL（arXiv 2025）</a></li>
+<li><a href="https://github.com/apache/flink/pull/28170" target="_blank" rel="noopener">FLINK-36602: Upgrade Calcite version to 1.38.0（Apache Flink PR #28170）</a></li>
+<li><a href="https://github.com/apache/flink/pull/28290" target="_blank" rel="noopener">Apache Flink Calcite 1.39.0 Upgrade PR #28290</a></li>
+<li><a href="https://github.com/apache/calcite/blob/main/site/_docs/powered_by.md" target="_blank" rel="noopener">Apache Calcite powered_by 源（GitHub）</a></li>
+</ul>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><h3 id="定位必须清晰：中间件而非引擎"><a href="#定位必须清晰：中间件而非引擎" class="headerlink" title="定位必须清晰：中间件而非引擎"></a>定位必须清晰：中间件而非引擎</h3><p>Calcite 是”SQL 优化器与方言改写中间件”，不是”查询引擎”。当中间件用，在流式 SQL、联邦查询、方言互译三个场景 5 年内仍不可替代；当引擎用，它已经输给 StarRocks&#x2F;DuckDB&#x2F;ClickHouse。</p>
+<p>产品线查询服务的正确用法是”Calcite 做改写与优化，执行交给底层引擎”。</p>
+<h3 id="绕开-Calcite-不是-Calcite-的失败"><a href="#绕开-Calcite-不是-Calcite-的失败" class="headerlink" title="绕开 Calcite 不是 Calcite 的失败"></a>绕开 Calcite 不是 Calcite 的失败</h3><p>优化器与执行器紧耦合才能榨取极限性能，这是 OLAP 引擎的护城河。Calcite 的”可组合”哲学与”紧耦合”现实存在根本张力——这不会因为 Calcite 变强而改变。</p>
+<p>DataFusion 走的是另一条”可组合但 Rust 原生向量化”路线。它证明可组合不必然牺牲性能，但也证明”不用 Calcite 一样能做可组合优化器”。</p>
+<h3 id="发力空间在嵌入式优化器即服务"><a href="#发力空间在嵌入式优化器即服务" class="headerlink" title="发力空间在嵌入式优化器即服务"></a>发力空间在嵌入式优化器即服务</h3><p>1.37–1.40 主动加入竞争对手方言是正确战略。下一步应该做三件事：</p>
+<ul>
+<li>把优化器做成可被 Rust&#x2F;C++ 引擎通过 IPC&#x2F;FFI 调用的服务</li>
+<li>补强运行时适应性（AQP）</li>
+<li>与语义层深度集成</li>
+</ul>
+<p>若能做到这些，Calcite 在”多引擎联邦 + 语义层”场景的生命力会延续 5 年以上。若继续在 Enumerable 执行层投入，则是与 Velox&#x2F;DataFusion 打一场必败的仗。</p>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Apache Calcite竞争力洞察——早期SQL框架何去何从","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-08-03","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/08/03/Apache-Calcite竞争力洞察-早期SQL框架何去何从/"},"url":"https://lanky228.github.io/2026/08/03/Apache-Calcite竞争力洞察-早期SQL框架何去何从/","inLanguage":"zh-CN","dateModified":"2026-08-05","keywords":["数据库","Apache Calcite","优化器","查询引擎"]}</script>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 数据库</a>
+              <a href="/tags/Apache-Calcite/" rel="tag"># Apache Calcite</a>
+              <a href="/tags/%E4%BC%98%E5%8C%96%E5%99%A8/" rel="tag"># 优化器</a>
+              <a href="/tags/%E6%9F%A5%E8%AF%A2%E5%BC%95%E6%93%8E/" rel="tag"># 查询引擎</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/08/02/%E5%A5%97%E6%81%AF%E4%BA%A4%E6%98%93%E5%8D%83%E5%B9%B4%E5%8F%B2-%E4%BB%8E%E5%9B%A4%E7%A7%AF%E5%B1%85%E5%A5%87%E5%88%B0%E6%95%B0%E5%AD%97%E9%87%91%E8%9E%8D%E7%9A%84%E5%90%8C%E4%B8%80%E4%B8%AA%E6%B8%B8%E6%88%8F/" rel="prev" title="套息交易千年史——从囤积居奇到数字金融的同一个游戏">
+      <i class="fa fa-chevron-left"></i> 套息交易千年史——从囤积居奇到数字金融的同一个游戏
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五个核心判断"><span class="nav-number">2.</span> <span class="nav-text">五个核心判断</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Calcite-没有死，反而很健康"><span class="nav-number">2.1.</span> <span class="nav-text">Calcite 没有死，反而很健康</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#新框架绕开是性能竞争的必然"><span class="nav-number">2.2.</span> <span class="nav-text">新框架绕开是性能竞争的必然</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DataFusion-不基于-Calcite"><span class="nav-number">2.3.</span> <span class="nav-text">DataFusion 不基于 Calcite</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#真正独特价值是方言改写与联邦适配"><span class="nav-number">2.4.</span> <span class="nav-text">真正独特价值是方言改写与联邦适配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生命力上限是中间件不是引擎"><span class="nav-number">2.5.</span> <span class="nav-text">生命力上限是中间件不是引擎</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Calcite-现状：被低估的优化器中间件"><span class="nav-number">3.</span> <span class="nav-text">Calcite 现状：被低估的优化器中间件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#项目基本面：远比想象的健康"><span class="nav-number">3.1.</span> <span class="nav-text">项目基本面：远比想象的健康</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#架构定位：三层结构，明确”不做执行”边界"><span class="nav-number">3.2.</span> <span class="nav-text">架构定位：三层结构，明确”不做执行”边界</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#近年技术演进：优化器深度和方言广度两条线"><span class="nav-number">3.3.</span> <span class="nav-text">近年技术演进：优化器深度和方言广度两条线</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#新一代框架为何集体绕开-Calcite"><span class="nav-number">4.</span> <span class="nav-text">新一代框架为何集体绕开 Calcite</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#竞争格局：六款主流引擎，零采用-Calcite"><span class="nav-number">4.1.</span> <span class="nav-text">竞争格局：六款主流引擎，零采用 Calcite</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#根本原因：紧耦合才能榨取极限性能"><span class="nav-number">4.2.</span> <span class="nav-text">根本原因：紧耦合才能榨取极限性能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DataFusion-特例：另一种可组合实现"><span class="nav-number">4.3.</span> <span class="nav-text">DataFusion 特例：另一种可组合实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优化器理论前沿：Cascades、学习型与适应性"><span class="nav-number">5.</span> <span class="nav-text">优化器理论前沿：Cascades、学习型与适应性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cascades：Calcite-TopDownRuleDriver-的理论源头"><span class="nav-number">5.1.</span> <span class="nav-text">Cascades：Calcite TopDownRuleDriver 的理论源头</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Neo：端到端学习型优化器的挑战"><span class="nav-number">5.2.</span> <span class="nav-text">Neo：端到端学习型优化器的挑战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AQP：简单适应性技术往往胜过复杂学习"><span class="nav-number">5.3.</span> <span class="nav-text">AQP：简单适应性技术往往胜过复杂学习</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Calcite-定位过时了吗"><span class="nav-number">6.</span> <span class="nav-text">Calcite 定位过时了吗</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优化器框架在全栈自研时代还有价值吗"><span class="nav-number">6.1.</span> <span class="nav-text">优化器框架在全栈自研时代还有价值吗</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Flink-差点-fork-Calcite-的信号"><span class="nav-number">6.2.</span> <span class="nav-text">Flink 差点 fork Calcite 的信号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#采用方现状"><span class="nav-number">6.3.</span> <span class="nav-text">采用方现状</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#竞争力分析：独特价值与劣势"><span class="nav-number">7.</span> <span class="nav-text">竞争力分析：独特价值与劣势</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Calcite-的独特价值"><span class="nav-number">7.1.</span> <span class="nav-text">Calcite 的独特价值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Calcite-的劣势"><span class="nav-number">7.2.</span> <span class="nav-text">Calcite 的劣势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生命周期判断"><span class="nav-number">7.3.</span> <span class="nav-text">生命周期判断</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#与产品线查询服务的关联"><span class="nav-number">8.</span> <span class="nav-text">与产品线查询服务的关联</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下一步行动"><span class="nav-number">9.</span> <span class="nav-text">下一步行动</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#验证项（短期可落地）"><span class="nav-number">9.1.</span> <span class="nav-text">验证项（短期可落地）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#观察项（中期跟踪）"><span class="nav-number">9.2.</span> <span class="nav-text">观察项（中期跟踪）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#布局项（长期方向）"><span class="nav-number">9.3.</span> <span class="nav-text">布局项（长期方向）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考链接"><span class="nav-number">10.</span> <span class="nav-text">参考链接</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">11.</span> <span class="nav-text">✅ 总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定位必须清晰：中间件而非引擎"><span class="nav-number">11.1.</span> <span class="nav-text">定位必须清晰：中间件而非引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#绕开-Calcite-不是-Calcite-的失败"><span class="nav-number">11.2.</span> <span class="nav-text">绕开 Calcite 不是 Calcite 的失败</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#发力空间在嵌入式优化器即服务"><span class="nav-number">11.3.</span> <span class="nav-text">发力空间在嵌入式优化器即服务</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lanky</p>
+  <div class="site-description" itemprop="description">Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">98</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lanky228" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lanky228" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1289206629@qq.com" title="E-Mail → mailto:1289206629@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lanky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">131k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:59</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
