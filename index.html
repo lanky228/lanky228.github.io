@@ -187,6 +187,515 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/08/03/DataFusion%E6%B7%B1%E5%BA%A6%E6%B4%9E%E5%AF%9F-Rust%E5%90%91%E9%87%8F%E5%8C%96%E6%9F%A5%E8%AF%A2%E5%BC%95%E6%93%8E%E7%9A%84%E5%85%B1%E4%BA%AB%E5%BA%95%E5%BA%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/08/03/DataFusion%E6%B7%B1%E5%BA%A6%E6%B4%9E%E5%AF%9F-Rust%E5%90%91%E9%87%8F%E5%8C%96%E6%9F%A5%E8%AF%A2%E5%BC%95%E6%93%8E%E7%9A%84%E5%85%B1%E4%BA%AB%E5%BA%95%E5%BA%A7/" class="post-title-link" itemprop="url">DataFusion深度洞察——Rust向量化查询引擎的共享底座</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-08-03 06:00:00" itemprop="dateCreated datePublished" datetime="2026-08-03T06:00:00+08:00">2026-08-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-05 10:13:22" itemprop="dateModified" datetime="2026-08-05T10:13:22+08:00">2026-08-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>12k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>11 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>💡 DataFusion 不是数据库，而是 Rust 生态唯一提供”完整 SQL+完整优化器+完整执行层”的可嵌入查询引擎库。它的核心价值不在单点性能超越 DuckDB，而在于”共享底座”——InfluxDB 3.0、GreptimeDB、Comet 等 10+ 产品复用同一引擎，一次修复全生态受益。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>数据通信产品线查询引擎选型面临”自研 vs 采购 vs 嵌入”的三难。</p>
+<p>完全自研查询引擎（parser+optimizer+executor）是 5 年以上人年投入，业界已证明不可持续。直接采购 DuckDB 等完整数据库则受限于 C++ 闭源内核难以深度定制。Calcite 仅提供优化器层无执行能力，补齐执行层仍需自行实现。</p>
+<p>DataFusion 作为 Rust 原生的全栈查询引擎库，提供了第四条路径——嵌入成熟引擎并按需扩展。其模块化设计允许只复用 parser 或只复用 optimizer，降低了引入成本。</p>
+<p>2024 年 SIGMOD（国际数据库顶级会议）工业论文正式收录 DataFusion 架构，证明其性能与 DuckDB 在标准基准上处于同一区间。InfluxDB 3.0、GreptimeDB、Coralogix、Spice.ai、Comet 等 10+ 产品已将其作为底座，形成”一次修复、全生态受益”的共享底座效应。</p>
+<h2 id="DataFusion-解决什么问题"><a href="#DataFusion-解决什么问题" class="headerlink" title="DataFusion 解决什么问题"></a>DataFusion 解决什么问题</h2><p>DataFusion 起源于 Apache Arrow 项目，最初作为 Arrow 的 Rust 实现中的查询层组件，2020 年成为 Apache 顶级项目独立孵化。</p>
+<p>其诞生背景是 Rust 数据生态的”SQL 层真空”——arrow-rs 提供了高效的列式内存格式和计算内核，但缺少从 SQL 字符串到执行结果的完整查询能力。Polars 填补了 DataFrame 层，但 SQL 层仍空白。</p>
+<p>DataFusion 的目标定位明确写在官方文档中：成为新式数据系统（数据库、DataFrame 库、机器学习与流处理应用）的首选查询引擎。</p>
+<h3 id="三个具体痛点"><a href="#三个具体痛点" class="headerlink" title="三个具体痛点"></a>三个具体痛点</h3><p><strong>Python 数据分析性能瓶颈</strong>。Python 在 OLAP 查询的向量化执行上受限于 GIL（全局解释器锁）和解释器开销。DataFusion 通过 Rust 原生向量化执行提供数量级性能提升，同时通过 datafusion-python 绑定保持 Python 可用性。</p>
+<p><strong>嵌入式分析缺少可扩展引擎</strong>。DuckDB 虽然是嵌入式分析标杆，但其 C++ 内核的扩展点是”加载预编译扩展”，无法在源码级深度定制算子与优化规则。DataFusion 的扩展点是 Rust trait（TableProvider&#x2F;OptimizerRule&#x2F;ExecutionPlan），允许下游项目在编译期注入自定义逻辑。</p>
+<p><strong>Rust 生态缺少 SQL 层</strong>。在 DataFusion 之前，Rust 开发者若要为自研数据库添加 SQL 支持，只能自行实现 parser+planner+optimizer，这是多年度工程。DataFusion 将其压缩为 <code>cargo add datafusion</code> 一行依赖。</p>
+<h3 id="关键定位判断"><a href="#关键定位判断" class="headerlink" title="关键定位判断"></a>关键定位判断</h3><p>DataFusion 不是数据库，是”可嵌入的查询引擎框架”。</p>
+<p>它没有存储引擎（依赖 TableProvider 外部提供数据）、没有事务管理（无 WAL 无 ACID）、没有持久化层、没有服务进程（作为库嵌入宿主进程）。</p>
+<p>这一定位决定了它的使用方式——产品线不会”部署 DataFusion”，而是”在 Rust 应用中引入 DataFusion 库”。</p>
+<h2 id="关键竞争力技术"><a href="#关键竞争力技术" class="headerlink" title="关键竞争力技术"></a>关键竞争力技术</h2><h3 id="Arrow-原生零拷贝内存"><a href="#Arrow-原生零拷贝内存" class="headerlink" title="Arrow 原生零拷贝内存"></a>Arrow 原生零拷贝内存</h3><p>DataFusion 以 Apache Arrow 作为唯一内存格式，所有算子间数据流转均以 Arrow RecordBatch（行式表的横向切片）为单位。RecordBatch 是一组等长列式数组遵循既定 schema，每个列是连续内存数组，所有列行数相同。</p>
+<p>这一设计带来三个性能优势：</p>
+<ul>
+<li><strong>零拷贝跨系统交换</strong>：Arrow 标准化了列式内存布局，不同系统（Rust&#x2F;Python&#x2F;Java）和不同进程间可通过共享内存或 Arrow Flight RPC 传递 RecordBatch 而无需序列化</li>
+<li><strong>SIMD 友好列式布局</strong>：列数据连续存储，CPU 可对一批值做数据并行（SIMD 指令），编译器自动向量化</li>
+<li><strong>不可变快照并行安全</strong>：RecordBatch 一旦创建不可修改，任何转换产生新 RecordBatch，无需锁即可在多线程间共享</li>
+</ul>
+<p>与 DuckDB 的对比在此凸显：DuckDB 使用自研的 DataChunk（2048 元组）作为执行单元，与 Arrow 的互操作需要转换层。DataFusion 直接以 Arrow 为执行单元，对已存在于 Arrow 格式的数据零序列化成本。</p>
+<h3 id="自建-SQL-解析器"><a href="#自建-SQL-解析器" class="headerlink" title="自建 SQL 解析器"></a>自建 SQL 解析器</h3><p>DataFusion 的 SQL 解析使用 sqlparser-rs，这是 Apache Arrow 社区维护的独立 Rust SQL 解析器，而非 Java 生态普遍采用的 Apache Calcite。</p>
+<p>这一选择是架构层面的关键决策：</p>
+<ul>
+<li><strong>Rust 原生</strong>：纯 Rust 实现，无 JNI（Java 原生接口）开销，无 JVM 依赖，与 DataFusion 的 Rust 全栈一致</li>
+<li><strong>可独立使用</strong>：sqlparser-rs 作为独立 crate 发布，产品线可仅引入 SQL 解析能力而不引入 planner&#x2F;executor</li>
+<li><strong>方言可扩展</strong>：支持 MySQL&#x2F;PostgreSQL&#x2F;SQLite&#x2F;Hive&#x2F;BigQuery 等多种方言的 dialect trait，产品线可自定义数通信方言</li>
+</ul>
+<p>与 Calcite 的对比：Calcite 是 Java 生态的优化器框架，提供 parser+validator+optimizer 但无执行层。DataFusion 是 Rust 生态的全栈引擎，parser+planner+optimizer+executor 一体。产品线若需 Java 侧优化器选 Calcite，若需 Rust 侧全栈查询能力选 DataFusion。</p>
+<h3 id="规则-代价双驱动优化器"><a href="#规则-代价双驱动优化器" class="headerlink" title="规则+代价双驱动优化器"></a>规则+代价双驱动优化器</h3><p>DataFusion 的优化器分为三层：</p>
+<p><strong>AnalyzerRules（语义规则）</strong>：类型强制（type_coercion）、表达式简化（simplify_expressions），确保计划语义正确。</p>
+<p><strong>OptimizerRules（逻辑优化）</strong>：谓词下推（filter_push_down）、投影下推（projection_push_down）、列裁剪、常量折叠、子查询去关联、连接重排序、公共子表达式消除、限制下推、单 distinct 聚合转 group_by 等。</p>
+<p><strong>PhysicalOptimizerRules（物理优化）</strong>：聚合统计（aggregate_statistics）、连接选择（join_selection，选 HashJoin 还是 MergeJoin）、批合并（coalesce_batches）、重分区（repartition）等。</p>
+<p>代价模型依赖表级和列级统计信息（ColumnStatistics：null 计数、min&#x2F;max、distinct 值计数）做选择性估算。还使用边界分析与区间算术对 <code>a &gt; 2500 AND a &lt;= 5000</code> 这类谓词构建精确选择性估计。</p>
+<p>统计信息包裹在 Precision 类型中，标识精确值还是估算值，使优化器能判断估算可靠性。</p>
+<h3 id="流式向量化执行引擎"><a href="#流式向量化执行引擎" class="headerlink" title="流式向量化执行引擎"></a>流式向量化执行引擎</h3><p>DataFusion 执行引擎采用经典 Volcano 拉模型（pull-based），每个 ExecutionPlan 实现 <code>execute()</code> 返回 SendableRecordBatchStream——一个 Tokio 友好的 Arrow RecordBatch 异步流。</p>
+<p>调用 <code>next().await</code> 增量计算并返回下一个 RecordBatch，算子按需从上游拉取数据。并行性通过 Volcano 风格的 Exchange 操作（RepartitionExec）实现，平衡多核负载。</p>
+<p>选择拉模型而非推模型（DuckDB 的 push-based）的原因：DataFusion 的目标部署是嵌入式低延迟短查询，拉模型的自然背压与异步 I&#x2F;O 原生支持更适合此场景。DataFusion 的 SIGMOD 论文证明拉模型在实践中达到与 DuckDB 推模型相近的扩展性。</p>
+<h3 id="模块化与深度扩展点"><a href="#模块化与深度扩展点" class="headerlink" title="模块化与深度扩展点"></a>模块化与深度扩展点</h3><p>DataFusion 的扩展点覆盖查询全生命周期，每个扩展点都是 Rust trait：</p>
+<table>
+<thead>
+<tr>
+<th>扩展点</th>
+<th>trait</th>
+<th>作用</th>
+<th>典型下游用法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据源</td>
+<td>TableProvider</td>
+<td>提供 schema 与 scan 计划</td>
+<td>InfluxDB 注册时序表</td>
+</tr>
+<tr>
+<td>目录</td>
+<td>CatalogProvider</td>
+<td>自定义 catalog&#x2F;schema&#x2F;table 层级</td>
+<td>多租户隔离</td>
+</tr>
+<tr>
+<td>查询语言</td>
+<td>LogicalPlanBuilder</td>
+<td>跳过 SQL 直接构建计划</td>
+<td>自定义 DSL、DataFrame API</td>
+</tr>
+<tr>
+<td>标量 UDF</td>
+<td>ScalarUDF</td>
+<td>自定义标量函数</td>
+<td>时序函数、地理函数</td>
+</tr>
+<tr>
+<td>聚合 UDAF</td>
+<td>AggregateUDF</td>
+<td>自定义聚合函数</td>
+<td>分位数、sketch</td>
+</tr>
+<tr>
+<td>窗口 UDWF</td>
+<td>WindowUDF</td>
+<td>自定义窗口函数</td>
+<td>时序窗口</td>
+</tr>
+<tr>
+<td>分析规则</td>
+<td>AnalyzerRule</td>
+<td>语义重写</td>
+<td>类型扩展</td>
+</tr>
+<tr>
+<td>逻辑优化</td>
+<td>OptimizerRule</td>
+<td>计划重写</td>
+<td>谓词下推定制</td>
+</tr>
+<tr>
+<td>物理优化</td>
+<td>PhysicalOptimizerRule</td>
+<td>物理计划重写</td>
+<td>自定义连接策略</td>
+</tr>
+<tr>
+<td>物理算子</td>
+<td>ExecutionPlan</td>
+<td>自定义执行节点</td>
+<td>时序去重、Parquet 合并</td>
+</tr>
+<tr>
+<td>查询规划器</td>
+<td>QueryPlanner</td>
+<td>替换 LogicalPlan→ExecutionPlan 映射</td>
+<td>全自定义执行</td>
+</tr>
+</tbody></table>
+<p>这一扩展深度是 DataFusion 相对 DuckDB 的核心差异——DuckDB 的扩展是”加载预编译动态库”，DataFusion 的扩展是”实现 trait 编译进二进制”，后者允许下游项目在源码级重塑引擎行为。</p>
+<h3 id="Ballista-分布式执行扩展"><a href="#Ballista-分布式执行扩展" class="headerlink" title="Ballista 分布式执行扩展"></a>Ballista 分布式执行扩展</h3><p>DataFusion 本身是单进程嵌入式引擎，分布式执行通过子项目 Ballista 扩展。</p>
+<p>Ballista 集群由 scheduler 进程和 executor 进程组成，均以原生 Rust 二进制运行，支持 Docker Compose 与 Kubernetes 部署。查询流程：客户端提交 SQL 或 LogicalPlan 到 scheduler → scheduler 创建 ExecutionGraph（物理计划按 stage 切分）→ executor 轮询领取任务执行 → stage 间通过 shuffle 重分区。</p>
+<p>Ballista 使用 Arrow IPC 格式作为 shuffle 文件与 executor 间数据交换格式，支持 Arrow Flight SQL JDBC 驱动接入 DataGrip&#x2F;Tableau 等工具。</p>
+<p>其调度支持静态（计划时全量 stage DAG）与自适应（每 stage 完成后用实际行数字节重优化剩余计划）两种模式。</p>
+<p>⚠️ 需注意：Ballista 目前仍存在与 DataFusion 单进程版的能力 gap，部分 SQL 在分布式模式下不可用，官方明确”仍在弥合此差距”。Ballista 的多数用户并非直接使用 Ballista，而是以 Ballista 为底座构建自有分布式引擎。</p>
+<h2 id="端到端-SQL-执行流程"><a href="#端到端-SQL-执行流程" class="headerlink" title="端到端 SQL 执行流程"></a>端到端 SQL 执行流程</h2><p>以 <code>SELECT name FROM &#39;data.parquet&#39; WHERE id &gt; 10</code> 为例，追踪 SQL 从输入到输出的完整调用链。</p>
+<h3 id="SQL-解析"><a href="#SQL-解析" class="headerlink" title="SQL 解析"></a>SQL 解析</h3><p>输入 SQL 字符串，输出 AST（抽象语法树）Statement。</p>
+<p>调用链：SessionContext::sql → SqlToRel::parse_sql → sqlparser::Parser::parse_sql → 返回 Statement。SQL 解析本身是 CPU 密集的字符串处理，超长 SQL（数 KB）解析耗时可达毫秒级，但相对执行通常可忽略。</p>
+<h3 id="逻辑计划构建"><a href="#逻辑计划构建" class="headerlink" title="逻辑计划构建"></a>逻辑计划构建</h3><p>输入 AST Statement，输出 LogicalPlan（关系代数表达式树，DAG）。</p>
+<p>调用链：SqlToRel::sql_statement_to_plan → 名称与类型解析（binding，将 name&#x2F;id 绑定到 TableProvider 提供的 schema）。名称解析需遍历 schema 做符号查找，复杂查询（多表 JOIN+子查询）的 binding 可耗时。</p>
+<h3 id="分析规则"><a href="#分析规则" class="headerlink" title="分析规则"></a>分析规则</h3><p>输入初始 LogicalPlan，输出语义正确的 LogicalPlan（类型强制后）。</p>
+<p>调用链：Optimizer::with_rules → AnalyzerRule::rewrite（type_coercion、simplify_expressions 等）。规则遍历整棵计划树，深度大的树（多层嵌套子查询）遍历耗时。</p>
+<h3 id="逻辑优化"><a href="#逻辑优化" class="headerlink" title="逻辑优化"></a>逻辑优化</h3><p>输入分析后的 LogicalPlan，输出优化后的 LogicalPlan。</p>
+<p>调用链：Optimizer::optimize → 多轮 OptimizerRule::rewrite（max_passes 默认 16）。关键优化：filter_push_down 将 <code>id &gt; 10</code> 下推到 TableScan 层；projection_push_down 将 TableScan 的投影裁剪为只读 id 和 name 两列。</p>
+<p>规则迭代至不动点（fixpoint），max_passes 限制了迭代次数，但复杂查询仍可能接近上限。</p>
+<h3 id="物理计划构建"><a href="#物理计划构建" class="headerlink" title="物理计划构建"></a>物理计划构建</h3><p>输入优化后的 LogicalPlan，输出 ExecutionPlan（物理算子树）。</p>
+<p>调用链：DefaultPhysicalPlanner::create_initial_plan → DFS 扁平化 LogicalPlan 树 → 从叶子并发构建 ExecutionPlan（leaf-to-root，planning_concurrency 控制并发度）。</p>
+<p>物理计划构建是异步并发任务，大计划的并发构建受 planning_concurrency 限制。</p>
+<h3 id="物理优化"><a href="#物理优化" class="headerlink" title="物理优化"></a>物理优化</h3><p>输入初始 ExecutionPlan，输出优化后的 ExecutionPlan。</p>
+<p>调用链：PhysicalOptimizerRule::rewrite（join_selection、coalesce_batches、repartition、add_merge_exec 等）。join_selection 依赖统计信息做代价估算，统计信息缺失时退化默认选择。</p>
+<h3 id="执行"><a href="#执行" class="headerlink" title="执行"></a>执行</h3><p>输入优化后的 ExecutionPlan，输出 SendableRecordBatchStream（Arrow RecordBatch 异步流）。</p>
+<p>数据流：Parquet 文件 → DataSourceExec 读取 RecordBatch → FilterExec 过滤(id&gt;10) → ProjectionExec 保留 name 列 → 结果 RecordBatch。</p>
+<p>关键特性：流式执行，每个算子增量处理一个 RecordBatch（约 batch_size 行），非 pipeline breaker 算子可逐批产出。pipeline breaker（全排序、hash 聚合）需读完输入才产出。</p>
+<p>并行性：多分区计划在 Tokio runtime 的多线程上并发执行，RepartitionExec 做 Exchange 式负载均衡。</p>
+<p>性能瓶颈：pipeline breaker（sort&#x2F;hash_agg）需在内存中累积状态，超出 MemoryPool 预算时 spill 到磁盘。shuffle&#x2F;重分区的网络与磁盘 I&#x2F;O 是分布式场景瓶颈。</p>
+<h3 id="整体调用链总结"><a href="#整体调用链总结" class="headerlink" title="整体调用链总结"></a>整体调用链总结</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">SQL String</span><br><span class="line">  → sqlparser::Parser::parse_sql           → AST Statement</span><br><span class="line">  → SqlToRel::sql_statement_to_plan        → LogicalPlan (DAG)</span><br><span class="line">  → AnalyzerRules::rewrite                 → LogicalPlan (语义正确)</span><br><span class="line">  → OptimizerRules::rewrite (≤16 passes)   → LogicalPlan (优化后)</span><br><span class="line">  → DefaultPhysicalPlanner                 → ExecutionPlan (物理算子树)</span><br><span class="line">  → PhysicalOptimizerRules::rewrite        → ExecutionPlan (物理优化后)</span><br><span class="line">  → ExecutionPlan::execute                 → SendableRecordBatchStream</span><br><span class="line">  → stream.next().await (Tokio拉模型)       → RecordBatch (Arrow列式)</span><br><span class="line">  → collect                                → Vec&lt;RecordBatch&gt; (结果)</span><br></pre></td></tr></table></figure>
+
+<h2 id="同类软件对比"><a href="#同类软件对比" class="headerlink" title="同类软件对比"></a>同类软件对比</h2><p>DataFusion 的竞争定位需从多个维度对比同类系统。由于系统众多，按主题分三组对比。</p>
+<h3 id="基础属性对比"><a href="#基础属性对比" class="headerlink" title="基础属性对比"></a>基础属性对比</h3><table>
+<thead>
+<tr>
+<th>系统</th>
+<th>语言</th>
+<th>定位</th>
+<th>嵌入方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DataFusion</td>
+<td>Rust</td>
+<td>可嵌入查询引擎框架</td>
+<td>Rust 库（cargo add）</td>
+</tr>
+<tr>
+<td>DuckDB</td>
+<td>C++</td>
+<td>嵌入式分析数据库</td>
+<td>进程内（C++ 绑定）</td>
+</tr>
+<tr>
+<td>Calcite</td>
+<td>Java</td>
+<td>优化器框架</td>
+<td>Java 库</td>
+</tr>
+<tr>
+<td>Polars</td>
+<td>Rust</td>
+<td>DataFrame 库</td>
+<td>Rust 库&#x2F;Python 包</td>
+</tr>
+<tr>
+<td>ClickHouse</td>
+<td>C++</td>
+<td>完整 OLAP 数据库</td>
+<td>服务端进程</td>
+</tr>
+<tr>
+<td>Spark SQL</td>
+<td>Scala</td>
+<td>分布式计算引擎</td>
+<td>服务端进程</td>
+</tr>
+</tbody></table>
+<h3 id="查询能力对比"><a href="#查询能力对比" class="headerlink" title="查询能力对比"></a>查询能力对比</h3><table>
+<thead>
+<tr>
+<th>系统</th>
+<th>SQL 解析</th>
+<th>优化器</th>
+<th>执行层</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DataFusion</td>
+<td>sqlparser-rs（自建）</td>
+<td>规则+代价（统计+边界分析）</td>
+<td>向量化（Arrow，Volcano 拉模型）</td>
+</tr>
+<tr>
+<td>DuckDB</td>
+<td>libpg_query（PG 派生）</td>
+<td>CBO 动态规划+贪心</td>
+<td>向量化（DataChunk，push 模型）</td>
+</tr>
+<tr>
+<td>Calcite</td>
+<td>JavaCC 自建</td>
+<td>规则+代价（最成熟）</td>
+<td>无执行层</td>
+</tr>
+<tr>
+<td>Polars</td>
+<td>有限 SQL</td>
+<td>规则（投影&#x2F;谓词下推）</td>
+<td>向量化（Arrow，lazy DAG）</td>
+</tr>
+</tbody></table>
+<h3 id="存储与扩展对比"><a href="#存储与扩展对比" class="headerlink" title="存储与扩展对比"></a>存储与扩展对比</h3><table>
+<thead>
+<tr>
+<th>系统</th>
+<th>存储</th>
+<th>事务</th>
+<th>扩展深度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DataFusion</td>
+<td>无（TableProvider 提供）</td>
+<td>无</td>
+<td>trait 级（编译期注入）</td>
+</tr>
+<tr>
+<td>DuckDB</td>
+<td>自研列式+单文件+ACID</td>
+<td>MVCC</td>
+<td>动态库加载</td>
+</tr>
+<tr>
+<td>ClickHouse</td>
+<td>MergeTree+ACID</td>
+<td>ACID</td>
+<td>预编译扩展</td>
+</tr>
+<tr>
+<td>Spark SQL</td>
+<td>无（依赖 HDFS&#x2F;S3）</td>
+<td>无</td>
+<td>Catalyst 扩展</td>
+</tr>
+</tbody></table>
+<h3 id="对比结论"><a href="#对比结论" class="headerlink" title="对比结论"></a>对比结论</h3><p><strong>vs DuckDB</strong>：DuckDB 是完整数据库（含存储&#x2F;ACID&#x2F;持久化），开箱即用；DataFusion 是查询引擎框架，无存储无事务，需自行实现 TableProvider。DuckDB 适合”直接查询数据”的产品级场景，DataFusion 适合”构建数据系统”的工程级场景。性能上两者在 TPC-H 标准基准处于同一区间。</p>
+<p><strong>vs Calcite</strong>：Calcite 是 Java 生态优化器中间件，无执行层；DataFusion 是 Rust 全栈引擎。产品线若仅需优化器层选 Calcite，若需全栈查询能力选 DataFusion。两者并非直接竞争，而是不同语言生态的互补层。</p>
+<p><strong>vs Polars</strong>：Polars 是 Rust DataFrame 库，SQL 支持有限（无完整 JOIN，9&#x2F;22 TPC-H 查询因缺标量子查询支持而失败）。DataFusion 同时提供完整 SQL 与 DataFrame API，SQL 能力远超 Polars。</p>
+<p><strong>vs ClickHouse</strong>：ClickHouse 是完整 OLAP 数据库，DataFusion 是嵌入式框架无存储。两者不在同一选型维度。</p>
+<p><strong>vs Spark SQL</strong>：Spark 是 JVM 分布式重型计算引擎，DataFusion 是 Rust 嵌入式轻量引擎。Comet 子项目将 DataFusion 作为 Spark 的 native 加速器，是两者的融合路径。</p>
+<h2 id="为什么-DataFusion-最出彩"><a href="#为什么-DataFusion-最出彩" class="headerlink" title="为什么 DataFusion 最出彩"></a>为什么 DataFusion 最出彩</h2><h3 id="Rust-生态-SQL-查询引擎标杆"><a href="#Rust-生态-SQL-查询引擎标杆" class="headerlink" title="Rust 生态 SQL 查询引擎标杆"></a>Rust 生态 SQL 查询引擎标杆</h3><p>DataFusion 是 Rust 生态唯一提供”完整 SQL+完整优化器+完整执行层”的开源查询引擎。</p>
+<p>在 Rust 数据栈中，arrow-rs 提供内存格式与计算内核，Parquet-rs 提供文件格式，sqlparser-rs 提供 SQL 解析，DataFusion 在其上构建查询引擎层，填补了”从 SQL 到执行结果”的完整能力空白。这一位置使其成为 Rust 数据系统的”事实标准底座”。</p>
+<h3 id="共享底座效应与生态采纳"><a href="#共享底座效应与生态采纳" class="headerlink" title="共享底座效应与生态采纳"></a>共享底座效应与生态采纳</h3><p>DataFusion 最出彩的不是单点性能，而是”共享底座”模式——多个产品复用同一引擎，一次修复全生态受益。</p>
+<p>已采纳 DataFusion 的产品清单（部分）：</p>
+<table>
+<thead>
+<tr>
+<th>产品</th>
+<th>类型</th>
+<th>DataFusion 用法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>InfluxDB 3.0 (IOx)</td>
+<td>时序数据库</td>
+<td>查询引擎核心，FDAP 栈组件</td>
+</tr>
+<tr>
+<td>Comet</td>
+<td>Spark 加速器</td>
+<td>Spark stage 内 native 执行层</td>
+</tr>
+<tr>
+<td>Ballista</td>
+<td>分布式查询引擎</td>
+<td>DataFusion 的分布式包装</td>
+</tr>
+<tr>
+<td>GreptimeDB</td>
+<td>云原生时序数据库</td>
+<td>查询引擎基座</td>
+</tr>
+<tr>
+<td>Spice.ai</td>
+<td>联邦查询引擎</td>
+<td>40+ 数据源联邦查询核心</td>
+</tr>
+<tr>
+<td>Coralogix</td>
+<td>可观测平台</td>
+<td>日志查询引擎</td>
+</tr>
+<tr>
+<td>ROAPI</td>
+<td>API 网关</td>
+<td>自动 REST&#x2F;GraphQL API 生成</td>
+</tr>
+<tr>
+<td>ParadeDB</td>
+<td>搜索数据库</td>
+<td>Postgres 内分析查询</td>
+</tr>
+<tr>
+<td>Sail</td>
+<td>分布式 Rust 引擎</td>
+<td>DataFusion 的分布式包装</td>
+</tr>
+<tr>
+<td>OpenObserve</td>
+<td>可观测平台</td>
+<td>日志&#x2F;指标&#x2F;trace 查询</td>
+</tr>
+</tbody></table>
+<p>InfluxDB 3.0 的案例最具代表性：InfluxData 在 2020 年判断自研 Go 引擎不可持续，选择 Rust+Arrow+DataFusion+Parquet 重写 IOx，将工程投入聚焦于时序特有能力（ingest、InfluxQL、Parquet 合并），通用查询能力复用 DataFusion。</p>
+<p>结果是子秒级查询、100× ingest 提升、Parquet 原生存储，且无需维护自研查询引擎。这一案例验证了”共享底座”的工程经济性。</p>
+<h3 id="Arrow-生态深度集成"><a href="#Arrow-生态深度集成" class="headerlink" title="Arrow 生态深度集成"></a>Arrow 生态深度集成</h3><p>DataFusion 与 Apache Arrow 生态的集成是所有引擎中最深的：</p>
+<ul>
+<li><strong>Arrow 内存</strong>：唯一内存格式，算子间零序列化</li>
+<li><strong>Arrow Flight</strong>：网络传输协议，零拷贝 RPC</li>
+<li><strong>Parquet</strong>：列式存储格式，原生 reader</li>
+<li><strong>Arrow Dataset</strong>：多文件数据集抽象</li>
+</ul>
+<p>这一深度集成使 DataFusion 在”数据已 Arrow 格式”的场景（Arrow Flight 传输的数据、内存 Arrow 缓存、流式系统 Arrow 输出）有不可替代的零序列化优势。</p>
+<h3 id="社区活跃度"><a href="#社区活跃度" class="headerlink" title="社区活跃度"></a>社区活跃度</h3><p>DataFusion 是 Apache 软件基金会顶级项目，采用 Apache 治理（非单一公司主导）。</p>
+<p>GitHub 贡献者数与版本发布节奏保持高频，6 周一个 minor 版本（v46-v55 持续发布），每个版本含性能改进与新优化规则。社区有 InfluxData、Greptime、Coralogix、Spice.ai 等多家公司全职贡献者，形成”商业用户反哺社区”的正循环。</p>
+<h3 id="行业趋势判断"><a href="#行业趋势判断" class="headerlink" title="行业趋势判断"></a>行业趋势判断</h3><p>CMU 教授 Andy Pavlo 在 2022 年数据库回顾中判断：Velox、DataFusion、Polars 等可复用查询执行框架的普及，意味着 5 年内所有 OLAP DBMS 的向量化执行能力将趋于等效。</p>
+<p>云时代存储层大家相同（S3&#x2F;EBS），DBMS 的差异化将转移到 UI&#x2F;UX 和查询优化等难以量化的维度。这一判断印证了 DataFusion 的”共享底座”定位——查询执行层的自研价值正在商品化，复用成熟引擎是更理性的工程选择。</p>
+<h2 id="与产品线查询引擎的关联"><a href="#与产品线查询引擎的关联" class="headerlink" title="与产品线查询引擎的关联"></a>与产品线查询引擎的关联</h2><p>DataFusion 对数据通信产品线查询引擎选型的关联体现在三个方向。</p>
+<h3 id="方向一：Rust-侧-SQL-验证与改写层"><a href="#方向一：Rust-侧-SQL-验证与改写层" class="headerlink" title="方向一：Rust 侧 SQL 验证与改写层"></a>方向一：Rust 侧 SQL 验证与改写层</h3><p>产品线 AI 查询服务从”AI 生成统一 SQL→Calcite 事后改写”向”AI 感知底层库直接生成该库 SQL”演进。</p>
+<p>这一演进若在 Rust 侧实现，DataFusion 的 sqlparser-rs+LogicalPlan 可作为 SQL 验证与方言改写的中间表示——比 Calcite 的 Java JVM 依赖更轻量，比自行实现 parser+planner 成本更低。</p>
+<p>DataFusion 的 LogicalPlan 是 schema-aware（感知 schema）的关系代数树，可做谓词下推验证、列存在性检查、类型兼容性校验，为 AI 生成 SQL 提供事前验证能力。</p>
+<h3 id="方向二：嵌入式查询引擎的部分引入路径"><a href="#方向二：嵌入式查询引擎的部分引入路径" class="headerlink" title="方向二：嵌入式查询引擎的部分引入路径"></a>方向二：嵌入式查询引擎的部分引入路径</h3><p>产品线三引擎架构（StarRocks&#x2F;Druid&#x2F;GaussDB）均为服务端进程，在边缘网管终端、CLI 工具、测试工具等轻量场景存在能力空白。</p>
+<p>DuckDB 可作为进程内嵌入式数据库填补，但若产品线需要在 Rust 应用中嵌入查询能力且需深度定制算子（如自定义时序聚合、自定义网络拓扑过滤），DataFusion 的 trait 级扩展比 DuckDB 的动态库加载更可控。</p>
+<p>产品线可评估”Rust 工具链+DataFusion+Parquet”的轻量查询工具链。</p>
+<h3 id="方向三：自研引擎的底座选项"><a href="#方向三：自研引擎的底座选项" class="headerlink" title="方向三：自研引擎的底座选项"></a>方向三：自研引擎的底座选项</h3><p>若产品线长期有自研查询引擎需求（如统一 SQL 查询服务、跨库联邦查询），DataFusion 提供了比”从零构建”更现实的底座。</p>
+<p>复用 parser+planner+optimizer+executor，聚焦自研产品差异化（如数通信方言、网络拓扑算子、协议日志格式 reader）。InfluxDB 3.0 的案例证明这一路径的工程经济性。</p>
+<h3 id="产品线适用边界"><a href="#产品线适用边界" class="headerlink" title="产品线适用边界"></a>产品线适用边界</h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>适用性</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Rust 应用内嵌 SQL 查询</td>
+<td>适用</td>
+<td>库级嵌入，trait 扩展</td>
+</tr>
+<tr>
+<td>AI 生成 SQL 的 Rust 侧验证</td>
+<td>适用</td>
+<td>sqlparser-rs 独立可用</td>
+</tr>
+<tr>
+<td>边缘网管终端轻量分析</td>
+<td>可评估</td>
+<td>无服务进程但需 Rust 工具链</td>
+</tr>
+<tr>
+<td>大规模 OLAP 服务化部署</td>
+<td>不适用</td>
+<td>无存储无分布式，Ballista 仍在弥合 gap</td>
+</tr>
+<tr>
+<td>替代 StarRocks&#x2F;Druid&#x2F;GaussDB</td>
+<td>不适用</td>
+<td>定位不同，非完整数据库</td>
+</tr>
+<tr>
+<td>Java 侧优化器选型</td>
+<td>不适用</td>
+<td>选 Calcite（Java 生态）</td>
+</tr>
+</tbody></table>
+<h2 id="下一步建议"><a href="#下一步建议" class="headerlink" title="下一步建议"></a>下一步建议</h2><p>按验证项、观察项、布局项三层推进。</p>
+<h3 id="验证项（高优先级）"><a href="#验证项（高优先级）" class="headerlink" title="验证项（高优先级）"></a>验证项（高优先级）</h3><p><strong>sqlparser-rs 独立引入 PoC</strong>：在产品线 AI 查询服务的 Rust 侧验证层引入 sqlparser-rs，做 SQL AST 分析与方言识别，评估其对 StarRocks&#x2F;Druid&#x2F;GaussDB 各方言的覆盖度。sqlparser-rs 是独立 crate，支持多方言。</p>
+<p><strong>DataFusion LogicalPlan 验证 PoC</strong>：在 Rust 侧用 DataFusion 的 LogicalPlan 做 AI 生成 SQL 的事前验证（列存在性、类型兼容、谓词下推可行性），对比 Calcite 改写路径的成本与延迟。LogicalPlan 是 schema-aware 关系代数树。</p>
+<h3 id="观察项（中优先级）"><a href="#观察项（中优先级）" class="headerlink" title="观察项（中优先级）"></a>观察项（中优先级）</h3><p><strong>DataFusion+Parquet 轻量查询工具链</strong>：评估”Rust CLI+DataFusion+Parquet”在网管数据导出与分析工具中的适用性，对比 DuckDB 进程内方案。</p>
+<p><strong>Ballista 分布式能力跟踪</strong>：跟踪 Ballista 与 DataFusion 单进程版能力 gap 的弥合进度，评估其作为产品线联邦查询引擎底座的可行性。</p>
+<h3 id="布局项（长期评估）"><a href="#布局项（长期评估）" class="headerlink" title="布局项（长期评估）"></a>布局项（长期评估）</h3><p><strong>DataFusion 自研引擎底座评估</strong>：若产品线长期有统一 SQL 查询服务自研需求，评估以 DataFusion 为底座复用 parser+planner+optimizer+executor、聚焦自研产品差异化的工程经济性。InfluxDB 3.0 案例已验证。</p>
+<p><strong>FDAP 栈端到端评估</strong>：评估”Arrow Flight 传输+DataFusion 查询+Arrow 内存+Parquet 存储”全链路在产品线跨系统数据交换中的零序列化优势。FDAP 栈是 InfluxData 判断的分析系统未来基础。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><p>Apache DataFusion 是 Rust 生态唯一提供”完整 SQL+完整优化器+完整执行层”的开源查询引擎框架，定位是可嵌入库而非数据库——无存储、无事务、无服务进程。这决定了它适合 Rust 应用内嵌 SQL 查询、AI 生成 SQL 的 Rust 侧验证、自研引擎底座三个方向，不适合大规模 OLAP 服务化部署。</p>
+<p>DataFusion 最出彩的不是单点性能，而是”共享底座”模式——InfluxDB 3.0、GreptimeDB、Comet、Ballista、Spice.ai 等 10+ 产品复用同一引擎。CMU 教授 Andy Pavlo 判断查询执行层的自研价值正在商品化，5 年内所有 OLAP DBMS 的向量化执行能力将趋于等效。复用成熟引擎而非自研，是更理性的工程选择。</p>
+<p>DataFusion 相对 DuckDB 的核心差异在扩展深度——DuckDB 的扩展是”加载预编译动态库”，DataFusion 的扩展是”实现 Rust trait 编译进二进制”。后者允许下游项目在源码级重塑引擎行为。产品线若需深度定制算子选 DataFusion，若需开箱即用选 DuckDB，两者是”工程级可定制”与”产品级开箱即用”的分层互补。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://datafusion.apache.org/user-guide/introduction.html" target="_blank" rel="noopener">Apache DataFusion Introduction</a></li>
+<li><a href="https://dl.acm.org/doi/10.1145/3626246.3653368" target="_blank" rel="noopener">Apache DataFusion SIGMOD 2024 Paper</a></li>
+<li><a href="https://docs.rs/datafusion/latest/datafusion/index.html#architecture" target="_blank" rel="noopener">Apache DataFusion Architecture (docs.rs)</a></li>
+<li><a href="https://www.influxdata.com/blog/flight-datafusion-arrow-parquet-fdap-architecture-influxdb/" target="_blank" rel="noopener">Flight, DataFusion, Arrow, and Parquet: Using the FDAP Architecture to build InfluxDB 3.0</a></li>
+<li><a href="https://dev.to/gowthampotureddi/apache-datafusion-for-data-engineers-rust-native-query-engine-under-ballista-influxdb-3-comet-2obb" target="_blank" rel="noopener">Apache DataFusion for Data Engineers</a></li>
+<li><a href="https://www.infoq.com/articles/timeseries-db-rust/" target="_blank" rel="noopener">Engineering a Time Series Database Using Open Source (InfoQ)</a></li>
+<li><a href="https://github.com/datacom-insight/insight-report/blob/main/insight-report-duckdb/DuckDB-%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%88%86%E6%9E%90%E6%95%B0%E6%8D%AE%E5%BA%93%E6%B4%9E%E5%AF%9F.md" target="_blank" rel="noopener">DuckDB 嵌入式分析数据库洞察（本仓库）</a></li>
+<li><a href="https://github.com/datacom-insight/insight-report/blob/main/insight-report-clickhouse/" target="_blank" rel="noopener">ClickHouse 列式 OLAP 洞察（本仓库）</a></li>
+<li><a href="https://github.com/datacom-insight/insight-report/blob/main/insight-report-calcite-vs-new-frameworks/" target="_blank" rel="noopener">Apache Calcite vs 新一代查询框架竞争力洞察（本仓库）</a></li>
+<li><a href="https://github.com/apache/datafusion" target="_blank" rel="noopener">Apache DataFusion GitHub Repository</a></li>
+<li><a href="https://datafusion.apache.org/user-guide/faq.html" target="_blank" rel="noopener">Apache DataFusion FAQ (vs DuckDB&#x2F;Polars&#x2F;Velox)</a></li>
+<li><a href="https://datafusion.apache.org/user-guide/arrow-introduction.html" target="_blank" rel="noopener">Gentle Arrow Introduction</a></li>
+<li><a href="https://datafusion.apache.org/library-user-guide/query-optimizer.html" target="_blank" rel="noopener">Apache DataFusion Query Optimizer documentation</a></li>
+<li><a href="https://datafusion.apache.org/ballista/contributors-guide/architecture.html" target="_blank" rel="noopener">Ballista Architecture</a></li>
+<li><a href="https://datafusion.apache.org/ballista/user-guide/introduction.html" target="_blank" rel="noopener">Apache DataFusion Ballista Overview</a></li>
+<li><a href="https://github.com/apache/datafusion/blob/main/datafusion/core/src/physical_planner.rs" target="_blank" rel="noopener">DataFusion DefaultPhysicalPlanner source</a></li>
+<li><a href="https://spice.ai/learn/apache-datafusion-vs-duckdb" target="_blank" rel="noopener">Apache DataFusion vs DuckDB (Spice.ai)</a></li>
+<li><a href="https://ibis-project.org/posts/ibis-bench/" target="_blank" rel="noopener">Ibis benchmarking: DuckDB, DataFusion, Polars (TPC-H)</a></li>
+<li><a href="https://ottertune.com/blog/2022-databases-retrospective/" target="_blank" rel="noopener">Andy Pavlo, 2022 Databases Retrospective (OtterTune)</a></li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"DataFusion深度洞察——Rust向量化查询引擎的共享底座","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-08-03","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/08/03/DataFusion深度洞察-Rust向量化查询引擎的共享底座/"},"url":"https://lanky228.github.io/2026/08/03/DataFusion深度洞察-Rust向量化查询引擎的共享底座/","inLanguage":"zh-CN","dateModified":"2026-08-05","keywords":["数据库","查询引擎","Rust","DataFusion","向量化"]}</script>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/08/03/Apache-Calcite%E7%AB%9E%E4%BA%89%E5%8A%9B%E6%B4%9E%E5%AF%9F-%E6%97%A9%E6%9C%9FSQL%E6%A1%86%E6%9E%B6%E4%BD%95%E5%8E%BB%E4%BD%95%E4%BB%8E/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1248,101 +1757,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/07/16/Iceberg-Trino-%E5%BC%80%E6%BA%90%E6%B9%96%E4%BB%93%E6%9F%A5%E8%AF%A2%E6%B4%9E%E5%AF%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lanky">
-      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lanky的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/07/16/Iceberg-Trino-%E5%BC%80%E6%BA%90%E6%B9%96%E4%BB%93%E6%9F%A5%E8%AF%A2%E6%B4%9E%E5%AF%9F/" class="post-title-link" itemprop="url">Iceberg-Trino-开源湖仓查询洞察</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2026-07-16 11:00:00" itemprop="dateCreated datePublished" datetime="2026-07-16T11:00:00+08:00">2026-07-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-08-02 15:33:45" itemprop="dateModified" datetime="2026-08-02T15:33:45+08:00">2026-08-02</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>5.9k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>5 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Iceberg加Trino加Polaris构成开源湖仓三件套，Trino查询比StarRocks慢约5倍，价值在标准对接而非替换执行引擎。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2026/07/16/Iceberg-Trino-%E5%BC%80%E6%BA%90%E6%B9%96%E4%BB%93%E6%9F%A5%E8%AF%A2%E6%B4%9E%E5%AF%9F/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1412,7 +1826,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-count">32</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1423,7 +1837,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">98</span>
+        <span class="site-state-item-count">101</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1467,12 +1881,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">131k</span>
+    <span title="站点总字数">143k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:59</span>
+    <span title="站点阅读时长">2:10</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
