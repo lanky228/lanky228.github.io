@@ -187,6 +187,399 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/08/03/WrenAI%E6%B7%B1%E5%BA%A6%E6%B4%9E%E5%AF%9F-GenBI%E5%BC%95%E6%93%8E%E7%9A%84%E5%8F%AF%E4%BF%A1%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/08/03/WrenAI%E6%B7%B1%E5%BA%A6%E6%B4%9E%E5%AF%9F-GenBI%E5%BC%95%E6%93%8E%E7%9A%84%E5%8F%AF%E4%BF%A1%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83/" class="post-title-link" itemprop="url">WrenAI深度洞察——GenBI引擎的可信执行环境</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-08-03 08:00:00" itemprop="dateCreated datePublished" datetime="2026-08-03T08:00:00+08:00">2026-08-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-06 05:11:15" itemprop="dateModified" datetime="2026-08-06T05:11:15+08:00">2026-08-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>11k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>10 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>💡 WrenAI 不是又一个 Text-to-SQL 工具，而是用”MDL 语义契约 + DataFusion 确定性编译”剥夺 LLM 编造权的可信执行环境。LLM 只能在白名单里选字段，物理表展开、JOIN 注入、方言转译全部由确定性引擎完成。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>数据通信产品线的自然语言查询服务（NLDB）当前采用直接 Text-to-SQL 路径：意图解析 → Schema 加载 → SQL 生成 → JDBC 执行。</p>
+<p>这条路径在面对真实业务数据时存在三个结构性缺陷。LLM 面对近义表名（<code>customers</code> vs <code>customers_v3</code> vs <code>loyalty_v3</code>）会选错表；面对业务定义模糊（”活跃客户”的判定口径）会自行编造逻辑；面对多表关联会发明不存在的 JOIN 路径。</p>
+<p>这些不是”模型不够强”的问题，而是”上下文缺失”问题。LLM 在没有业务语义约束的情况下写出的 SQL，即使语法正确，业务结果也可能是错的。</p>
+<p>WrenAI 用 MDL 语义模型层系统性地解决了这一类问题。它的架构思路对产品线 NLDB 的演进具有直接参考价值。</p>
+<h2 id="WrenAI-解决什么问题"><a href="#WrenAI-解决什么问题" class="headerlink" title="WrenAI 解决什么问题"></a>WrenAI 解决什么问题</h2><p>WrenAI 由 Canner 公司于 2024 年 4 月开源，GitHub 当前约 16,788 星、70 位贡献者、182 个发布版本，最新版本 wren-v0.13.1（2026 年 7 月）。</p>
+<p>它的自我定位不是”Text-to-SQL 工具”，而是”AI 智能体的开放上下文层”——一个介于数据源与 AI 智能体之间的语义中间层。任何 Agent（Claude Code、Cursor、MCP 客户端等）都能通过统一的语义契约查询数据，生成 SQL、图表、报告与可部署仪表盘。</p>
+<h3 id="核心痛点：业务语义幻觉"><a href="#核心痛点：业务语义幻觉" class="headerlink" title="核心痛点：业务语义幻觉"></a>核心痛点：业务语义幻觉</h3><p>传统 Text-to-SQL 系统将 schema 直接喂给 LLM，让 LLM 同时承担三个不该由它承担的职责：</p>
+<ul>
+<li>选择正确的物理表（当存在近义表时）</li>
+<li>推断业务定义（”活跃客户”是 30 天登录还是 90 天下单）</li>
+<li>构造 JOIN 路径（当多表关系未显式声明时）</li>
+</ul>
+<p>LLM 在这三个职责上的失败不是概率问题而是结构问题。没有业务上下文约束的 LLM，即使模型能力再强，也会写出”语法正确但业务错误”的 SQL。</p>
+<h3 id="历史演进"><a href="#历史演进" class="headerlink" title="历史演进"></a>历史演进</h3><p>早期的 Wren Engine 基于 Trino SQL 层 fork，使用 Antlr4 Visitor 做 SQL 改写，将 MDL 定义注入 SQL。这一阶段的局限在于”纯 SQL 层改写”——SQL 文本到 SQL 文本的转换难以处理复杂语义展开。</p>
+<p>团队随后迁移到 Apache DataFusion。原因是 DataFusion 的 LogicalPlan 作为中间表示（IR）能将不同 SQL 构造映射到统一的逻辑计划节点（如 CTE 和子查询在 LogicalPlan 层都表示为 Subquery），显著缩小了需要处理的语法空间。</p>
+<p>2026 年 5 月，Wren Engine 仓库合并入主 WrenAI 仓库的 <code>core/</code> 目录，完成了引擎与 AI 层的架构统一。</p>
+<h3 id="关键定位判断"><a href="#关键定位判断" class="headerlink" title="关键定位判断"></a>关键定位判断</h3><p>WrenAI 不是数据库、不是 BI 工具、不是 Text-to-SQL 框架，而是”语义上下层 + 确定性编译器”的组合体。</p>
+<p>它的价值不在单点准确率超越某个模型，而在于用”MDL 契约 + DataFusion 编译”将 LLM 的生成结果约束在业务定义允许的范围内，使查询结果可审计、可复现、可治理。</p>
+<h2 id="关键竞争力技术：MDL-语义模型层"><a href="#关键竞争力技术：MDL-语义模型层" class="headerlink" title="关键竞争力技术：MDL 语义模型层"></a>关键竞争力技术：MDL 语义模型层</h2><h3 id="MDL-是什么：从-schema-描述到业务宪法"><a href="#MDL-是什么：从-schema-描述到业务宪法" class="headerlink" title="MDL 是什么：从 schema 描述到业务宪法"></a>MDL 是什么：从 schema 描述到业务宪法</h3><p>MDL（Modeling Definition Language）是 WrenAI 的中心语义契约，用 YAML 文件定义业务数据的”意义”而非存储结构。一个 Wren 项目包含以下 MDL 制品：</p>
+<ul>
+<li><strong>Models</strong>：逻辑数据集，对应物理表或 SQL 定义，声明暴露哪些列、主键、缓存策略</li>
+<li><strong>Columns</strong>：暴露的字段，支持重命名、类型声明、计算字段表达式、关系引用</li>
+<li><strong>Relationships</strong>：模型间的可复用 JOIN 逻辑，声明关系类型和连接条件</li>
+<li><strong>Calculated fields</strong>：业务计算逻辑，定义一次后在所有查询中复用</li>
+<li><strong>Views</strong>：命名的 SQL 语句，行为类似稳定虚拟表</li>
+<li><strong>Cubes</strong>：预聚合语义对象，包含度量、维度、时间维度、层级</li>
+</ul>
+<p>MDL 的关键设计在于”五层上下文模型”：结构层、语义层、业务层、操作层（开发中）、行为层（开发中）。前三层已正式发布，后两层仍在开发中。</p>
+<h3 id="MDL-如何约束-LLM：白名单机制"><a href="#MDL-如何约束-LLM：白名单机制" class="headerlink" title="MDL 如何约束 LLM：白名单机制"></a>MDL 如何约束 LLM：白名单机制</h3><p>MDL 的约束力不是”提示词建议”，而是”引擎级强制”。具体机制为：</p>
+<ul>
+<li><strong>字段可见性</strong>：如果 <code>email</code> 列未在 <code>customers</code> 模型中声明，LLM 无法在生成的 SQL 中引用它——该列在 WrenAI 的数据视图中不存在</li>
+<li><strong>JOIN 路径锁定</strong>：如果 <code>orders</code> 与 <code>customers</code> 的规范 JOIN 在 MDL 中声明一次，LLM 不需要也不允许自行发明 JOIN 条件——引擎在编译期注入</li>
+<li><strong>计算逻辑固化</strong>：<code>customer_lifetime_value</code> 的计算表达式在 MDL 中定义一次，LLM 只能引用该字段名，无法改写其计算逻辑</li>
+<li><strong>访问控制注入</strong>：RLAC（行级访问控制）和 CLAC（列级访问控制）在 <code>ModelGenerationRule</code> 阶段直接注入逻辑计划，LLM 无法绕过</li>
+</ul>
+<p>这一设计的本质是将”业务定义权”从 LLM 的生成域中剥离，交给数据团队通过 MDL 显式声明。</p>
+<p>LLM 的角色从”理解业务并生成 SQL”降维为”理解问题并选择正确的 MDL 字段”——后者的错误空间远小于前者。</p>
+<h3 id="MDL-编译流程：从-YAML-到引擎清单"><a href="#MDL-编译流程：从-YAML-到引擎清单" class="headerlink" title="MDL 编译流程：从 YAML 到引擎清单"></a>MDL 编译流程：从 YAML 到引擎清单</h3><p>MDL 的 YAML 源文件通过 <code>wren context build</code> 命令编译为 <code>target/mdl.json</code> 清单文件。编译过程完成两项工作：字段名从 snake_case 转为 camelCase（引擎 wire format）、验证模型&#x2F;关系&#x2F;视图的引用完整性。</p>
+<p>编译后的 <code>mdl.json</code> 被 wren-core Rust 引擎加载为 <code>AnalyzedWrenMDL</code> 内部表示，作为 SQL 计划期间的语义状态容器。</p>
+<h2 id="关键竞争力技术：双轨检索机制"><a href="#关键竞争力技术：双轨检索机制" class="headerlink" title="关键竞争力技术：双轨检索机制"></a>关键竞争力技术：双轨检索机制</h2><p>WrenAI 的检索层基于 LanceDB 向量数据库，使用 sentence-transformers 生成本地嵌入，分为两个独立集合：</p>
+<table>
+<thead>
+<tr>
+<th>集合</th>
+<th>内容</th>
+<th>检索命令</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>schema_items</code></td>
+<td>MDL 模型、列、关系、视图、指令</td>
+<td><code>wren memory fetch</code></td>
+<td>检索与问题相关的 MDL 定义</td>
+</tr>
+<tr>
+<td><code>query_history</code></td>
+<td>已确认的 NL-SQL 对</td>
+<td><code>wren memory recall</code></td>
+<td>回忆历史成功 SQL 作为示例</td>
+</tr>
+</tbody></table>
+<p>双轨检索的设计逻辑针对两种失败模式：</p>
+<ul>
+<li><strong>全量 schema 倾倒</strong>：将 500 张表的定义塞入提示词，LLM 被无关表干扰而选错。<code>wren memory fetch</code> 只检索与当前问题语义相关的模型切片，避免上下文污染</li>
+<li><strong>无信息猜测</strong>：让 LLM 自行判断哪些表相关，它会选错。<code>wren memory recall</code> 提供历史成功 SQL 作为 few-shot 示例，既约束生成模式又传递业务惯例</li>
+</ul>
+<h3 id="关键架构判断"><a href="#关键架构判断" class="headerlink" title="关键架构判断"></a>关键架构判断</h3><p>检索层完全不涉及 LLM。<code>wren memory fetch</code> 和 <code>wren memory recall</code> 都是纯向量检索操作，返回的是结构化的 MDL 定义和历史 SQL 文本，不经过任何模型推理。</p>
+<p>这一设计使检索结果可复现、可审计，避免了”检索也用 LLM”带来的不确定性叠加。</p>
+<p>检索结果连同业务指令（<code>instructions.md</code> 中的公司级定义）共同构成 LLM 的输入上下文。这一上下文是”刚刚好”的——既非全量 schema，也非无信息空白，而是与当前问题精确匹配的语义切片。</p>
+<h2 id="关键竞争力技术：逻辑-SQL-物理-SQL-分离与-DataFusion-编译器"><a href="#关键竞争力技术：逻辑-SQL-物理-SQL-分离与-DataFusion-编译器" class="headerlink" title="关键竞争力技术：逻辑 SQL&#x2F;物理 SQL 分离与 DataFusion 编译器"></a>关键竞争力技术：逻辑 SQL&#x2F;物理 SQL 分离与 DataFusion 编译器</h2><h3 id="三级流水线全貌"><a href="#三级流水线全貌" class="headerlink" title="三级流水线全貌"></a>三级流水线全貌</h3><p>WrenAI 的端到端查询流程可拆解为六个步骤：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">用户问题 &quot;本季度收入前5的客户&quot;</span><br><span class="line">  │</span><br><span class="line">  ├─ 1. wren memory recall -q &quot;top customers by revenue&quot;</span><br><span class="line">  │     → 返回2条相似的历史NL-SQL对</span><br><span class="line">  │</span><br><span class="line">  ├─ 2. wren memory fetch -q &quot;customer lifetime value&quot;</span><br><span class="line">  │     → 返回 customers 模型 + customer_lifetime_value 列 + 活跃客户定义指令</span><br><span class="line">  │</span><br><span class="line">  ├─ 3. LLM生成逻辑SQL（针对MDL模型，不含物理表名）：</span><br><span class="line">  │     SELECT first_name, customer_lifetime_value</span><br><span class="line">  │     FROM customers</span><br><span class="line">  │     ORDER BY 2 DESC LIMIT 5;</span><br><span class="line">  │</span><br><span class="line">  ├─ 4. wren dry-plan → 展开为物理SQL（注入活跃客户过滤、JOIN、方言转译）</span><br><span class="line">  │</span><br><span class="line">  ├─ 5. wren --sql → 连接器执行物理SQL，返回PyArrow表</span><br><span class="line">  │</span><br><span class="line">  └─ 6. wren memory store → 存储确认的NL-SQL对供未来recall</span><br></pre></td></tr></table></figure>
+
+<p>步骤 1-2 是检索层（无 LLM），步骤 3 是生成层（LLM），步骤 4-5 是编译执行层（确定性引擎）。</p>
+<h3 id="生成层：LLM-只管逻辑"><a href="#生成层：LLM-只管逻辑" class="headerlink" title="生成层：LLM 只管逻辑"></a>生成层：LLM 只管逻辑</h3><p>LLM 在步骤 3 生成的 SQL 只引用 MDL 模型名和字段名，不涉及任何物理细节。这带来三个关键优势：</p>
+<ul>
+<li><strong>LLM 的生成空间被压缩</strong>：LLM 不需要知道 <code>customers</code> 物理表在哪个 catalog、哪个 schema，不需要构造 <code>LEFT JOIN</code> 的条件，不需要处理 <code>CAST</code> 和 <code>COALESCE</code>——这些由编译层完成</li>
+<li><strong>业务逻辑一致性</strong>：<code>customer_lifetime_value</code> 的计算口径由 MDL 定义，不同 LLM、不同提示词生成的 SQL 只要引用该字段，结果业务逻辑一致</li>
+<li><strong>可替换性</strong>：LLM 是可替换的——WrenAI 支持 OpenAI、Anthropic、Google Gemini 及本地模型，切换模型不影响业务逻辑的确定性</li>
+</ul>
+<h3 id="编译层：wren-core-的-DataFusion-逻辑计划展开"><a href="#编译层：wren-core-的-DataFusion-逻辑计划展开" class="headerlink" title="编译层：wren-core 的 DataFusion 逻辑计划展开"></a>编译层：wren-core 的 DataFusion 逻辑计划展开</h3><p>编译层由 wren-core Rust 语义引擎承担，基于 Apache DataFusion 构建。wren-core 通过三个 AnalyzerRule 实现 MDL 语义到物理 SQL 的展开：</p>
+<table>
+<thead>
+<tr>
+<th>AnalyzerRule</th>
+<th>职责</th>
+<th>方向</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ExpandWrenViewRule</code></td>
+<td>展开 MDL 视图定义为子查询</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ModelAnalyzeRule</code></td>
+<td>识别查询引用的 MDL 模型和所需列</td>
+<td>三趟分析</td>
+</tr>
+<tr>
+<td><code>ModelGenerationRule</code></td>
+<td>展开为含 JOIN&#x2F;Projection&#x2F;Filter 的逻辑计划</td>
+<td>注入 JOIN、计算字段、RLAC</td>
+</tr>
+</tbody></table>
+<p><code>ModelAnalyzeRule</code> 的三趟分析是核心：</p>
+<ol>
+<li><strong>作用域分析</strong>（自底向上）：遍历逻辑计划，识别查询引用了哪些 Wren 模型、投影&#x2F;过滤&#x2F;JOIN 需要哪些列</li>
+<li><strong>模型转换</strong>（自底向上）：将 <code>TableScan</code> 节点替换为 <code>ModelPlanNode</code> 扩展节点，注入收集到的需求信息</li>
+<li><strong>前缀移除</strong>（自顶向下）：剥离内部 Wren catalog&#x2F;schema 前缀，为 unparse 做准备</li>
+</ol>
+<p><code>ModelGenerationRule</code> 随后展开 <code>ModelPlanNode</code>：通过 <code>RelationChain</code> 递归结构生成所需 JOIN，通过 <code>create_wren_calculated_field_expr</code> 注入计算字段表达式及其依赖，通过 <code>rlac_filter</code> 注入行级访问控制过滤。</p>
+<h3 id="方言转译：从-LogicalPlan-到目标库-SQL"><a href="#方言转译：从-LogicalPlan-到目标库-SQL" class="headerlink" title="方言转译：从 LogicalPlan 到目标库 SQL"></a>方言转译：从 LogicalPlan 到目标库 SQL</h3><p>展开后的逻辑计划通过 DataFusion 的 Unparser 回写为 SQL 文本。WrenAI 的方言系统采用双层 trait 架构：</p>
+<ul>
+<li><code>WrenDialect</code>：实现 DataFusion 基础 <code>Dialect</code> trait，处理通用逻辑（严格标识符引用）并委托给内部方言</li>
+<li><code>InnerDialect</code>：Wren 定义的 trait，允许针对具体数据库做粒度化覆盖——标量函数改写、日期提取风格、标识符引用字符、支持的 UDF 列表</li>
+</ul>
+<p>工厂函数 <code>get_inner_dialect</code> 根据 <code>DataSource</code> 枚举返回对应的 <code>InnerDialect</code> 实现。当前支持 athena、bigquery、clickhouse、databricks、duckdb、mysql、oracle、postgres、snowflake、spark、trino 等 20+ 方言。</p>
+<h3 id="关键编译层判断"><a href="#关键编译层判断" class="headerlink" title="关键编译层判断"></a>关键编译层判断</h3><p>wren-core 选择 DataFusion 而非自研 SQL 引擎，是因为 DataFusion 的 LogicalPlan 提供了”SQL 标准化中间表示”——不同 SQL 构造（CTE、子查询、嵌套表达式）在 LogicalPlan 层映射到统一节点。</p>
+<p>这使 WrenAI 团队只需聚焦 MDL 语义展开，不需重复实现 SQL 解析与标准化。DataFusion 的 Unparser 能将 LogicalPlan 回写为 SQL 文本，这正好匹配 WrenAI”全量 SQL 下推到目标库执行”的设计目标。</p>
+<h3 id="三种执行模式"><a href="#三种执行模式" class="headerlink" title="三种执行模式"></a>三种执行模式</h3><p>wren-core 支持三种执行模式：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>描述</th>
+<th>应用规则</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>LocalRuntime</code></td>
+<td>在 Wren 内部用 DataFusion 直接执行</td>
+<td>三条 AnalyzerRule</td>
+</tr>
+<tr>
+<td><code>Unparse</code></td>
+<td>生成目标远程数据库兼容的 SQL 字符串</td>
+<td>三条 AnalyzerRule + TimestampSimplify + WrenTypeCoercion</td>
+</tr>
+<tr>
+<td><code>PermissionAnalyze</code></td>
+<td>诊断查询失败是否由访问控制违规导致</td>
+<td>仅 ExpandWrenViewRule + ModelAnalyzeRule</td>
+</tr>
+</tbody></table>
+<p>生产环境主要使用 <code>Unparse</code> 模式——生成方言 SQL 后下推到目标库执行，WrenAI 自身不承载数据计算。</p>
+<h2 id="端到端流程：从用户输入到结果返回"><a href="#端到端流程：从用户输入到结果返回" class="headerlink" title="端到端流程：从用户输入到结果返回"></a>端到端流程：从用户输入到结果返回</h2><p>综合上述机制，WrenAI 的完整端到端流程为：</p>
+<ol>
+<li><strong>项目初始化</strong>：<code>wren context init</code> 扫描数据库，<code>generate-mdl</code> 自动生成初始 MDL 项目（推断类型、检测结构、生成模型定义）</li>
+<li><strong>用户提问</strong>：用户或 Agent 通过 CLI&#x2F;SDK 提交自然语言问题</li>
+<li><strong>检索层</strong>（无 LLM）：<code>wren memory recall</code> 检索历史 NL-SQL 对，<code>wren memory fetch</code> 检索相关 MDL 模型定义和业务指令</li>
+<li><strong>生成层</strong>（LLM）：Agent 基于检索到的上下文，生成针对 MDL 模型的逻辑 SQL</li>
+<li><strong>验证层</strong>：<code>wren dry-plan</code> 展开逻辑 SQL 为物理 SQL，验证字段引用、关系路径、访问控制。字段名错误时返回可用列名，关系缺失时明确报错——Agent 携带正确信息重试而非执行错误 SQL</li>
+<li><strong>编译层</strong>（确定性）：wren-core 通过 sqlglot 解析 → CTE 改写 → DataFusion 逻辑计划展开 → Unparser 方言回写，生成目标库物理 SQL</li>
+<li><strong>执行层</strong>：Connector 将物理 SQL 下推到目标数据库执行，返回 PyArrow 表</li>
+<li><strong>记忆层</strong>：<code>wren memory store</code> 将确认的 NL-SQL 对存入 <code>query_history</code> 集合，供未来 <code>recall</code> 使用</li>
+</ol>
+<p>整个流程的关键特征是”LLM 生成-确定性编译”的职责分离：LLM 负责理解问题意图和选择正确 MDL 字段（创造性工作），编译器负责展开物理细节（确定性工作）。</p>
+<p>这种分离使查询结果的正确性不依赖 LLM 的”运气”，而依赖 MDL 定义的质量和编译器的正确性——两者都是可审计、可测试的。</p>
+<h2 id="对比业界方案"><a href="#对比业界方案" class="headerlink" title="对比业界方案"></a>对比业界方案</h2><h3 id="vs-Snowflake-Cortex-Analyst"><a href="#vs-Snowflake-Cortex-Analyst" class="headerlink" title="vs Snowflake Cortex Analyst"></a>vs Snowflake Cortex Analyst</h3><p>WrenAI 在架构上是 Cortex Analyst 最接近的开源对应物。两者都采用”语义模型 + AI 生成 + 编译器展开”的三段式架构，都通过语义层约束 LLM 的生成空间。核心差异在于：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>WrenAI</th>
+<th>Cortex Analyst</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据源</td>
+<td>22+ 数据源，多源异构</td>
+<td>锁定 Snowflake</td>
+</tr>
+<tr>
+<td>语义模型格式</td>
+<td>MDL（YAML，Git 可版本化）</td>
+<td>Semantic Views（Snowflake 内部）</td>
+</tr>
+<tr>
+<td>编译器</td>
+<td>wren-core（Rust，基于 DataFusion）</td>
+<td>Snowflake 编译器内改写</td>
+</tr>
+<tr>
+<td>部署</td>
+<td>开源自托管或商业云</td>
+<td>SaaS，仅 Snowflake 租户</td>
+</tr>
+</tbody></table>
+<p>WrenAI 的多源支持是其相对 Cortex Analyst 的核心差异化价值——企业不绑定单一云仓库即可获得”语义层 + AI”能力。但 Cortex Analyst 背靠 Snowflake 的工程成熟度和准确率基准（90%+）是 WrenAI 当前未公开对标的数据点。</p>
+<h3 id="vs-Databricks-Genie"><a href="#vs-Databricks-Genie" class="headerlink" title="vs Databricks Genie"></a>vs Databricks Genie</h3><p>Genie 基于 Unity Catalog 语义层和 compound AI 架构，与 WrenAI 的 MDL + 流水线架构理念相似但实现路径不同。</p>
+<p>两者都强调”业务定义治理”，但 Genie 的语义层深度绑定 Unity Catalog 的 ABAC（属性级访问控制）治理体系，WrenAI 的 RLAC&#x2F;CLAC 在 MDL 层独立实现。Genie 锁定 Databricks 生态，WrenAI 支持 Databricks 作为数据源之一。</p>
+<p>已投资 Databricks 的企业 Genie 是自然选择；多源环境或避免锁定场景 WrenAI 更具优势。</p>
+<h3 id="vs-Cube-dbt-语义层"><a href="#vs-Cube-dbt-语义层" class="headerlink" title="vs Cube&#x2F;dbt 语义层"></a>vs Cube&#x2F;dbt 语义层</h3><p>Cube 和 dbt Semantic Layer 提供成熟的开源语义层，但两者都不包含 AI 生成能力——它们定义指标和模型，但用户仍需自行写 SQL 或通过 BI 工具查询。</p>
+<p>WrenAI 的 MDL 在概念上与 Cube 的 Semantic Layer 和 dbt 的 MetricFlow 有重叠，但 WrenAI 多了”AI 生成逻辑 SQL + DataFusion 编译物理 SQL”的完整 GenBI 流水线。</p>
+<p>Cube&#x2F;dbt 适合”已有 BI 工具、只需补语义层”的场景；WrenAI 适合”需要从自然语言直接到 SQL 到仪表盘”的 GenBI 场景。WrenAI 支持 dbt 集成，可作为 Cube&#x2F;dbt 语义层的 AI 前端层叠加。</p>
+<h3 id="vs-DB-GPT"><a href="#vs-DB-GPT" class="headerlink" title="vs DB-GPT"></a>vs DB-GPT</h3><p>DB-GPT（约 17k 星）走多智能体 AWEL 工作流路线，5 步 NL2SQL 流水线由多个 Agent 协作完成，支持本地 LLM 部署和 Text-to-SQL 微调（DB-GPT-Hub 在 Spider 基准上 82.5% 准确率）。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>WrenAI</th>
+<th>DB-GPT</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心理念</td>
+<td>语义模型优先</td>
+<td>多智能体协作 + 微调优先</td>
+</tr>
+<tr>
+<td>语义层</td>
+<td>MDL 强制约束</td>
+<td>无独立语义层，依赖 Schema RAG</td>
+</tr>
+<tr>
+<td>编译器</td>
+<td>DataFusion 确定性展开</td>
+<td>LLM 生成 + 多 Agent 校验</td>
+</tr>
+<tr>
+<td>License</td>
+<td>AGPL-3.0</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>本地 LLM</td>
+<td>支持（通过配置）</td>
+<td>一等公民（SMMF 框架）</td>
+</tr>
+</tbody></table>
+<p>第三方对比的结论精准——“WrenAI 在业务语义治理上胜出，DB-GPT 在原始 SQL 复杂度上胜出”。</p>
+<p>产品线若痛点是”业务定义不一致导致 SQL 结果错误”，WrenAI 是对症选择；若痛点是”复杂多表 JOIN SQL 生成准确率不足”，DB-GPT 的微调 + 多 Agent 路径可能更有效。</p>
+<h3 id="vs-Chat2DB"><a href="#vs-Chat2DB" class="headerlink" title="vs Chat2DB"></a>vs Chat2DB</h3><p>Chat2DB 定位为”带 AI 的 SQL 客户端”，提供 chat-first 界面和基础可视化，但无独立语义层、无业务定义治理、无企业级访问控制。</p>
+<p>Chat2DB 适合开发者个人效率工具场景；WrenAI 适合企业级 GenBI 治理场景，两者不在同一竞争层级。</p>
+<h3 id="vs-NLDB（产品线项目）"><a href="#vs-NLDB（产品线项目）" class="headerlink" title="vs NLDB（产品线项目）"></a>vs NLDB（产品线项目）</h3><p>产品线 NLDB 当前架构为线性流水线：<code>NLQueryService</code> 编排意图解析 → schema 加载 → SQL 生成（LLM）→ JDBC 执行 → 结果格式化。与 WrenAI 的对比凸显三个结构性差距：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>NLDB（当前）</th>
+<th>WrenAI</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>上下文投递</td>
+<td>全量 schema 加载</td>
+<td>双轨检索 fetch + recall 精准投递</td>
+</tr>
+<tr>
+<td>业务定义治理</td>
+<td>无，LLM 自行推断</td>
+<td>MDL 白名单强制约束</td>
+</tr>
+<tr>
+<td>SQL 生成&#x2F;执行分离</td>
+<td>无，LLM 直接生成物理 SQL</td>
+<td>逻辑&#x2F;物理分离，确定性编译</td>
+</tr>
+<tr>
+<td>错误恢复</td>
+<td>执行失败后整体重试</td>
+<td>dry-plan 阶段失败可携带正确信息重试</td>
+</tr>
+<tr>
+<td>记忆机制</td>
+<td>无</td>
+<td>query_history 历史 SQL recall</td>
+</tr>
+</tbody></table>
+<p>NLDB 的”全量 schema + 直接物理 SQL”路径在面对简单单表查询时可用，但在多表关联、业务定义模糊、近义表名场景下会暴露 WrenAI correctness 文档描述的全部失败模式。</p>
+<p>WrenAI 的三级流水线架构为 NLDB 的演进提供了可直接借鉴的蓝图：引入轻量语义模型层约束 LLM 生成空间、用 dry-plan 验证替代直接执行、用历史 SQL 记忆提升同类问题准确率。</p>
+<h2 id="技术差距与挑战"><a href="#技术差距与挑战" class="headerlink" title="技术差距与挑战"></a>技术差距与挑战</h2><h3 id="MDL-前期建模成本"><a href="#MDL-前期建模成本" class="headerlink" title="MDL 前期建模成本"></a>MDL 前期建模成本</h3><p>WrenAI 的最大采用门槛是 MDL 建模投入。非平凡数据模型（数十实体、数百指标、复杂关系）的 MDL 定义可能需要数周工程时间。</p>
+<p>团队期望”接入数据库即开始查询”会撞上这堵墙——WrenAI 的价值在全面 MDL 定义完成后才显现，形成”先投入后收益”的鸡生蛋问题。<code>generate-mdl</code> 脚手架能自动生成初始 MDL，但业务定义（”活跃客户””收入口径”）仍需人工梳理。</p>
+<h3 id="SDK-生态不完整"><a href="#SDK-生态不完整" class="headerlink" title="SDK 生态不完整"></a>SDK 生态不完整</h3><p>当前仅 LangChain 集成正式发布，CrewAI、Pydantic-AI、LlamaIndex 等流行 Agent 框架标记为”coming soon”。若产品线 AI 栈非 LangChain，要么等待集成要么自建绑定。</p>
+<h3 id="架构快速演进"><a href="#架构快速演进" class="headerlink" title="架构快速演进"></a>架构快速演进</h3><p>2025 年 5 月 Wren Engine 仓库合并入主 WrenAI 仓库、legacy GenBI 应用归档至 <code>legacy/v1</code> 分支，表明项目仍在架构整合期。快速架构变更对风险厌恶型团队的生产就绪性判断构成顾虑。</p>
+<h3 id="LLM-依赖与数据安全"><a href="#LLM-依赖与数据安全" class="headerlink" title="LLM 依赖与数据安全"></a>LLM 依赖与数据安全</h3><p>WrenAI 的生成层依赖 LLM，虽支持本地模型（Ollama 等）实现数据不出域，但本地模型的准确率低于前沿模型（GPT-4o&#x2F;Claude Sonnet&#x2F;Gemini Pro），产品线需在准确率与数据安全间权衡。</p>
+<p>检索层的 LanceDB 嵌入使用 sentence-transformers 本地模型，不涉及数据外传。</p>
+<h3 id="License-考量"><a href="#License-考量" class="headerlink" title="License 考量"></a>License 考量</h3><p>WrenAI 采用 AGPL-3.0 许可证，对希望闭源分发产品的企业构成合规约束——修改 WrenAI 源码并网络分发需开放修改部分源码。DB-GPT 的 MIT 许可证在此维度更友好。</p>
+<h2 id="未来趋势判断"><a href="#未来趋势判断" class="headerlink" title="未来趋势判断"></a>未来趋势判断</h2><p><strong>趋势一：语义层将成为 GenBI 的标配基座。</strong> WrenAI、Cortex Analyst、Genie、Looker&#x2F;LookML 的共同特征是”语义层 + AI”双轮驱动。纯 Text-to-SQL 路径在简单查询场景可用，但在企业级治理场景会被语义层方案替代。开源生态将形成”语义层 + AI 编译层”的分层竞争格局。</p>
+<p><strong>趋势二：Agent-native BI 是下一阶段竞争焦点。</strong> WrenAI 已从”chat-first BI”转向”Agent-native GenBI”——让 Claude Code、Cursor、MCP 客户端等 Agent 通过 SDK 调用 WrenAI 能力，生成可部署的浏览器侧仪表盘（基于 wren-core-wasm）。这标志着 GenBI 从”人机对话”模式演进为”Agent 自主生成 + 部署”模式。</p>
+<p><strong>趋势三：确定性编译与 LLM 生成的职责分离将成为架构共识。</strong> WrenAI 的”LLM 生成逻辑 SQL + DataFusion 编译物理 SQL”分离已被 Cortex Analyst 和 Genie 验证为有效模式。未来 Text-to-SQL 系统的架构将普遍采用”LLM 负责意图理解 + 确定性引擎负责物理展开”的分层设计，纯 LLM 端到端生成物理 SQL 的路径将被边缘化。</p>
+<p><strong>趋势四：多源异构支持是开源方案相对云锁定的核心差异化。</strong> Cortex Analyst 锁定 Snowflake、Genie 锁定 Databricks、BigQuery Gemini 锁定 Google Cloud——商业方案天然绑定各自云生态。WrenAI 支持 22+ 数据源的开源方案，为多云&#x2F;混合云企业提供了不绑定单一云厂商的 GenBI 路径。这一差异化在数据主权和数据重力日益受重视的背景下价值凸显。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><p>WrenAI 的本质是用”MDL 语义契约 + DataFusion 确定性编译”剥夺 LLM 的编造权。LLM 只能在白名单里选字段，物理表展开、JOIN 注入、方言转译全部由确定性引擎完成。这一设计使查询结果的正确性不依赖 LLM 的”运气”，而依赖 MDL 定义的质量和编译器的正确性——两者都是可审计、可测试的。</p>
+<p>WrenAI 是开源生态中最接近 Snowflake Cortex Analyst 架构的方案，但支持 22+ 数据源而非锁定单一云仓库。它的核心差异化价值是为多云&#x2F;混合云企业提供了不绑定单一云厂商的 GenBI 路径。</p>
+<p>产品线 NLDB 可借鉴的三点演进方向：引入轻量语义模型层约束 LLM 生成空间、用 dry-plan 验证替代直接执行、用历史 SQL 记忆提升同类问题准确率。无需完整复制 WrenAI 的 MDL + DataFusion 编译器栈，先引入”字段白名单 + 业务定义指令注入”的轻量语义层即可显著降低业务语义幻觉。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://docs.getwren.ai/oss/reference/architecture" target="_blank" rel="noopener">Wren AI Architecture</a> — 官方架构文档，详述 Agent workflow &#x2F; Project context &#x2F; Planning engine &#x2F; Execution layer 四层架构与 SQL planner 三组件</li>
+<li><a href="https://github.com/Canner/WrenAI" target="_blank" rel="noopener">Canner&#x2F;WrenAI GitHub Repository</a> — 项目主页，约 16,788 星 &#x2F; 70 贡献者 &#x2F; 182 发布 &#x2F; 22+ 数据源，含项目结构与 2026-05-07 引擎合并公告</li>
+<li><a href="https://docs.getwren.ai/oss/concepts/what_is_mdl" target="_blank" rel="noopener">What is Modeling Definition Language (MDL)?</a> — MDL 概念文档，定义六类制品与五层上下文模型</li>
+<li><a href="https://docs.getwren.ai/oss/concepts/correctness" target="_blank" rel="noopener">How does Wren AI keep agents from hallucinating?</a> — 正确性机制文档，详述五层防幻觉机制与六步端到端流程</li>
+<li><a href="https://www.getwren.ai/post/powering-semantic-sql-for-ai-agents-with-apache-datafusion" target="_blank" rel="noopener">Powering Semantic SQL for AI Agents with Apache DataFusion</a> — 技术博客，阐述从 Trino fork 迁移到 DataFusion 的原因与 LogicalPlan 作为语义改写 IR 的优势</li>
+<li><a href="https://deepwiki.com/Canner/WrenAI/1.1-system-architecture" target="_blank" rel="noopener">WrenAI System Architecture — DeepWiki</a> — 第三方架构分析，详述多语言绑定与数据流</li>
+<li><a href="https://deepwiki.com/Canner/WrenAI/2.2-sql-transformation-pipeline" target="_blank" rel="noopener">SQL Transformation Pipeline — DeepWiki</a> — SQL 转换管线分析，详述三种 AnalyzerRule 及三种执行模式</li>
+<li><a href="https://deepwiki.com/Canner/WrenAI/2.3-logical-plan-analysis-and-model-generation" target="_blank" rel="noopener">Logical Plan Analysis and Model Generation — DeepWiki</a> — 详述 ModelAnalyzeRule 三趟分析与 ModelGenerationRule 的 JOIN&#x2F;计算字段&#x2F;RLAC 注入</li>
+<li><a href="https://deepwiki.com/Canner/WrenAI/2.4-dialect-system-and-sql-unparsing" target="_blank" rel="noopener">Dialect System and SQL Unparsing — DeepWiki</a> — 方言系统与 SQL 回写分析，详述双层 trait 架构与 20+ 方言支持</li>
+<li><a href="https://sudiptapathak.com/blog/dissecting-open-source-nl2sql/" target="_blank" rel="noopener">Dissecting Open-Source NL2SQL: How Vanna, WrenAI, and DB-GPT Approach Text-to-SQL</a> — 第三方对比分析，明确 WrenAI 为 Cortex Analyst 开源对应物</li>
+<li><a href="https://www.vldb.org/pvldb/vol17/p4365-chen.pdf" target="_blank" rel="noopener">Demonstration of DB-GPT (VLDB 2024)</a> — DB-GPT VLDB 论文，详述四层架构 &#x2F; SMMF &#x2F; AWEL 工作流引擎 &#x2F; Text-to-SQL 微调</li>
+<li><a href="https://starlog.is/articles/developer-tools/canner-wrenai/" target="_blank" rel="noopener">WrenAI: The Semantic Context Layer That Keeps LLMs From Wrecking Your Data Governance — Starlog</a> — 第三方深度评测，指出 MDL 前期建模成本 &#x2F; SDK 生态不完整 &#x2F; 架构仍在整合期等局限</li>
+<li><a href="https://www.getwren.ai/post/wren-ai-2024-year-in-review-a-fruitful-journey-and-exciting-plans-ahead" target="_blank" rel="noopener">Wren AI 2024 Year in Review</a> — 2024 年度回顾，2,670+ 星 &#x2F; 30+ 贡献者里程碑与商业版发布</li>
+<li><a href="https://www.marktechpost.com/2025/07/21/meet-wrenai-the-open-source-ai-business-intelligence-agent-for-natural-language-data-analytics/" target="_blank" rel="noopener">Meet WrenAI: The Open-Source AI Business Intelligence Agent — MarkTechPost</a> — 技术媒体介绍，确认 GenBI 能力与多模态输出</li>
+<li><a href="https://www.blazesql.com/blog/chat-with-your-database" target="_blank" rel="noopener">Chat With Your Database: Complete 2026 Guide to SQL Chat tools</a> — SQL Chat 工具全景对比，含 Chat2DB &#x2F; DB-GPT &#x2F; Vanna &#x2F; WrenAI &#x2F; Cortex Analyst 等定位分类</li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"WrenAI深度洞察——GenBI引擎的可信执行环境","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-08-03","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/08/03/WrenAI深度洞察-GenBI引擎的可信执行环境/"},"url":"https://lanky228.github.io/2026/08/03/WrenAI深度洞察-GenBI引擎的可信执行环境/","inLanguage":"zh-CN","dateModified":"2026-08-06","keywords":["AI","数据库","Text-to-SQL","WrenAI","GenBI"]}</script>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/08/03/DataFusion%E6%B7%B1%E5%BA%A6%E6%B4%9E%E5%AF%9F-Rust%E5%90%91%E9%87%8F%E5%8C%96%E6%9F%A5%E8%AF%A2%E5%BC%95%E6%93%8E%E7%9A%84%E5%85%B1%E4%BA%AB%E5%BA%95%E5%BA%A7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1662,101 +2055,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/07/16/Apache-Pinot-%E5%AE%9E%E6%97%B6OLAP%E6%B4%9E%E5%AF%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lanky">
-      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lanky的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/07/16/Apache-Pinot-%E5%AE%9E%E6%97%B6OLAP%E6%B4%9E%E5%AF%9F/" class="post-title-link" itemprop="url">Apache Pinot实时OLAP洞察——Druid竞品对比与实时分析查询技术路线选型</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2026-07-16 12:00:00" itemprop="dateCreated datePublished" datetime="2026-07-16T12:00:00+08:00">2026-07-16</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-08-02 15:59:33" itemprop="dateModified" datetime="2026-08-02T15:59:33+08:00">2026-08-02</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>3.8k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Apache Pinot靠Star-Tree预聚合和原生实时Upsert，用户面分析比Druid低2-7倍延迟。含技术路线选型建议。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2026/07/16/Apache-Pinot-%E5%AE%9E%E6%97%B6OLAP%E6%B4%9E%E5%AF%9F/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1826,7 +2124,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1837,7 +2135,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">101</span>
+        <span class="site-state-item-count">103</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1881,12 +2179,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">143k</span>
+    <span title="站点总字数">154k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">2:10</span>
+    <span title="站点阅读时长">2:20</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
