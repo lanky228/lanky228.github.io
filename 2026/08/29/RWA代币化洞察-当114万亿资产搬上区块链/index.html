@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lanky228.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="💡 一句话总结：RWA代币化的本质不是技术革命，是信用中介的去层级化，而真正的变量是稳定币成了链上央行。 背景DTCC宣布把114万亿美元资产搬上链。中国发了42号文，境内ABS代币化63亿。BlackRock的BUIDL基金一个月做到16亿美元。 这些数字看着吓人。但数字背后藏着一个问题：到底谁在受益？ 中介在自掘坟墓，但挖得不够深传统金融链条是这样的：资产到托管行到清算所到交易所到券商到投资">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RWA代币化洞察——当114万亿资产搬上区块链">
+<meta property="og:url" content="https://lanky228.github.io/2026/08/29/RWA%E4%BB%A3%E5%B8%81%E5%8C%96%E6%B4%9E%E5%AF%9F-%E5%BD%93114%E4%B8%87%E4%BA%BF%E8%B5%84%E4%BA%A7%E6%90%AC%E4%B8%8A%E5%8C%BA%E5%9D%97%E9%93%BE/index.html">
+<meta property="og:site_name" content="Lanky的博客">
+<meta property="og:description" content="💡 一句话总结：RWA代币化的本质不是技术革命，是信用中介的去层级化，而真正的变量是稳定币成了链上央行。 背景DTCC宣布把114万亿美元资产搬上链。中国发了42号文，境内ABS代币化63亿。BlackRock的BUIDL基金一个月做到16亿美元。 这些数字看着吓人。但数字背后藏着一个问题：到底谁在受益？ 中介在自掘坟墓，但挖得不够深传统金融链条是这样的：资产到托管行到清算所到交易所到券商到投资">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-08-29T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-29T10:16:19.326Z">
+<meta property="article:author" content="Lanky">
+<meta property="article:tag" content="RWA">
+<meta property="article:tag" content="区块链">
+<meta property="article:tag" content="金融科技">
+<meta property="article:tag" content="代币化">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lanky228.github.io/2026/08/29/RWA%E4%BB%A3%E5%B8%81%E5%8C%96%E6%B4%9E%E5%AF%9F-%E5%BD%93114%E4%B8%87%E4%BA%BF%E8%B5%84%E4%BA%A7%E6%90%AC%E4%B8%8A%E5%8C%BA%E5%9D%97%E9%93%BE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Lanky的技术博客",
+  "url": "https://lanky228.github.io",
+  "description": "Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。",
+  "inLanguage": "zh-CN"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Lanky",
+  "url": "https://lanky228.github.io",
+  "jobTitle": "Database & Data Lake Engineer",
+  "knowsAbout": ["Apache Calcite", "StarRocks", "ClickHouse", "Apache Iceberg", "OLAP", "Data Lakehouse", "TPC-DS Benchmark", "DuckDB", "Trino", "SQL Parser", "AI Coding"]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://lanky228.github.io" },
+    { "@type": "ListItem", "position": 2, "name": "RWA代币化洞察——当114万亿资产搬上区块链", "item": "https://lanky228.github.io/2026/08/29/RWA代币化洞察-当114万亿资产搬上区块链/" }
+  ]
+}
+</script>
+
+
+  <title>RWA代币化洞察——当114万亿资产搬上区块链 | Lanky的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lanky的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">生活 学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/08/29/RWA%E4%BB%A3%E5%B8%81%E5%8C%96%E6%B4%9E%E5%AF%9F-%E5%BD%93114%E4%B8%87%E4%BA%BF%E8%B5%84%E4%BA%A7%E6%90%AC%E4%B8%8A%E5%8C%BA%E5%9D%97%E9%93%BE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          RWA代币化洞察——当114万亿资产搬上区块链
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2026-08-29 15:00:00 / 修改时间：18:16:19" itemprop="dateCreated datePublished" datetime="2026-08-29T15:00:00+08:00">2026-08-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B4%9E%E5%AF%9F/" itemprop="url" rel="index"><span itemprop="name">洞察</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>💡 一句话总结：RWA代币化的本质不是技术革命，是信用中介的去层级化，而真正的变量是稳定币成了链上央行。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>DTCC宣布把114万亿美元资产搬上链。中国发了42号文，境内ABS代币化63亿。BlackRock的BUIDL基金一个月做到16亿美元。</p>
+<p>这些数字看着吓人。但数字背后藏着一个问题：到底谁在受益？</p>
+<h2 id="中介在自掘坟墓，但挖得不够深"><a href="#中介在自掘坟墓，但挖得不够深" class="headerlink" title="中介在自掘坟墓，但挖得不够深"></a>中介在自掘坟墓，但挖得不够深</h2><p>传统金融链条是这样的：资产到托管行到清算所到交易所到券商到投资者。六层中介，每层吃一层利润。代币化砍到两层：资产直接上链，投资者直接买。</p>
+<p>DTCC入局不是”区块链技术落地”。DTCC是清算所，它的存在理由就是当中介。现在它主动把一部分业务搬上链，逻辑只有一个：</p>
+<p>如果颠覆不可避免，不如自己颠覆自己。</p>
+<p>这跟诺基亚当年做触屏手机一个道理。明知会蚕食自己的键盘机市场，但不做就得死。</p>
+<p>问题是DTCC只动了清算层，没动托管层。资产确权还是线下的，法律效力还是传统的。等于在老房子上面盖了个新屋顶，地基没换。</p>
+<p>这个地基不换，代币化就只是效率工具，不是范式转移。</p>
+<h2 id="中美差异不是监管态度，是基础设施所有权"><a href="#中美差异不是监管态度，是基础设施所有权" class="headerlink" title="中美差异不是监管态度，是基础设施所有权"></a>中美差异不是监管态度，是基础设施所有权</h2><p>美国能搞DTCC主导的市场化路径，因为DTCC是会员所有制的私有机构，自己说了算。</p>
+<p>中国必须走监管先行路径。不是不敢创新，是因为中证登和央行是国家主权的延伸。基础设施即主权，这不是态度问题，是制度问题。</p>
+<p>两条路都对，但代价不同。</p>
+<p>⚠️ 美国的路径效率高，但如果链被攻击，114万亿的清算链断裂，系统性风险没人兜得住。</p>
+<p>✅ 中国的路径慢，但主权安全。</p>
+<p>这不是谁更先进的问题。是各自的政治现实。</p>
+<h2 id="稳定币才是真正的变量"><a href="#稳定币才是真正的变量" class="headerlink" title="稳定币才是真正的变量"></a>稳定币才是真正的变量</h2><p>报告说83%的链上交易通过稳定币完成。这个数字才是整件事的关键，但几乎没人展开讨论。</p>
+<p>RWA代币化的瓶颈不是资产上链，是结算货币上链。你把国债代币化了，用什么买？USDT和USDC。</p>
+<p>Tether和Circle实质上成了链上央行。</p>
+<p>它们发币的抵押品主要是美国国债。也就是说，美国国债通过稳定币完成了第二轮代币化：</p>
+<ul>
+<li>第一轮：DTCC直接把国债搬上链</li>
+<li>第二轮：Tether买了国债当抵押品发行USDT</li>
+</ul>
+<p>这意味着稳定币不是加密货币。它是美国国债的衍生品。</p>
+<p>理解了这一点，就明白为什么美国在推稳定币立法。控制稳定币就是控制链上结算层，就是让美元在链上继续当全球储备货币。</p>
+<p>📌 中国的数字人民币2.0如果不能在公链上使用，RWA生态就绕不开美元结算。这不是技术问题，是货币主权问题。</p>
+<h2 id="放到囤积居奇框架里看"><a href="#放到囤积居奇框架里看" class="headerlink" title="放到囤积居奇框架里看"></a>放到囤积居奇框架里看</h2><p>我的理论核心是两个本质：借贷成本低于囤积收益时，无限加杠杆，直到崩溃。三个追问：限制谁借钱，提高谁成本，抽干哪里钱。</p>
+<p>代币化做了什么？</p>
+<p>它降低了持有和交易成本。24小时交易，无中介费，最小单位可以到1美元。持有成本下降意味着借贷成本相对下降，借贷成本下降意味着加杠杆更容易。</p>
+<p>问题来了。资产本身没变。国债还是国债，黄金还是黄金，ABS还是ABS。</p>
+<p>代币化没有改变底层资产的质量，只改变了交易方式。就像给一把枪换了个更快的扳机，但子弹还是那些子弹。</p>
+<h3 id="限制谁借钱？"><a href="#限制谁借钱？" class="headerlink" title="限制谁借钱？"></a>限制谁借钱？</h3><p>代币化降低了投资者门槛。散户可以1美元买代币化国债。以前至少需要1000美元和一个券商账户。</p>
+<p>门槛降低本身不是坏事。但当门槛降到1美元时，你不知道进来的人有没有能力判断风险。</p>
+<h3 id="提高谁成本？"><a href="#提高谁成本？" class="headerlink" title="提高谁成本？"></a>提高谁成本？</h3><p>DTCC的三年豁免期说明合规成本仍然很高。大机构玩得起，小平台玩不起。</p>
+<p>最终结果可能是DTCC自己变成唯一的代币化平台。换了个形式的垄断。</p>
+<h3 id="抽干哪里钱？"><a href="#抽干哪里钱？" class="headerlink" title="抽干哪里钱？"></a>抽干哪里钱？</h3><p>如果代币化国债做到1000亿美元规模，而这些钱原本是银行存款，那银行体系就会被抽走1000亿美元的存款基础。</p>
+<p>银行少了存款就少了放贷能力。放贷能力下降影响实体经济融资。这不是危言耸听，是货币乘数的简单数学。</p>
+<h2 id="一个没人问的问题"><a href="#一个没人问的问题" class="headerlink" title="一个没人问的问题"></a>一个没人问的问题</h2><p>162亿美元的代币化国债，如果所有人同时要求赎回，链上流动性够不够？</p>
+<p>链上交易需要gas费，需要区块空间。以太坊高峰期一笔交易要等几小时。如果162亿美元同时赎回：</p>
+<p>链会堵死，价格会脱锚，恐慌会传导到传统市场。</p>
+<p>传统金融市场有熔断机制，链上没有。DTCC的多链战略部分缓解了这个问题，但跨链桥本身是安全薄弱点。历史上跨链桥被黑的钱超过30亿美元。</p>
+<p>不是说代币化不该做。是说代币化的风险模型和传统金融不一样，不能用传统风控思路套。链上没有Fed来救市。</p>
+<h2 id="我的判断"><a href="#我的判断" class="headerlink" title="我的判断"></a>我的判断</h2><p>短期内，代币化会是DTCC和大机构的自留地。三年豁免期内，小玩家进不来，创新也不会来自小玩家。</p>
+<p>真正的突破要等豁免期结束，监管框架稳定后，才会出现新的原生链上金融产品，而不是传统资产的链上映射。</p>
+<p>长期看，代币化的终局不是把传统资产搬上链，而是链上原生资产取代传统资产。</p>
+<p>就像电商的终局不是把实体店商品搬上网，而是原生互联网品牌取代传统品牌。DTCC现在做的，相当于1999年的传统零售商开网店。方向对，但不是终局。</p>
+<p>中国这边，42号文是框架，但落地需要时间。数字人民币如果能在境内联盟链上跑通RWA结算，中国可能走出一条和美国完全不同的路：</p>
+<p>不是公链上的全球RWA，而是联盟链上的境内RWA，用数字人民币结算，绕开稳定币依赖。</p>
+<p>这条路更慢但更安全。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><p>三个核心判断：</p>
+<ol>
+<li>代币化的本质是中介去层级化，但DTCC只动了清算层没动托管层，地基没换</li>
+<li>稳定币是美国国债的衍生品，控制稳定币就是控制链上美元霸权</li>
+<li>放到囤积居奇框架看，代币化降低了加杠杆成本但没有改变资产质量，相当于换了更快的扳机但子弹没变</li>
+</ol>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"RWA代币化洞察——当114万亿资产搬上区块链","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-08-29","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/08/29/RWA代币化洞察-当114万亿资产搬上区块链/"},"url":"https://lanky228.github.io/2026/08/29/RWA代币化洞察-当114万亿资产搬上区块链/","inLanguage":"zh-CN","dateModified":"2026-08-29","keywords":["RWA","区块链","金融科技","代币化"]}</script>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/RWA/" rel="tag"># RWA</a>
+              <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag"># 区块链</a>
+              <a href="/tags/%E9%87%91%E8%9E%8D%E7%A7%91%E6%8A%80/" rel="tag"># 金融科技</a>
+              <a href="/tags/%E4%BB%A3%E5%B8%81%E5%8C%96/" rel="tag"># 代币化</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/08/21/%E5%8A%B3%E5%8A%A8%E8%B5%84%E6%9C%AC%E5%8C%96-%E4%BB%8E%E5%88%86%E9%85%8D%E5%A4%B1%E8%A1%A1%E5%88%B0%E9%87%91%E8%9E%8D%E5%8D%B1%E6%9C%BA%E7%9A%84%E7%BB%93%E6%9E%84%E6%8B%86%E9%99%A4/" rel="prev" title="劳动资本化——从分配失衡到金融危机的结构拆除">
+      <i class="fa fa-chevron-left"></i> 劳动资本化——从分配失衡到金融危机的结构拆除
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#中介在自掘坟墓，但挖得不够深"><span class="nav-number">2.</span> <span class="nav-text">中介在自掘坟墓，但挖得不够深</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#中美差异不是监管态度，是基础设施所有权"><span class="nav-number">3.</span> <span class="nav-text">中美差异不是监管态度，是基础设施所有权</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#稳定币才是真正的变量"><span class="nav-number">4.</span> <span class="nav-text">稳定币才是真正的变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#放到囤积居奇框架里看"><span class="nav-number">5.</span> <span class="nav-text">放到囤积居奇框架里看</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#限制谁借钱？"><span class="nav-number">5.1.</span> <span class="nav-text">限制谁借钱？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#提高谁成本？"><span class="nav-number">5.2.</span> <span class="nav-text">提高谁成本？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抽干哪里钱？"><span class="nav-number">5.3.</span> <span class="nav-text">抽干哪里钱？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个没人问的问题"><span class="nav-number">6.</span> <span class="nav-text">一个没人问的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#我的判断"><span class="nav-number">7.</span> <span class="nav-text">我的判断</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">8.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lanky</p>
+  <div class="site-description" itemprop="description">Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">138</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lanky228" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lanky228" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1289206629@qq.com" title="E-Mail → mailto:1289206629@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lanky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">257k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:54</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

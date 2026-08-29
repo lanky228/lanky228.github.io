@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lanky228.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="💡 中国指数增强基金在”指数十年不涨”的环境中做到年化7-10%超额收益，本质是制度低效的红利变现，而非价值发现。这套方法论正在失效。 背景：死水中的鱼申万菱信中证500指数优选增强A（003986），2017年1月成立，至今累计收益164.54%，年化约10.7%。 同期中证500指数？从2017年初约6300点到今天约7500点，9年半涨了约19%，年化不到2%。扣掉通胀，实际收益约等于零。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从中证500指数增强看中国金融业的方法论与本质">
+<meta property="og:url" content="https://lanky228.github.io/2026/07/31/%E4%BB%8E%E4%B8%AD%E8%AF%81500%E6%8C%87%E6%95%B0%E5%A2%9E%E5%BC%BA%E7%9C%8B%E4%B8%AD%E5%9B%BD%E9%87%91%E8%9E%8D%E4%B8%9A%E7%9A%84%E6%96%B9%E6%B3%95%E8%AE%BA%E4%B8%8E%E6%9C%AC%E8%B4%A8/index.html">
+<meta property="og:site_name" content="Lanky的博客">
+<meta property="og:description" content="💡 中国指数增强基金在”指数十年不涨”的环境中做到年化7-10%超额收益，本质是制度低效的红利变现，而非价值发现。这套方法论正在失效。 背景：死水中的鱼申万菱信中证500指数优选增强A（003986），2017年1月成立，至今累计收益164.54%，年化约10.7%。 同期中证500指数？从2017年初约6300点到今天约7500点，9年半涨了约19%，年化不到2%。扣掉通胀，实际收益约等于零。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-31T04:30:00.000Z">
+<meta property="article:modified_time" content="2026-08-22T12:22:59.779Z">
+<meta property="article:author" content="Lanky">
+<meta property="article:tag" content="金融">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lanky228.github.io/2026/07/31/%E4%BB%8E%E4%B8%AD%E8%AF%81500%E6%8C%87%E6%95%B0%E5%A2%9E%E5%BC%BA%E7%9C%8B%E4%B8%AD%E5%9B%BD%E9%87%91%E8%9E%8D%E4%B8%9A%E7%9A%84%E6%96%B9%E6%B3%95%E8%AE%BA%E4%B8%8E%E6%9C%AC%E8%B4%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Lanky的技术博客",
+  "url": "https://lanky228.github.io",
+  "description": "Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。",
+  "inLanguage": "zh-CN"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Lanky",
+  "url": "https://lanky228.github.io",
+  "jobTitle": "Database & Data Lake Engineer",
+  "knowsAbout": ["Apache Calcite", "StarRocks", "ClickHouse", "Apache Iceberg", "OLAP", "Data Lakehouse", "TPC-DS Benchmark", "DuckDB", "Trino", "SQL Parser", "AI Coding"]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://lanky228.github.io" },
+    { "@type": "ListItem", "position": 2, "name": "从中证500指数增强看中国金融业的方法论与本质", "item": "https://lanky228.github.io/2026/07/31/从中证500指数增强看中国金融业的方法论与本质/" }
+  ]
+}
+</script>
+
+
+  <title>从中证500指数增强看中国金融业的方法论与本质 | Lanky的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lanky的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">生活 学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/07/31/%E4%BB%8E%E4%B8%AD%E8%AF%81500%E6%8C%87%E6%95%B0%E5%A2%9E%E5%BC%BA%E7%9C%8B%E4%B8%AD%E5%9B%BD%E9%87%91%E8%9E%8D%E4%B8%9A%E7%9A%84%E6%96%B9%E6%B3%95%E8%AE%BA%E4%B8%8E%E6%9C%AC%E8%B4%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          从中证500指数增强看中国金融业的方法论与本质
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-07-31 12:30:00" itemprop="dateCreated datePublished" datetime="2026-07-31T12:30:00+08:00">2026-07-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B4%9E%E5%AF%9F/" itemprop="url" rel="index"><span itemprop="name">洞察</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>💡 中国指数增强基金在”指数十年不涨”的环境中做到年化7-10%超额收益，本质是制度低效的红利变现，而非价值发现。这套方法论正在失效。</p>
+<h2 id="背景：死水中的鱼"><a href="#背景：死水中的鱼" class="headerlink" title="背景：死水中的鱼"></a>背景：死水中的鱼</h2><p>申万菱信中证500指数优选增强A（003986），2017年1月成立，至今累计收益164.54%，年化约10.7%。</p>
+<p>同期中证500指数？从2017年初约6300点到今天约7500点，9年半涨了约19%，年化不到2%。扣掉通胀，实际收益约等于零。</p>
+<p>一只”被动跟踪”指数的基金，跑赢了指数本身8-9个百分点&#x2F;年，连续近10年。</p>
+<p>这不是偶然。中国市场上几十只中证500增强基金，大部分都做到了5-10%的年超额收益。这不是某个基金经理的天才，而是一种系统性方法论的产物。</p>
+<h2 id="方法论：四层Alpha提取"><a href="#方法论：四层Alpha提取" class="headerlink" title="方法论：四层Alpha提取"></a>方法论：四层Alpha提取</h2><p>中国的指数增强基金，本质上是在一个”不有效的市场”上系统性地收割定价错误。具体手段是四层叠加：</p>
+<h3 id="第一层：多因子量化选股"><a href="#第一层：多因子量化选股" class="headerlink" title="第一层：多因子量化选股"></a>第一层：多因子量化选股</h3><p>在500只成分股里，不按市值权重等比例持有，而是用基本面因子（估值、盈利、成长）和量价因子（动量、反转、波动率）给每只股票打分，超配好股票、低配差股票。</p>
+<p>这跟华尔街的Smart Beta原理一样，但在中国市场效果更好——因为散户占比70%，定价错误更多、更频繁。</p>
+<h3 id="第二层：打新收益"><a href="#第二层：打新收益" class="headerlink" title="第二层：打新收益"></a>第二层：打新收益</h3><p>这是中国独有的结构性Alpha。2017-2021年间，A股新股上市几乎稳赚不赔（首日涨幅44%限制+连续涨停），而机构投资者可以线下配售获签新股。</p>
+<p>基金拿着指数底仓，用闲置资金打新，几乎是”无风险套利”。一只13亿规模的基金，打新贡献的年化收益就有2-4%。</p>
+<h3 id="第三层：股指期货贴水"><a href="#第三层：股指期货贴水" class="headerlink" title="第三层：股指期货贴水"></a>第三层：股指期货贴水</h3><p>中国的股指期货长期处于贴水状态（期货价格低于现货），意味着做多期货比买现货便宜。增强基金可以用一部分资金买贴水的期货替代现货，吃贴水回归的收益。</p>
+<p>这是制度性溢价——因为中国对做空有限制，空头需求集中到期货上，造成持续贴水。</p>
+<h3 id="第四层：T-0和算法交易"><a href="#第四层：T-0和算法交易" class="headerlink" title="第四层：T+0和算法交易"></a>第四层：T+0和算法交易</h3><p>A股虽然是T+1，但基金可以利用ETF的T+0机制或者底仓做日内回转交易，赚日内波动的钱。中证500成分股的日均波动率远高于美股同类，这为高频策略提供了土壤。</p>
+<h2 id="本质：制度套利大于价值发现"><a href="#本质：制度套利大于价值发现" class="headerlink" title="本质：制度套利大于价值发现"></a>本质：制度套利大于价值发现</h2><p>把这四层拆开看，一个残酷但真实的结论浮出水面：</p>
+<p>中国金融业的超额收益，主要来自”制度套利”而非”价值发现”。</p>
+<ul>
+<li>打新收益来自新股发行制度的非市场化（审批制到注册制的过渡期红利）</li>
+<li>期货贴水来自做空限制（制度性空头拥挤）</li>
+<li>量化因子的有效性来自散户主导的定价错误（投资者结构不成熟）</li>
+<li>T+0套利来自交易制度的分割（ETF T+0 vs 个股 T+1）</li>
+</ul>
+<p>每一个Alpha来源，背后都是一道”制度的裂缝”。基金经理的聪明之处，不在于他比市场更懂某家公司的价值，而在于他系统性地找到了这些裂缝并高效收割。</p>
+<p>这也解释了为什么6.89%的年化跟踪误差如此之高——这不是一只”略微增强”的指数基金，这是一只披着指数外衣的主动量化基金。</p>
+<h2 id="更深的洞察：Alpha的衰减与行业转型"><a href="#更深的洞察：Alpha的衰减与行业转型" class="headerlink" title="更深的洞察：Alpha的衰减与行业转型"></a>更深的洞察：Alpha的衰减与行业转型</h2><p>这种Alpha不是永恒的，它正在加速衰减。</p>
+<p>2023年注册制全面落地后，打新不再是稳赚不赔——新股破发成为常态，第二层Alpha几乎归零。股指期货的贴水也在收窄，因为越来越多的量化基金涌入同一赛道，空头对冲需求被稀释。</p>
+<p>因子拥挤更是明显——当全市场都在用同样的动量+价值因子，因子本身就成了被收割的对象。</p>
+<p>这意味着中国金融业正面临一个根本性的范式转换：</p>
+<p>从”收割制度裂缝”到”真正创造价值”。</p>
+<p>前一个时代，方法论是”找裂缝”——找到监管制度、交易规则、投资者结构中的不完美之处，系统性地提取收益。这需要的是工程能力（量化建模、执行效率、规模控制），本质上是一种套利工程学。</p>
+<p>后一个时代，裂缝在闭合。当市场逐渐有效化、机构化、国际化之后，超额收益只能来自真正的研究深度——对产业链的理解、对公司治理的判断、对宏观周期的把握。这需要的是认知能力。</p>
+<p>中国基金经理在”指数不涨”的环境中做出7-10%的超额收益，确实令人佩服。但这种佩服应该指向工程能力——他们极其高效地设计了一套收割系统，而不是指向投资智慧——他们并没有在指数中发现价值。</p>
+<h2 id="对普通投资者意味着什么"><a href="#对普通投资者意味着什么" class="headerlink" title="对普通投资者意味着什么"></a>对普通投资者意味着什么</h2><p>这套分析对普通人有几个实际含义：</p>
+<p>不要被”跑赢指数”的营销话术迷惑。跑赢指数不等于创造了价值——可能只是在收割正在闭合的制度裂缝。问自己一个问题：这个超额收益的来源是什么？如果答不上来，就不要投。</p>
+<p>增强基金的黄金时代可能正在结束。打新红利已经消失，期货贴水在收窄，因子在拥挤。未来的增强基金收益可能会向指数本身回归。如果你现在买入是因为”过去十年年化10%”，你可能正在追逐一个已经消失的曲线。</p>
+<p>真正可持续的收益来自研究深度，不是工程效率。散户没有机构那样的工程能力，但可以在研究深度上建立局部优势——你比机构更了解某个行业、某家公司，这种认知优势是机构无法量化收割的。</p>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h3 id="指数增强基金和普通指数基金有什么区别"><a href="#指数增强基金和普通指数基金有什么区别" class="headerlink" title="指数增强基金和普通指数基金有什么区别"></a>指数增强基金和普通指数基金有什么区别</h3><p>普通指数基金完全复制指数成分股权重，目标是跟踪误差最小化。指数增强基金在跟踪指数的基础上，通过多因子选股、打新、期货贴水等手段获取超额收益（Alpha），代价是更高的跟踪误差（6-9%）和费率。</p>
+<h3 id="这些超额收益能持续吗"><a href="#这些超额收益能持续吗" class="headerlink" title="这些超额收益能持续吗"></a>这些超额收益能持续吗</h3><p>正在加速衰减。2023年注册制全面落地后打新不再稳赚，期货贴水因量化拥挤而收窄，因子因同质化而失效。中国金融业正从”收割制度裂缝”转向”真正创造价值”，旧方法论的红利窗口在关闭。</p>
+<h3 id="散户能复制这套策略吗"><a href="#散户能复制这套策略吗" class="headerlink" title="散户能复制这套策略吗"></a>散户能复制这套策略吗</h3><p>不能。打新需要机构配售资格，期货贴水需要衍生品账户，算法交易需要底仓和低延迟通道。这四层Alpha叠加本质上是机构专属的工程系统，散户买增强基金是参与这套系统的唯一方式。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li>中国指数增强基金的超额收益本质是”制度低效”的红利变现，不是价值发现</li>
+<li>四层Alpha（多因子选股、打新、期货贴水、T+0套利）背后都是制度的裂缝</li>
+<li>这套方法论正在失效：注册制消灭打新红利，量化拥挤收窄贴水，因子同质化导致衰减</li>
+<li>下一个十年的Alpha属于能从”找裂缝”转向”挖价值”的人——从套利工程学到认知能力的范式转换</li>
+<li>对普通投资者：不要被”跑赢指数”迷惑，问超额收益的来源是什么；真正可持续的收益来自研究深度</li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"从中证500指数增强看中国金融业的方法论与本质","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-07-31","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/07/31/从中证500指数增强看中国金融业的方法论与本质/"},"url":"https://lanky228.github.io/2026/07/31/从中证500指数增强看中国金融业的方法论与本质/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["金融"]}</script>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%87%91%E8%9E%8D/" rel="tag"># 金融</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/07/31/%E6%B9%96%E4%BB%93%E4%B8%80%E4%BD%93%E6%B4%9E%E5%AF%9F-%E6%95%B0%E6%8D%AE%E4%BB%93%E5%BA%93%E7%9A%84%E7%BB%88%E7%BB%93%E8%BF%98%E6%98%AF%E6%95%B0%E6%8D%AE%E6%B9%96%E7%9A%84%E6%B6%85%E6%A7%83/" rel="prev" title="湖仓一体洞察——数据仓库的终结还是数据湖的涅槃">
+      <i class="fa fa-chevron-left"></i> 湖仓一体洞察——数据仓库的终结还是数据湖的涅槃
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2026/08/02/%E5%A5%97%E6%81%AF%E4%BA%A4%E6%98%93%E5%8D%83%E5%B9%B4%E5%8F%B2-%E4%BB%8E%E5%9B%A4%E7%A7%AF%E5%B1%85%E5%A5%87%E5%88%B0%E6%95%B0%E5%AD%97%E9%87%91%E8%9E%8D%E7%9A%84%E5%90%8C%E4%B8%80%E4%B8%AA%E6%B8%B8%E6%88%8F/" rel="next" title="套息交易千年史——从囤积居奇到数字金融的同一个游戏">
+      套息交易千年史——从囤积居奇到数字金融的同一个游戏 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景：死水中的鱼"><span class="nav-number">1.</span> <span class="nav-text">背景：死水中的鱼</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法论：四层Alpha提取"><span class="nav-number">2.</span> <span class="nav-text">方法论：四层Alpha提取</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一层：多因子量化选股"><span class="nav-number">2.1.</span> <span class="nav-text">第一层：多因子量化选股</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二层：打新收益"><span class="nav-number">2.2.</span> <span class="nav-text">第二层：打新收益</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第三层：股指期货贴水"><span class="nav-number">2.3.</span> <span class="nav-text">第三层：股指期货贴水</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第四层：T-0和算法交易"><span class="nav-number">2.4.</span> <span class="nav-text">第四层：T+0和算法交易</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#本质：制度套利大于价值发现"><span class="nav-number">3.</span> <span class="nav-text">本质：制度套利大于价值发现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更深的洞察：Alpha的衰减与行业转型"><span class="nav-number">4.</span> <span class="nav-text">更深的洞察：Alpha的衰减与行业转型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对普通投资者意味着什么"><span class="nav-number">5.</span> <span class="nav-text">对普通投资者意味着什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见问题"><span class="nav-number">6.</span> <span class="nav-text">常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#指数增强基金和普通指数基金有什么区别"><span class="nav-number">6.1.</span> <span class="nav-text">指数增强基金和普通指数基金有什么区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#这些超额收益能持续吗"><span class="nav-number">6.2.</span> <span class="nav-text">这些超额收益能持续吗</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#散户能复制这套策略吗"><span class="nav-number">6.3.</span> <span class="nav-text">散户能复制这套策略吗</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">7.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lanky</p>
+  <div class="site-description" itemprop="description">Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">138</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lanky228" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lanky228" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1289206629@qq.com" title="E-Mail → mailto:1289206629@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lanky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">257k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:54</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

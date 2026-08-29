@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lanky228.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Lanky的博客">
+<meta property="og:url" content="https://lanky228.github.io/page/4/index.html">
+<meta property="og:site_name" content="Lanky的博客">
+<meta property="og:description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="Lanky">
+<meta property="article:tag" content="Lanky">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="数据湖">
+<meta property="article:tag" content="OLAP">
+<meta property="article:tag" content="ClickHouse">
+<meta property="article:tag" content="StarRocks">
+<meta property="article:tag" content="Apache Iceberg">
+<meta property="article:tag" content="DuckDB">
+<meta property="article:tag" content="AI编程">
+<meta property="article:tag" content="语义层">
+<meta property="article:tag" content="湖仓">
+<meta property="article:tag" content="技术洞察">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lanky228.github.io/page/4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-CN'
+  };
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Lanky的技术博客",
+  "url": "https://lanky228.github.io",
+  "description": "Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。",
+  "inLanguage": "zh-CN"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Lanky",
+  "url": "https://lanky228.github.io",
+  "jobTitle": "Database & Data Lake Engineer",
+  "knowsAbout": ["Apache Calcite", "StarRocks", "ClickHouse", "Apache Iceberg", "OLAP", "Data Lakehouse", "TPC-DS Benchmark", "DuckDB", "Trino", "SQL Parser", "AI Coding"]
+}
+</script>
+
+
+
+  <title>Lanky的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lanky的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">生活 学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content index posts-expand">
+            
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/07/15/BigQuery-Looker-Gemini%E6%B4%9E%E5%AF%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/07/15/BigQuery-Looker-Gemini%E6%B4%9E%E5%AF%9F/" class="post-title-link" itemprop="url">BigQuery-Looker-Gemini洞察</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-07-15 11:00:00" itemprop="dateCreated datePublished" datetime="2026-07-15T11:00:00+08:00">2026-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>LookML运行14年最成熟的语义建模语言，Gemini用AI生成语义查询加确定性编译SQL把准确率从80%提升到97%。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/07/15/BigQuery-Looker-Gemini%E6%B4%9E%E5%AF%9F/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/07/15/AI%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5%E6%B4%9E%E5%AF%9F%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%8E%9F%E5%88%99/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/07/15/AI%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5%E6%B4%9E%E5%AF%9F%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%8E%9F%E5%88%99/" class="post-title-link" itemprop="url">AI编程实践洞察与工程原则</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-07-15 10:00:00" itemprop="dateCreated datePublished" datetime="2026-07-15T10:00:00+08:00">2026-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>AI生成代码的信任问题不是能不能看懂而是怎么证明它对了。差分测试、规格驱动、确定性护栏等方法论的ROI分析。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/07/15/AI%E7%BC%96%E7%A8%8B%E5%AE%9E%E8%B7%B5%E6%B4%9E%E5%AF%9F%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%8E%9F%E5%88%99/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/07/15/%E7%BB%88%E6%9E%81%E7%A4%BE%E4%BC%9A%E4%B8%BB%E4%B9%89AI%E7%8C%9C%E6%83%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/07/15/%E7%BB%88%E6%9E%81%E7%A4%BE%E4%BC%9A%E4%B8%BB%E4%B9%89AI%E7%8C%9C%E6%83%B3/" class="post-title-link" itemprop="url">终极社会主义AI猜想</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-07-15 01:41:40" itemprop="dateCreated datePublished" datetime="2026-07-15T01:41:40+08:00">2026-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%A4%BE%E4%BC%9A/" itemprop="url" rel="index"><span itemprop="name">社会</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>社会主义的内在逻辑必然要求一个能进行全域智能调控的AI大脑作为技术基础。当前AI进化正使这一前提从理论走向现实。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/07/15/%E7%BB%88%E6%9E%81%E7%A4%BE%E4%BC%9A%E4%B8%BB%E4%B9%89AI%E7%8C%9C%E6%83%B3/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2020/04/23/%E4%B8%AD%E5%9B%BD%E9%93%B6%E8%A1%8C%E5%8E%9F%E6%B2%B9%E5%AE%9D%E4%BA%8B%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/23/%E4%B8%AD%E5%9B%BD%E9%93%B6%E8%A1%8C%E5%8E%9F%E6%B2%B9%E5%AE%9D%E4%BA%8B%E4%BB%B6/" class="post-title-link" itemprop="url">中国银行原油宝事件</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-23 02:31:47" itemprop="dateCreated datePublished" datetime="2020-04-23T02:31:47+08:00">2020-04-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%94%9F%E6%B4%BB/" itemprop="url" rel="index"><span itemprop="name">生活</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>💡 原油宝事件的核心教训：当系统设计有缺陷时，”正常操作”本身就是最大的风险。自动化不会”出错”，它只会忠实执行有缺陷的设计。</p>
+<h2 id="背景：人类历史上第一次负油价"><a href="#背景：人类历史上第一次负油价" class="headerlink" title="背景：人类历史上第一次负油价"></a>背景：人类历史上第一次负油价</h2><p>2020年4月，全球原油市场出现了前所未有的奇观。</p>
+<p>WTI原油5月期货价格从约61美元暴跌到-37美元。负价格意味着：卖方倒贴钱让你把原油拉走。</p>
+<p>中国银行的”原油宝”产品持有5月期货到到期日。系统按-37美元自动平仓，投资者不仅亏光本金，还倒欠银行三倍。</p>
+<p>这不是一个普通的金融损失事件。它暴露了金融系统设计中一个普遍而深刻的问题。</p>
+<h2 id="为什么会出现负价格"><a href="#为什么会出现负价格" class="headerlink" title="为什么会出现负价格"></a>为什么会出现负价格</h2><p>这不是华尔街做空，也不是金融战。原因出奇简单。</p>
+<p>疫情导致全球停摆，原油需求骤减。但油井不能随便停（技术原因），原油还在源源不断产出。存储设施已经满负荷，剩下的原油无处可去。</p>
+<p>原油变成了有害垃圾。你需要花钱请人处理它。所以价格是负的——你持有原油不仅不值钱，还要付处理费。</p>
+<p>WTI交易所在4月中旬修改了规则，允许负价格报价。这个修改是合理的——反映现实。但中国银行的系统没有适配这个变化。</p>
+<h2 id="中国银行做错了什么"><a href="#中国银行做错了什么" class="headerlink" title="中国银行做错了什么"></a>中国银行做错了什么</h2><p>正常的期货交易有三种处理方式：</p>
+<ul>
+<li>实物交割：到交割日，买方付钱拿货，卖方交货收钱</li>
+<li>提前移仓：在到期前卖掉当前合约，买入下月合约（建行就是这么做的）</li>
+<li>期货违约：放弃合约，支付违约金</li>
+</ul>
+<p>中国银行的原油宝是集资买期货，对接交易所的自动平仓接口。当价格变成-37美元时，系统没有”自动违约”选项，没有识别到负价格风险，自动向交易所汇款补缴保证金。</p>
+<p>系统按设计执行了，但设计本身有致命缺陷。</p>
+<p>建行、工行有类似产品，但风控团队提前识别了行情，在到期前移仓到6月期货。中国银行没有。</p>
+<h2 id="缺失的设计模式：金融系统的容错盲区"><a href="#缺失的设计模式：金融系统的容错盲区" class="headerlink" title="缺失的设计模式：金融系统的容错盲区"></a>缺失的设计模式：金融系统的容错盲区</h2><p>这件事暴露的不只是中国银行的问题，而是整个金融系统设计的一个盲区。</p>
+<p>在软件工程里，有几个成熟的设计模式用来防止灾难性故障：</p>
+<ul>
+<li>断路器：当错误超过阈值时自动停止，而不是继续执行</li>
+<li>优雅降级：极端情况下退回到安全模式，而不是追求最优执行</li>
+<li>故障安全：当系统不确定时，选择”不执行”而非”执行”</li>
+</ul>
+<p>中国银行的原油宝系统这三个模式一个都没有。它只有一个模式：执行。不管价格是60美元还是-37美元，系统都会忠实地执行。</p>
+<p>这就像一辆没有刹车的汽车——引擎再好，没有刹车就是杀人工具。</p>
+<p>更深层的问题是：金融系统的设计者通常从”正常场景”出发构建逻辑。极端场景被当作”边缘情况”处理——加几个if-else就完事了。但当”极端场景”真的发生时，整个系统的逻辑前提就崩塌了。</p>
+<h2 id="风险模型的认知论缺陷"><a href="#风险模型的认知论缺陷" class="headerlink" title="风险模型的认知论缺陷"></a>风险模型的认知论缺陷</h2><p>原油宝事件不只是一个操作失误。它揭示了一个认识论层面的问题：风险模型如何处理”从未发生过的事”？</p>
+<p>金融风控的核心工具是历史数据。波动率、VaR（风险价值）、压力测试——所有这些模型都建立在”未来类似于过去”的假设上。</p>
+<p>但2020年4月发生的事，在原油期货历史上从未发生过。模型的训练数据里没有”负价格”这个样本。系统不是”没想到”，而是从结构上就无法想到。</p>
+<p>这不是中国银行独有的问题。整个金融行业的风控体系都建立在一个未经证明的假设上：历史能指导未来。大部分时候这个假设成立，但当它不成立时，后果是灾难性的。</p>
+<p>塔勒布把这叫”黑天鹅”问题。但比黑天鹅更危险的是”灰犀牛里的黑天鹅”：所有人都知道极端情况可能发生，但因为”从未发生过”，系统就不为它做准备。</p>
+<p>交易所已经修改规则允许负价格了——这是一个明确的信号。但中国银行的系统没有跟进。不是不知道信号，是系统没有”感知信号并响应”的机制。</p>
+<h2 id="自动化系统的信任陷阱"><a href="#自动化系统的信任陷阱" class="headerlink" title="自动化系统的信任陷阱"></a>自动化系统的信任陷阱</h2><p>这个事件揭示了一个普遍问题：自动化系统不会”出错”，它只会”按设计执行”——即使设计是错的。</p>
+<p>当人工被完全移出循环，系统缺陷的后果会被放大到极致。而且放大的不只是后果的严重性，还有后果的速度。人工操作至少有一个”犹豫期”——操作员觉得不对劲时会停下来想想。自动化系统没有犹豫期。</p>
+<p>中国银行的系统缺少两个关键能力：感知异常行情并触发人工干预；在极端情况下选择”不执行”而非”执行”。</p>
+<p>这不是技术问题，是系统设计理念问题。设计者假设了”正常情况”，但没有为”不可能的情况”留退路。</p>
+<p>更深的问题是：自动化创造了一种虚假的安全感。当系统自动运行时，人倾向于信任它、放松警惕。越是自动化的系统，越需要人来监督——但自动化恰恰消除了人的监督动机。</p>
+<p>这是一个悖论：自动化程度越高，系统对”人没预见到的异常”就越脆弱。而人越信任自动化，就越不会预见异常。</p>
+<h2 id="信息不对称与零售投资者的困境"><a href="#信息不对称与零售投资者的困境" class="headerlink" title="信息不对称与零售投资者的困境"></a>信息不对称与零售投资者的困境</h2><p>原油宝被包装成”适合普通投资者”的理财产品。但它的底层逻辑是期货交易——一个专业度极高、风险极大的领域。</p>
+<p>零售投资者看到的是”跟踪原油价格的理财”，不是”持有到期期货合约的多头头寸”。他们不知道实物交割的风险，不知道到期日附近的流动性枯竭，不知道负价格的可能性。</p>
+<p>金融产品的复杂性与投资者的认知能力之间存在结构性不对称。银行知道这个不对称，但产品营销不会告诉你。</p>
+<p>这不是中国银行的问题，是整个零售金融行业的问题。复杂的金融产品被简化为”收益预期”卖给普通人，风险被藏在脚注里。</p>
+<h2 id="谁该承担损失"><a href="#谁该承担损失" class="headerlink" title="谁该承担损失"></a>谁该承担损失</h2><p>从法律角度，投资者签了合同，合同规定穿仓需补缴。但合同也假设了价格不会为负——这个假设被交易所打破了。</p>
+<p>最终结果：中国银行承担了部分损失，投资者也承担了部分。这是一个妥协，而非清晰的判责。</p>
+<p>但”妥协”本身就是问题。当判责不清时，双方都没有强烈的动机去改进。银行觉得”已经赔了”，投资者觉得”已经亏了”，系统设计中的缺陷可能依然存在。</p>
+<p>真正的教训不在于谁赔多少，而在于：金融产品的风险控制，不能依赖”历史从未发生”的假设。</p>
+<h2 id="对普通人的启示"><a href="#对普通人的启示" class="headerlink" title="对普通人的启示"></a>对普通人的启示</h2><ul>
+<li>不要投资你不懂底层逻辑的产品。”跟踪原油价格”和”持有期货到到期”是完全不同的东西。</li>
+<li>“从未发生”不等于”不会发生”。2020年教给我们的是：不可能的情况，恰恰是最需要防范的。</li>
+<li>自动化不等于安全。越是自动化的系统，越要问：如果出了设计者没想到的情况，会怎样？</li>
+<li>金融产品的营销语言和实际风险之间永远有距离。你的责任是缩短这个距离。</li>
+</ul>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li>原油负价格是疫情导致的供需极端失衡，不是金融战</li>
+<li>中国银行的系统设计缺少断路器、优雅降级、故障安全三个基本容错模式——只有一个模式：执行</li>
+<li>自动化陷阱：系统不会”出错”，只会忠实执行有缺陷的设计。自动化消除了人的犹豫期，放大了后果的速度和严重性</li>
+<li>风险模型的根本缺陷：建立在”历史能指导未来”的假设上，当假设失效时后果灾难性</li>
+<li>金融产品复杂性与投资者认知之间存在结构性不对称——这是行业层面的问题，不是个别银行的失误</li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"中国银行原油宝事件","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2020-04-23","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2020/04/23/中国银行原油宝事件/"},"url":"https://lanky228.github.io/2020/04/23/中国银行原油宝事件/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["金融","风险管理","系统设计","社会评论"]}</script>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2020/04/20/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-Web%E5%AE%89%E5%85%A8%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/20/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-Web%E5%AE%89%E5%85%A8%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90/" class="post-title-link" itemprop="url">读书笔记 Web安全深度解析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-20 00:09:37" itemprop="dateCreated datePublished" datetime="2020-04-20T00:09:37+08:00">2020-04-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>💡 所有Web漏洞有一个共同根因：不可信输入未经校验到达了敏感操作。读完这本书最大的收获不是学会多少种攻击手法，而是建立了一个统一的安全思维模型。</p>
+<h2 id="背景：为什么要读这本书"><a href="#背景：为什么要读这本书" class="headerlink" title="背景：为什么要读这本书"></a>背景：为什么要读这本书</h2><p>读这本书是因为团队做了一次安全审计，查出十几个漏洞，大部分中危以上。最尴尬的是其中有几个SQL注入和XSS，是我自己写的代码。</p>
+<p>当时我的反应是”我明明做了参数校验啊”。但安全团队给我看了一堆绕过方式——我做的校验是黑名单式的，攻击者用编码绕过、大小写变体、双写绕过，轻松穿透。</p>
+<p>这件事让我意识到：安全不是”加几行校验代码”的事，是需要一套系统性思维的。这本书帮我把碎片化的安全知识串成了一个框架。</p>
+<h2 id="Web安全的底层逻辑"><a href="#Web安全的底层逻辑" class="headerlink" title="Web安全的底层逻辑"></a>Web安全的底层逻辑</h2><p>Web安全看起来漏洞类型繁多：SQL注入、XSS、CSRF、文件上传、命令执行……但退后一步看，所有漏洞遵循同一个模式：</p>
+<p>用户输入 → 未经校验 → 到达敏感操作 → 漏洞</p>
+<p>SQL注入：用户输入到达SQL执行器。XSS：用户输入到达HTML渲染。命令执行：用户输入到达系统命令。文件包含：用户输入到达文件路径。</p>
+<p>防御只有一条原则：在输入和敏感操作之间，必须有校验层。</p>
+<p>理解了这一点，不需要背每种漏洞的防御方法——只要问”用户输入能不能到达敏感操作”就够了。</p>
+<h2 id="核心漏洞类型"><a href="#核心漏洞类型" class="headerlink" title="核心漏洞类型"></a>核心漏洞类型</h2><h3 id="SQL注入：输入变成了代码"><a href="#SQL注入：输入变成了代码" class="headerlink" title="SQL注入：输入变成了代码"></a>SQL注入：输入变成了代码</h3><p>用户输入被拼接到SQL语句中执行。攻击者输入 <code>&#39; OR 1=1 --</code>，SQL变成 <code>SELECT * FROM users WHERE name=&#39;&#39; OR 1=1 --&#39;</code>，绕过认证。</p>
+<p>防御：预编译语句（参数化查询）是最根本的方案。输入永远是数据，不会被当作SQL语法。</p>
+<p>为什么预编译是终极方案？它从机制上保证了输入只能是数据，不是代码。你不需要预测攻击者会输入什么——这就是它比任何过滤都可靠的原因。</p>
+<p>我之前的黑名单校验之所以被绕过，就是因为黑名单在跟攻击者博弈——你封<code>&#39;</code>，他用<code>%27</code>；你封<code>%27</code>，他用双编码。预编译直接终结了这个博弈。</p>
+<h3 id="XSS：浏览器端的注入"><a href="#XSS：浏览器端的注入" class="headerlink" title="XSS：浏览器端的注入"></a>XSS：浏览器端的注入</h3><p>恶意脚本被嵌入网页，在其他用户浏览器中执行。</p>
+<p>三种类型：</p>
+<ul>
+<li>反射型：脚本在URL中，服务器直接返回到页面</li>
+<li>存储型：脚本存在数据库（如评论区），所有访问者中招</li>
+<li>DOM型：不经过服务器，纯前端JS处理用户输入时触发</li>
+</ul>
+<p>防御：输出编码（根据上下文转义）+ HttpOnly Cookie + CSP（内容安全策略）。</p>
+<p>XSS的本质和SQL注入一样——用户输入到达了执行环境。只不过一个是数据库引擎，一个是浏览器JS引擎。</p>
+<h3 id="文件上传：最容易被忽视的入口"><a href="#文件上传：最容易被忽视的入口" class="headerlink" title="文件上传：最容易被忽视的入口"></a>文件上传：最容易被忽视的入口</h3><p>看起来无害的”上传图片”功能，可能是最危险的入口。</p>
+<p>攻击思路：上传一个伪装成图片的<code>.php</code>文件，利用服务器解析漏洞执行它。</p>
+<ul>
+<li>IIS：<code>test.asp;.jpg</code>被当作ASP执行</li>
+<li>Apache：<code>test.php.jpg</code>从右往左解析遇到php执行</li>
+<li>PHP CGI：<code>test.jpg/.php</code>被当作PHP执行</li>
+</ul>
+<p>防御：白名单校验扩展名 + 文件重命名（随机UUID）+ 存储到Web根目录外。</p>
+<p>这里有个认知陷阱：很多人以为校验了MIME类型就安全了。但MIME是客户端声明的，可以被伪造。我见过一个项目只检查<code>Content-Type: image/jpeg</code>就放行，攻击者改个Header就绕过了。</p>
+<h3 id="命令执行漏洞"><a href="#命令执行漏洞" class="headerlink" title="命令执行漏洞"></a>命令执行漏洞</h3><p>用户输入到达系统命令执行函数（如PHP的<code>system()</code>、<code>exec()</code>）。攻击者输入 <code>; rm -rf /</code>，系统执行了原命令后又执行了删除。</p>
+<p>防御：避免使用系统执行命令。如果必须用，参数校验+转义+函数白名单。</p>
+<h2 id="CSRF：冒充用户身份"><a href="#CSRF：冒充用户身份" class="headerlink" title="CSRF：冒充用户身份"></a>CSRF：冒充用户身份</h2><p>CSRF（跨站请求伪造）利用浏览器自动携带Cookie的机制。</p>
+<p>用户在银行网站登录后，访问恶意网站。恶意网站发一个向银行转账的请求，浏览器自动带上银行Cookie——银行以为是用户本人操作。</p>
+<p>与XSS的区别：XSS是注入脚本到受害者页面执行；CSRF是冒充受害者发请求。XSS不需要用户访问恶意网站，CSRF需要。</p>
+<p>防御：CSRF Token + SameSite Cookie属性 + Referer校验。</p>
+<h2 id="安全测试：从”用工具扫”到”像攻击者思考”"><a href="#安全测试：从”用工具扫”到”像攻击者思考”" class="headerlink" title="安全测试：从”用工具扫”到”像攻击者思考”"></a>安全测试：从”用工具扫”到”像攻击者思考”</h2><p>这是我读这本书收获最大的部分。</p>
+<p>很多人以为安全测试就是用Burp Suite扫一遍，看有没有红色告警。但工具只是辅助，真正的安全测试是对抗性思维：</p>
+<ol>
+<li>找到所有用户输入点（表单、URL参数、Header、Cookie、文件上传）</li>
+<li>对每个输入点，问：如果我输入恶意数据，它会到达什么操作？</li>
+<li>到达数据库→测SQL注入。到达HTML→测XSS。到达文件系统→测文件包含。到达命令行→测命令执行。</li>
+</ol>
+<p>安全测试不是”用工具扫一遍”，是”像攻击者一样思考”。</p>
+<p>这个思维方式我后来用在代码review里。每次review都问自己：这个接口的输入点在哪？输入能到达什么敏感操作？校验层在哪？校验是白名单还是黑名单？能不能绕过？</p>
+<h3 id="工具链"><a href="#工具链" class="headerlink" title="工具链"></a>工具链</h3><ul>
+<li>信息收集：搜索引擎site命令、Nmap端口扫描、DirBuster目录爆破</li>
+<li>漏洞扫描：Burp Suite（代理拦截+修改请求）、AWVS&#x2F;AppScan（自动化扫描）、SQLMap（SQL注入检测）</li>
+</ul>
+<p>工具的价值在于效率，不在于判断。判断永远是人做的。</p>
+<h2 id="防御哲学：纵深防御"><a href="#防御哲学：纵深防御" class="headerlink" title="防御哲学：纵深防御"></a>防御哲学：纵深防御</h2><p>单一防御措施总会被绕过。真正的安全是多层防御：</p>
+<ul>
+<li>第一层：输入校验（白名单 &gt; 黑名单）</li>
+<li>第二层：参数化查询&#x2F;输出编码（机制级防护）</li>
+<li>第三层：WAF（Web应用防火墙，拦截已知攻击模式）</li>
+<li>第四层：最小权限原则（数据库用户只给必要权限）</li>
+<li>第五层：日志监控+应急响应</li>
+</ul>
+<p>没有一层是足够的。但每层都能挡住一部分攻击，组合起来大幅提高攻击成本。</p>
+<p>安全不是”绝对不被攻破”，而是”攻破的代价大于收益”。攻击者也是理性经济人——当防御成本让他觉得不划算，他就换目标了。</p>
+<h2 id="2020年后的安全格局变化"><a href="#2020年后的安全格局变化" class="headerlink" title="2020年后的安全格局变化"></a>2020年后的安全格局变化</h2><p>写这篇文章是在2020年。几年过去，安全领域发生了一些重要变化，补充几点观察：</p>
+<p>第一，API安全成为新的主战场。随着前后端分离和微服务普及，传统Web漏洞（XSS、CSRF）的占比在下降，但API层面的漏洞（越权访问、批量数据拉取、未认证接口）大幅上升。OWASP在2023年专门发布了API安全Top 10。</p>
+<p>第二，供应链攻击成为现实。Log4j漏洞（2021年）让所有人意识到：你依赖的第三方库本身就是攻击面。一个看似无害的日志组件，可以让全球数十万系统瞬间暴露。这催生了SCA（软件成分分析）工具的普及。</p>
+<p>第三，AI既是攻击工具也是防御工具。攻击者用AI生成更逼真的钓鱼邮件、自动发现漏洞模式。防御方用AI做异常检测、自动化代码审计。这场军备竞赛才刚开始。</p>
+<p>底层逻辑没有变：不可信输入到达敏感操作，就是漏洞。变化的只是输入的入口和操作的类型。</p>
+<h2 id="我在工作中的应用"><a href="#我在工作中的应用" class="headerlink" title="我在工作中的应用"></a>我在工作中的应用</h2><p>读完这本书后，在实践中做了几件事：</p>
+<p>代码review加安全检查清单。每个接口review时明确标注：输入点有哪些、各自走什么校验、校验是白名单还是黑名单、输出有没有编码。让安全从”事后审计”变成”开发时内置”。</p>
+<p>推动参数化查询全覆盖。团队里还有些老代码用字符串拼接SQL。写了CI检查规则，扫描SQL拼接模式，强制改用预编译。改完后SQL注入类漏洞归零。</p>
+<p>从黑名单思维转向白名单思维。以前写校验是”封掉危险的”，现在是”只允许安全的”。比如文件上传不再判断”是不是.php”，而是判断”是不是.jpg&#x2F;.png&#x2F;.gif之一”。思维方向反过来了，但安全性强了一个量级。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li>所有Web漏洞共享同一根因：不可信输入未经校验到达敏感操作。理解了这一点就掌握了安全的核心模型</li>
+<li>预编译语句从机制上消灭SQL注入——输入永远是数据不是代码，终结了与攻击者的博弈</li>
+<li>安全测试的核心是对抗性思维：找到输入点→追踪到达什么操作→测试能否注入。不是”用工具扫一遍”</li>
+<li>纵深防御：没有单层足够，但多层组合大幅提高攻击成本。安全的目标是让攻破代价大于收益</li>
+<li>从黑名单思维转向白名单思维——“只允许安全的”比”封掉危险的”强一个量级</li>
+<li>2020年后格局变化：API安全成主战场、供应链攻击成现实、AI军备竞赛开始。但底层逻辑不变</li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"读书笔记 Web安全深度解析","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2020-04-20","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2020/04/20/读书笔记-Web安全深度解析/"},"url":"https://lanky228.github.io/2020/04/20/读书笔记-Web安全深度解析/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["软件工程","Web安全","网络安全"]}</script>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2020/04/12/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%BC%80%E5%8F%91%E8%80%85%E6%B5%8B%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/12/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%BC%80%E5%8F%91%E8%80%85%E6%B5%8B%E8%AF%95/" class="post-title-link" itemprop="url">读书笔记 开发者测试</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-12 22:25:47" itemprop="dateCreated datePublished" datetime="2020-04-12T22:25:47+08:00">2020-04-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>💡 测试不是验证代码”能跑”，而是验证代码”该跑的跑了，不该跑的没跑”。覆盖率高不代表测得对。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>读这本书是因为当时团队在推测试覆盖率指标，要求每个迭代达到80%以上。但我看大家为了凑覆盖率，写的测试都是调用一下不断言，等于什么都没验证。</p>
+<p>我想搞清楚测试到底该怎么做才有意义，就找了这本书来看。</p>
+<h2 id="静态扫描这一层被低估了"><a href="#静态扫描这一层被低估了" class="headerlink" title="静态扫描这一层被低估了"></a>静态扫描这一层被低估了</h2><p>书里把测试分成三层：静态扫描、单元测试、集成测试。大部分人只关注后两层，但静态扫描其实性价比最高。</p>
+<p>静态分析工具直接读源码，不运行程序。Checkstyle管代码风格和命名规范，FindBugs（现在叫SpotBugs）分析字节码找空指针和资源泄漏这类已知缺陷模式，PMD查死代码和重复代码。</p>
+<p>这些工具的价值在于它们能持续运行，覆盖人眼review扫不到的角落。而且几乎零成本，配好CI就自动跑。</p>
+<p>但静态扫描有个硬伤：它不理解业务逻辑。一个语法正确但判断条件写反了的if语句，静态工具发现不了。所以静态扫描是必要不充分的。</p>
+<h2 id="单元测试的三个特征"><a href="#单元测试的三个特征" class="headerlink" title="单元测试的三个特征"></a>单元测试的三个特征</h2><p>单元测试是最小粒度的测试，验证一个函数或类的行为。书里提到JUnit做框架，JMockit做依赖隔离。</p>
+<p>好的单元测试有三个特征：快（毫秒级），独立（不依赖数据库和网络），可重复（跑一百次结果一样）。</p>
+<p>这三个特征里，”独立”最容易被破坏。很多团队的”单元测试”实际上连了真实的数据库，跑起来要几秒钟，还偶尔因为数据问题失败。这不是单元测试，是集成测试穿错了衣服。</p>
+<h2 id="什么让测试有价值"><a href="#什么让测试有价值" class="headerlink" title="什么让测试有价值"></a>什么让测试有价值</h2><p>覆盖率告诉你”代码被执行过”，但不告诉你”代码被正确验证过”。一个有价值的测试，应该具备三个属性：</p>
+<h3 id="测试了行为而非实现"><a href="#测试了行为而非实现" class="headerlink" title="测试了行为而非实现"></a>测试了行为而非实现</h3><p>坏测试：验证一个方法调用了三次内部方法。这是在测实现细节——一旦重构，测试就挂了，但功能其实没坏。</p>
+<p>好测试：验证”输入金额为负数时返回错误码”。这是在测行为契约——不管内部怎么实现，这个契约不该变。</p>
+<h3 id="断言了有意义的东西"><a href="#断言了有意义的东西" class="headerlink" title="断言了有意义的东西"></a>断言了有意义的东西</h3><p>坏测试：调用方法，不断言。或者断言<code>result != null</code>。这等于什么都没验证。</p>
+<p>好测试：调用方法，断言返回值等于预期值，且验证了边界条件（空输入、极值、异常输入）。</p>
+<h3 id="测试会失败——而且失败时能告诉你哪里错了"><a href="#测试会失败——而且失败时能告诉你哪里错了" class="headerlink" title="测试会失败——而且失败时能告诉你哪里错了"></a>测试会失败——而且失败时能告诉你哪里错了</h3><p>如果一个测试从来不失败，它可能没有在验证任何东西。更重要的是，当它失败时，错误信息应该足够清晰，让你不用去读测试代码就知道哪里出了问题。</p>
+<p>一个好实践：断言信息写具体的期望值和实际值，不要只写”assertNotNull(result)”。</p>
+<h2 id="集成测试和测试金字塔"><a href="#集成测试和测试金字塔" class="headerlink" title="集成测试和测试金字塔"></a>集成测试和测试金字塔</h2><p>集成测试验证模块协作，Spring TestContext测Bean之间的配合，Jenkins编排自动化执行。</p>
+<p>书里提到测试金字塔：大量单元测试打底，适量集成测试中间，少量端到端测试在顶。这个模型理论上正确，但我见过的真实项目几乎都是沙漏型：单元测试很少，集成测试一堆，端到端测试也一堆。</p>
+<p>原因是单元测试要求代码有好的设计，依赖可注入，职责可隔离。遗留代码往往做不到这些，写单元测试的成本太高，大家就跳到集成测试去了。</p>
+<p>所以测试金字塔的根子不在测试，在代码设计。代码不可测试，金字塔就倒过来。</p>
+<h2 id="覆盖率是最大的陷阱"><a href="#覆盖率是最大的陷阱" class="headerlink" title="覆盖率是最大的陷阱"></a>覆盖率是最大的陷阱</h2><p>这是我读这本书收获最大的一节。</p>
+<p>JaCoCo和Cobertura能生成覆盖率报告，很多团队拿覆盖率当KPI。但100%覆盖率不等于100%正确性。你可以给每个方法写一个只调用不断言的测试，覆盖率满分，但什么都没验证。</p>
+<p>覆盖率衡量的是”代码被执行过”，不是”代码被正确验证过”。</p>
+<p>书里提了一个更好的指标叫mutation testing（变异测试）。原理是故意修改代码看测试能不能发现。比如把<code>if (a &gt; b)</code>改成<code>if (a &gt;= b)</code>，如果测试仍然通过，说明你的测试没覆盖这个边界。</p>
+<p>这个概念我当时觉得眼前一亮，但后来在实际项目中用得很少，因为它跑起来太慢。PIT（Pitest）是Java生态里比较成熟的工具，但对大型项目来说开销还是很大。</p>
+<p>所以我的实践建议是：覆盖率当参考，别当KPI。真正该关心的是测试断言了什么，而不是执行了哪些行。</p>
+<h2 id="TDD的争议"><a href="#TDD的争议" class="headerlink" title="TDD的争议"></a>TDD的争议</h2><p>书里推TDD（测试驱动开发），先写测试再写实现，说代码质量会显著提升。</p>
+<p>我部分同意。TDD的核心价值不是测试本身，而是写测试逼你先想清楚接口和行为，而不是边写边想。这个”想清楚再动手”的纪律确实能提升设计质量。</p>
+<p>但我不同意把TDD当教条。写探索性代码的时候，你根本不知道接口长什么样，先写测试等于先写一个你马上要推翻的约束。这种情况先写个粗糙的实现跑通逻辑，等接口稳定了再补测试，反而更高效。</p>
+<p>我的实践是：接口明确的功能用TDD，探索性的原型先写后测。不要为了形式而形式。</p>
+<h2 id="测试也会腐烂"><a href="#测试也会腐烂" class="headerlink" title="测试也会腐烂"></a>测试也会腐烂</h2><p>一个被忽视的问题：测试代码和产品代码一样会腐烂。</p>
+<p>我见过很多项目的测试目录变成了”垃圾场”—— nobody维护、nobody敢删、跑了半天全绿但什么都没验证。原因通常是：</p>
+<ul>
+<li>测试依赖了不稳定的外部资源（数据库、网络），偶尔失败，大家学会了忽略</li>
+<li>测试没有和产品代码一起重构，接口变了测试没更新，慢慢就脱节了</li>
+<li>没有人对测试质量负责，只对覆盖率负责</li>
+</ul>
+<p>防止测试腐烂的方法：定期审查测试的有效性（而不是覆盖率），删除不再有意义的测试，把不稳定的集成测试和稳定的单元测试分开管理。</p>
+<p>测试不是写一次就万事大吉的。它是活的东西，需要和产品代码一起维护。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li>静态扫描性价比最高，别忽视——配好CI几乎零成本，但能覆盖人眼扫不到的角落</li>
+<li>有价值的测试测行为不测实现、断言有意义的东西、失败时能告诉你哪里错了</li>
+<li>覆盖率衡量”执行过”不衡量”验证过”，mutation testing是真标准但实际项目跑不动</li>
+<li>测试金字塔的根子在代码设计不在测试本身——代码不可测试，金字塔就倒过来</li>
+<li>TDD是好纪律但不是教条，接口明确的功能用TDD，探索性代码先写后测</li>
+<li>测试会腐烂——需要和产品代码一起维护，定期审查有效性而非覆盖率</li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"读书笔记 开发者测试","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2020-04-12","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2020/04/12/读书笔记-开发者测试/"},"url":"https://lanky228.github.io/2020/04/12/读书笔记-开发者测试/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["软件工程","代码质量","测试"]}</script>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2020/04/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%87%8D%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/05/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%87%8D%E6%9E%84/" class="post-title-link" itemprop="url">读书笔记 异常处理的设计与重构</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-05 23:48:15" itemprop="dateCreated datePublished" datetime="2020-04-05T23:48:15+08:00">2020-04-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>💡 异常处理的本质不是”捕获错误”，而是”在错误发生时保持系统可控”。catch了不等于处理了，消除错误状态才是处理。</p>
+<h2 id="背景：一次线上事故"><a href="#背景：一次线上事故" class="headerlink" title="背景：一次线上事故"></a>背景：一次线上事故</h2><p>读这本书的契机，是一次线上P0事故。</p>
+<p>当时我们有个支付接口，调用的下游服务超时了。代码里catch了超时异常，记了日志，然后返回了一个默认值。看起来没问题——直到发现这个”默认值”被后续流程当作正常结果处理，导致一批用户的订单状态错乱。</p>
+<p>排查时发现：catch了异常，但没有恢复状态；记了日志，但没有阻断错误传播。异常被”处理”了，系统却不可控了。</p>
+<p>这就是大多数开发者对异常处理的认知盲区——以为catch了就是处理了。这本书让我意识到，异常处理是系统设计问题，不是语法问题。</p>
+<h2 id="四个概念别混着用"><a href="#四个概念别混着用" class="headerlink" title="四个概念别混着用"></a>四个概念别混着用</h2><p>很多人混用”错误”和”异常”，但它们是不同的东西：</p>
+<ul>
+<li>Fault（缺陷）：代码写错了。空指针、逻辑错误。这是根因。</li>
+<li>Error（错误）：缺陷导致系统进入错误状态。比如接口内部出错。</li>
+<li>Failure（失败）：错误状态传播到外部，用户可见的功能丧失。比如页面白屏。</li>
+<li>Exception（异常）：编程语言中传递上述信息的对象机制。</li>
+</ul>
+<p>缺陷→错误→失败，是一条传播链。</p>
+<p>我那个支付事故就是典型的：下游超时（Fault导致的Error）→ catch后返回默认值（Error没消除）→ 订单状态错乱（Failure）。</p>
+<p>异常处理的目标是在传播链的每一环截断它。我的代码在第一环就失败了——catch了异常但没消除错误状态。</p>
+<h2 id="最被忽视的原则：不要返回null"><a href="#最被忽视的原则：不要返回null" class="headerlink" title="最被忽视的原则：不要返回null"></a>最被忽视的原则：不要返回null</h2><p>这本书里让我触动最深的一条：返回null是bug的温床。</p>
+<p>每个调用方都必须记得检查null，但总有人忘。而且null的语义模糊——是”没有数据”还是”出错了”还是”未初始化”？</p>
+<p>更好的做法：</p>
+<ul>
+<li>返回空字符串<code>&quot;&quot;</code>代替null字符串</li>
+<li>返回空List代替null集合</li>
+<li>使用Null Object模式（返回一个行为正确的空对象）</li>
+</ul>
+<p>null逼调用方写防御代码，空对象让调用方无感知。</p>
+<p>这不是技巧，是设计哲学。我后来在团队里推了一条规范：禁止方法返回null，必须用Optional或空集合替代。推行三个月后，NPE类bug减少了约70%。</p>
+<h2 id="异常处理的四个等级"><a href="#异常处理的四个等级" class="headerlink" title="异常处理的四个等级"></a>异常处理的四个等级</h2><p>书里把异常处理能力分成四级，这个框架特别实用：</p>
+<h3 id="等级0：未定义"><a href="#等级0：未定义" class="headerlink" title="等级0：未定义"></a>等级0：未定义</h3><p>系统没有异常意识。HTTP 200，return code 0，但功能是否正常不确定。出了问题也不知道。</p>
+<h3 id="等级1：错误报告"><a href="#等级1：错误报告" class="headerlink" title="等级1：错误报告"></a>等级1：错误报告</h3><p>接口失败时返回具体错误码。至少告诉你”出了什么错”。</p>
+<p>规则：不忽略已查异常；不捕获未查异常（Runtime异常说明代码有bug，该修不该catch）；转抛异常时不记日志（日志在最外层记）；最外层捕获所有异常。</p>
+<h3 id="等级2：状态恢复"><a href="#等级2：状态恢复" class="headerlink" title="等级2：状态恢复"></a>等级2：状态恢复</h3><p>不仅报告错误，还恢复系统状态。包括向后恢复（撤销操作、恢复原数据）和内存清理、资源释放。</p>
+<h3 id="等级3：行为恢复"><a href="#等级3：行为恢复" class="headerlink" title="等级3：行为恢复"></a>等级3：行为恢复</h3><p>异常时执行备用逻辑，系统继续工作。包括诊断、隔离、重新配置、重试、向前恢复（使用备用数据继续处理）。</p>
+<p>等级越高，系统越健壮。但大多数项目停在等级1——只报告不恢复。</p>
+<p>我的支付事故就是典型的等级1：catch了异常，记了日志，返回默认值。如果做到等级2，应该在catch后回滚事务状态。如果做到等级3，应该重试或走降级逻辑。</p>
+<h2 id="我在实际项目中的应用"><a href="#我在实际项目中的应用" class="headerlink" title="我在实际项目中的应用"></a>我在实际项目中的应用</h2><p>读完这本书后，在团队里推了几项实践：</p>
+<p>第一，异常处理策略文档化。每个核心接口明确标注：哪些异常预期会发生、各自走什么恢复策略。不再是”catch了再说”，而是先设计后编码。</p>
+<p>第二，分层异常处理。DAO层抛基础设施异常（SQLException），Service层包装成业务异常（PaymentFailedException），Controller层统一兜底转HTTP响应。每层只处理自己层的关注点。</p>
+<p>第三，消除null返回。全局搜索所有return null，逐一替换为Optional或空集合。改动量大，但收益最明显——NPE类事故几乎消失。</p>
+<p>第四，finally只做资源释放。之前有人在finally里写业务逻辑（比如状态更新），一旦try块异常，finally里的逻辑可能基于错误状态执行，造成二次问题。改成只做资源释放后，这类问题消失了。</p>
+<h2 id="资源管理的陷阱"><a href="#资源管理的陷阱" class="headerlink" title="资源管理的陷阱"></a>资源管理的陷阱</h2><h3 id="finally会吞掉异常"><a href="#finally会吞掉异常" class="headerlink" title="finally会吞掉异常"></a>finally会吞掉异常</h3><p>如果try块抛出异常A，finally块又抛出异常B，最终抛出的是B——A被吞掉了。</p>
+<p>这是Java异常处理的经典陷阱。解决方案：try-with-resources（Java 7+）。它自动关闭资源，且不会丢失try块的异常。</p>
+<h3 id="try-catch-finally的职责"><a href="#try-catch-finally的职责" class="headerlink" title="try&#x2F;catch&#x2F;finally的职责"></a>try&#x2F;catch&#x2F;finally的职责</h3><ul>
+<li>try：资源初始化 + 逻辑处理。只放可能抛异常的代码。</li>
+<li>catch：异常处理 + 流程重试。捕获你预期会发生的异常。</li>
+<li>finally：只做资源释放。不要放业务逻辑。</li>
+</ul>
+<p>这三个块的职责混淆是代码坏味道的重灾区。</p>
+<h2 id="异常设计的原则"><a href="#异常设计的原则" class="headerlink" title="异常设计的原则"></a>异常设计的原则</h2><h3 id="命名要表达内容"><a href="#命名要表达内容" class="headerlink" title="命名要表达内容"></a>命名要表达内容</h3><p><code>NotFoundException</code>比<code>Exception12</code>好一万倍。异常名本身就是文档。</p>
+<h3 id="低级异常转高级异常"><a href="#低级异常转高级异常" class="headerlink" title="低级异常转高级异常"></a>低级异常转高级异常</h3><p>底层抛出的<code>SQLException</code>应该被包装成<code>UserNotFoundException</code>。调用方不需要知道你用的是MySQL还是Oracle。</p>
+<h3 id="已查异常vs未查异常"><a href="#已查异常vs未查异常" class="headerlink" title="已查异常vs未查异常"></a>已查异常vs未查异常</h3><p>已查异常（Checked）：可恢复的异常，编译器强制处理。比如文件不存在。</p>
+<p>未查异常（Unchecked&#x2F;Runtime）：程序bug，开发者应该修复而非catch。比如空指针。</p>
+<p>原则：如果调用方能恢复，用已查异常。如果调用方无能为力，用未查异常。</p>
+<h2 id="异常处理的坏味道"><a href="#异常处理的坏味道" class="headerlink" title="异常处理的坏味道"></a>异常处理的坏味道</h2><p>这些模式出现在代码里就是red flag：</p>
+<ul>
+<li>返回码代替异常：异常比返回码强大得多，能携带堆栈信息、自动传播</li>
+<li>忽略已查异常：catch后空块，等于吞掉错误</li>
+<li>捕获Throwable：连Error都catch了，OutOfMemoryError你catch了能干嘛</li>
+<li>最外层没有兜底：异常逃逸到框架，用户看到500错误</li>
+<li>异常处理只记日志：记了日志但不恢复，系统仍然不可用</li>
+<li>catch块里写重试：重试逻辑应该抽成独立方法，不该塞在catch里</li>
+</ul>
+<h2 id="回头看：如果重来一次"><a href="#回头看：如果重来一次" class="headerlink" title="回头看：如果重来一次"></a>回头看：如果重来一次</h2><p>几年后再看那次支付事故，如果重来一次，我会做三件事 differently：</p>
+<p>第一，不在catch里返回默认值。默认值的问题是调用方无法区分”正常结果”和”异常兜底”。应该抛出业务异常，让上层决策。</p>
+<p>第二，引入熔断机制。下游服务超时不只是单次请求的问题——如果连续超时，说明下游已经不可用。继续调用只会堆积超时请求，拖垮自己的线程池。熔断器在连续失败时直接拒绝请求，保护自身可用性。</p>
+<p>第三，事务边界和异常边界对齐。支付接口的事务应该在catch块里回滚，而不是依赖框架的自动回滚——因为你可能在catch里做了部分恢复操作，这些操作本身可能不在事务内。</p>
+<p>这几条都是”早该做但当时不知道”的事。经验的意义就在于把”早该知道”变成”现在就知道”。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li>异常处理的核心是在错误传播链每一环截断：缺陷→错误→失败。catch了不等于处理了，消除错误状态才是处理</li>
+<li>不要返回null，用空对象代替——推这条规范后团队NPE类bug降了70%</li>
+<li>异常处理分四级，大多数项目停在”只报告不恢复”。健壮的系统要做到状态恢复甚至行为恢复</li>
+<li>分层异常处理：DAO抛基础设施异常，Service包装业务异常，Controller统一兜底。每层只关注自己的职责</li>
+<li>熔断机制和事务边界对齐是异常处理的进阶实践——保护自身可用性比处理单个异常更重要</li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"读书笔记 异常处理的设计与重构","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2020-04-05","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2020/04/05/读书笔记-异常处理的设计与重构/"},"url":"https://lanky228.github.io/2020/04/05/读书笔记-异常处理的设计与重构/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["软件工程","异常处理","代码质量"]}</script>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12-%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12-%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/" class="post-title-link" itemprop="url">地下城堡2-暗影刺客赫芬琳</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-02 00:29:15" itemprop="dateCreated datePublished" datetime="2020-04-02T00:29:15+08:00">2020-04-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%A8%B1%E4%B9%90/" itemprop="url" rel="index"><span itemprop="name">娱乐</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>💡 重伤法的反直觉在于：故意养一个最弱的角色送死，反而能打过比自己强得多的BOSS。把BOSS的致命机制从威胁变成工具，是策略游戏的深层逻辑。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>地下城堡2图12的赫芬琳卡了我三天。她的锁定猎杀技能伤害高到离谱，我当时的阵容奶量根本扛不住。</p>
+<p>正常思路是堆装备、升星级、硬刚，但低配玩家没这个条件。</p>
+<p>后来在论坛看到有人用”重伤法”过关，思路完全反着来。不是想办法让角色不死，而是故意让一个角色死掉再复活，用复活的无敌时间卡BOSS的攻击节奏。试了一下午终于过了，这里把思路和配置整理出来。</p>
+<h2 id="赫芬琳为什么难"><a href="#赫芬琳为什么难" class="headerlink" title="赫芬琳为什么难"></a>赫芬琳为什么难</h2><p>她的三个机制叠在一起，低配几乎无解：</p>
+<ul>
+<li>锁定猎杀：随机盯一个人往死里打，伤害秒杀级</li>
+<li>流血效果：持续掉血，奶量跟不上就团灭</li>
+<li>血量阈值：低于一定比例狂暴，输出更高</li>
+</ul>
+<p>正常打法要求奶量大于BOSS爆发伤害，但低配玩家的奶量天花板就在那。硬堆数值这条路走不通，得换思路。</p>
+<h2 id="重伤法的核心思路"><a href="#重伤法的核心思路" class="headerlink" title="重伤法的核心思路"></a>重伤法的核心思路</h2><p>这个打法的精髓是：把BOSS的”锁定猎杀”从威胁变成工具。</p>
+<p>BOSS会锁定一个角色集中攻击，这个机制本身是设计来制造压力的。但如果你故意喂给它一个容易死的目标，它就会一直盯着这个目标打。</p>
+<p>目标死了复活，复活又被秒，循环往复。BOSS的攻击节奏就被你控制住了。</p>
+<p>本质上是用巫医的血量当一个”计时器”。巫医活着的时候BOSS在打他，其他人安全输出。巫医死了到复活的间隙，无敌时间内继续输出。BOSS永远在打一个”会复活的人”，没有余力去杀你真正的主力。</p>
+<p>这在格斗游戏里叫”frame trap”——用可控的牺牲换取节奏控制权。你主动放弃一个回合的主动权，换取对手的节奏被打乱，从而在后续回合获得更大的优势。</p>
+<h2 id="受控牺牲：一个通用策略模式"><a href="#受控牺牲：一个通用策略模式" class="headerlink" title="受控牺牲：一个通用策略模式"></a>受控牺牲：一个通用策略模式</h2><p>重伤法不只是地下城堡2的特例。”受控牺牲”是一个在很多策略游戏中都适用的通用模式。</p>
+<p>核心逻辑：当对手的AI行为可预测时（比如锁定最低血量目标、优先攻击最近单位），你可以故意制造一个”诱饵”来引导对手的行为，从而控制战斗节奏。</p>
+<p>国际象棋里也有类似概念——“弃子”（gambit）。主动牺牲一个棋子，换取位置优势或节奏控制。低级别的玩家觉得弃子是”亏了”，高级别的玩家知道牺牲本身是策略的一部分。</p>
+<p>这类策略的共同前提是：你必须理解对手的决策逻辑。在BOSS战中，”对手”是AI targeting逻辑。在棋类中，”对手”是人类的心理模式。不管哪种，关键都是：把对手的规则变成你的工具。</p>
+<h2 id="阵容配置"><a href="#阵容配置" class="headerlink" title="阵容配置"></a>阵容配置</h2><h3 id="审判官-×2（4星50级）"><a href="#审判官-×2（4星50级）" class="headerlink" title="审判官 ×2（4星50级）"></a>审判官 ×2（4星50级）</h3><p>两个审判官负责奶和复活。配置要点：</p>
+<ul>
+<li>力速比小于1，确保奶量跟得上</li>
+<li>奶量大于310，刚好覆盖巫医血量</li>
+<li>技能只开1%奶队友，其他全关</li>
+<li>职责就是持续奶巫医加复活</li>
+</ul>
+<h3 id="大法师（4星50级）"><a href="#大法师（4星50级）" class="headerlink" title="大法师（4星50级）"></a>大法师（4星50级）</h3><p>大法师负责高速奶和解流血：</p>
+<ul>
+<li>力速比小于0.25，出手要极快</li>
+<li>奶量大于310</li>
+<li>技能只开1%奶队友</li>
+<li>主要解决流血效果</li>
+</ul>
+<h3 id="巫医（2星30级就行）"><a href="#巫医（2星30级就行）" class="headerlink" title="巫医（2星30级就行）"></a>巫医（2星30级就行）</h3><p>巫医是这套阵容的灵魂，也是最反直觉的地方：</p>
+<ul>
+<li>血量310（体质31）</li>
+<li>抗性低于5（关键，后面解释）</li>
+<li>力速比小于0.25</li>
+<li>技能只开3技能</li>
+<li>职责：送死，复活，输出，再送死</li>
+</ul>
+<p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12-%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/%E5%AE%A1%E5%88%A4%E5%AE%981.jpeg" alt="审判官1"></p>
+<p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12-%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/%E5%AE%A1%E5%88%A4%E5%AE%982.jpeg" alt="审判官2"></p>
+<p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12-%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/%E5%A4%A7%E6%B3%95%E5%B8%88.jpeg" alt="大法师"></p>
+<p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12-%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/%E5%B7%AB%E5%8C%BB.jpeg" alt="巫医"></p>
+<p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12-%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/%E9%98%B5%E5%AE%B9%E8%A1%80%E9%87%8F.jpeg" alt="阵容血量"></p>
+<p><img src="/2020/04/02/%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A0%A12-%E6%9A%97%E5%BD%B1%E5%88%BA%E5%AE%A2%E8%B5%AB%E8%8A%AC%E7%90%B3/%E9%A3%8E%E7%B2%BE%E7%81%B5%E6%88%92%E6%8C%87.jpeg" alt="风精灵戒指"></p>
+<h2 id="两个容易踩坑的细节"><a href="#两个容易踩坑的细节" class="headerlink" title="两个容易踩坑的细节"></a>两个容易踩坑的细节</h2><h3 id="巫医为什么要2星30级"><a href="#巫医为什么要2星30级" class="headerlink" title="巫医为什么要2星30级"></a>巫医为什么要2星30级</h3><p>这是整套打法最反直觉的地方。正常游戏逻辑是角色越强越好，但这里恰恰相反。</p>
+<p>低星级巫医血量低、抗性低，正好满足”被秒杀”和”触发流血”两个条件。如果你用高星级巫医，血太多死不了，循环直接断掉。抗性太高的话BOSS流血打不出来，整个机制又断了。</p>
+<p>所以这里不是”凑合用低配”，而是”必须用低配”。游戏里很少见这种设计，角色弱反而是优势。</p>
+<h3 id="抗性为什么必须低于5"><a href="#抗性为什么必须低于5" class="headerlink" title="抗性为什么必须低于5"></a>抗性为什么必须低于5</h3><p>BOSS的流血效果有触发条件：目标抗性足够低。巫医抗性高于5的话，BOSS流血打不出来，重伤法的循环就断了。</p>
+<p>降抗性靠风精灵戒指。这是整套阵容唯一需要的关键装备，其他都可以用低配替代。</p>
+<h2 id="这个打法的代价"><a href="#这个打法的代价" class="headerlink" title="这个打法的代价"></a>这个打法的代价</h2><p>重伤法不是没有代价。你牺牲了一个输出位给巫医当诱饵，整体DPS比正常阵容低。这意味着战斗时间长，对奶量的持久性要求高。</p>
+<p>如果审判官的奶量撑不住漫长的战斗，还是会崩。另外这套阵容对操作节奏有要求——复活时机、技能开关比例都得调对，差一点就循环不上。</p>
+<p>我第一次试的时候技能比例没调好，巫医复活了但奶跟不上，又灭了两次。调试的过程本身也是一种成本，不是配好了就一定能过。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li>重伤法的核心是反逻辑：用最弱的角色当诱饵，把BOSS的锁定攻击从威胁变成可控的节奏工具</li>
+<li>“受控牺牲”是通用策略模式——当你理解对手的决策逻辑时，可以把对手的规则变成你的工具</li>
+<li>巫医2星30级就行，关键装备是降抗性的风精灵戒指，4星50级审判官加大法师就能过</li>
+<li>代价是DPS低、战斗时间长、调试成本高——没有免费的策略，只有不同的取舍</li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"地下城堡2-暗影刺客赫芬琳","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2020-04-02","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2020/04/02/地下城堡2-暗影刺客赫芬琳/"},"url":"https://lanky228.github.io/2020/04/02/地下城堡2-暗影刺客赫芬琳/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["游戏","攻略","地下城堡2"]}</script>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2020/03/23/%E5%AD%99%E6%9D%A8%E6%8A%97%E6%A3%80%E4%BA%8B%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/23/%E5%AD%99%E6%9D%A8%E6%8A%97%E6%A3%80%E4%BA%8B%E4%BB%B6/" class="post-title-link" itemprop="url">孙杨抗检事件</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-23 00:00:05" itemprop="dateCreated datePublished" datetime="2020-03-23T00:00:05+08:00">2020-03-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%94%9F%E6%B4%BB/" itemprop="url" rel="index"><span itemprop="name">生活</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>💡 孙杨事件不是”吃药没吃药”的问题，而是一个人暴露了一个体系的裂缝。特权思维撞上国际规则，程序正义碰上自行执法，系统性信任赤字由个人买单。</p>
+<h2 id="背景：事件时间线"><a href="#背景：事件时间线" class="headerlink" title="背景：事件时间线"></a>背景：事件时间线</h2><p>2018年9月，兴奋剂检测人员到孙杨住处采样。孙杨质疑检测程序不合规，电话咨询领导后，在检测人员默许下破坏了已取样的血液。</p>
+<p>2018年，国际泳联裁决孙杨行为合法。</p>
+<p>2019年，世界反兴奋剂机构（WADA）上诉至国际体育仲裁法庭（CAS）。CAS裁决孙杨禁赛八年。后因程序问题重审，改为四年三个月。</p>
+<h2 id="事实层面"><a href="#事实层面" class="headerlink" title="事实层面"></a>事实层面</h2><h3 id="对孙杨有利的证据"><a href="#对孙杨有利的证据" class="headerlink" title="对孙杨有利的证据"></a>对孙杨有利的证据</h3><ul>
+<li>此前6000次检测无异常</li>
+<li>事件两天前检测无异常</li>
+<li>检测人员中有人资质不完整</li>
+<li>破坏样本的行为得到了检测人员的默许</li>
+</ul>
+<h3 id="对孙杨不利的证据"><a href="#对孙杨不利的证据" class="headerlink" title="对孙杨不利的证据"></a>对孙杨不利的证据</h3><ul>
+<li>多次违规记录：无证驾驶、里约奥运肘击运动员、穿违规领奖服</li>
+<li>2014年被检测出兴奋剂阳性（孙杨团队称误服治疗心脏病的药）</li>
+<li>破坏样本本身就是严重违规，无论检测程序是否有瑕疵</li>
+</ul>
+<h2 id="真正的博弈：四层结构"><a href="#真正的博弈：四层结构" class="headerlink" title="真正的博弈：四层结构"></a>真正的博弈：四层结构</h2><p>这个事件表面上是孙杨个人vs WADA，实际上有四层博弈。</p>
+<h3 id="第一层：程序正义vs自行执法"><a href="#第一层：程序正义vs自行执法" class="headerlink" title="第一层：程序正义vs自行执法"></a>第一层：程序正义vs自行执法</h3><p>孙杨的逻辑是：检测程序不合规 → 我有权拒绝。WADA的逻辑是：不管程序是否有瑕疵，破坏样本就是违规。</p>
+<p>这其实是法治的基本张力：程序正义和实质正义，哪个优先？</p>
+<p>在成熟法治体系中，通常程序正义优先。因为程序是保护弱者的最后一道防线。如果允许以”实质判断”为由违反程序，权力就会无限膨胀。</p>
+<p>但CAS的裁决逻辑是另一种：即使程序有瑕疵，当事人也不应自行执法（破坏样本），而应通过正式渠道申诉。你可以拒绝配合，可以事后申诉，但你不能销毁证据。</p>
+<p>程序有瑕疵不赋予你破坏程序的权力。否则任何人都可以声称”程序不公”然后自行其是。</p>
+<h3 id="第二层：中国体育的信任赤字"><a href="#第二层：中国体育的信任赤字" class="headerlink" title="第二层：中国体育的信任赤字"></a>第二层：中国体育的信任赤字</h3><p>不可否认的背景：中国兴奋剂检测机构和中国体育团队在国际上的信任度较低。历史上有过集体用药的记录。</p>
+<p>这意味着中国运动员在国际检测中面临更严格的审查。这不公平，但它是历史造成的结果。</p>
+<p>孙杨个人的行为，在这个大背景下被放大了。同样的行为，如果一个北欧运动员做了，可能不会有同样的后果。不是因为种族歧视，而是因为系统性的信任差异。</p>
+<p>信任赤字不是个人的错，但个人必须为它买单。这不公平，却是制度运转的现实。</p>
+<h3 id="第三层：特权阶层与规则的碰撞"><a href="#第三层：特权阶层与规则的碰撞" class="headerlink" title="第三层：特权阶层与规则的碰撞"></a>第三层：特权阶层与规则的碰撞</h3><p>孙杨作为中国体育明星，在国内享有特权地位。在国内，特权往往可以通过关系和影响力化解问题。无证驾驶？有人帮忙处理。违规领奖服？有人替他说话。</p>
+<p>但在国际仲裁中，这套逻辑完全失效。CAS不看你是谁的冠军，只看你的行为是否合规。</p>
+<p>这不是东西方文化冲突，而是特权思维与法治规则的碰撞。</p>
+<p>孙杨的悲剧不在于他不够聪明或不够强大，而在于他始终用国内积累的行为模式应对国际规则。他可能真的相信”我有理就可以这么做”，因为在国内他一直是这么做的，而且一直管用。</p>
+<h3 id="第四层：舆论与叙事战"><a href="#第四层：舆论与叙事战" class="headerlink" title="第四层：舆论与叙事战"></a>第四层：舆论与叙事战</h3><p>被忽视的一层：事件的走向很大程度上被叙事塑造，而非事实。</p>
+<p>在国内媒体中，孙杨被塑造成”被西方打压的民族英雄”。在国际媒体中，他是”又一个作弊的中国运动员”。两种叙事都不是事实，都是框架。</p>
+<p>叙事的力量在于：它决定了公众愿意接受什么证据。相信”民族英雄”叙事的人，会强调检测人员资质问题。相信”作弊者”叙事的人，会强调2014年的阳性记录。</p>
+<p>事实本身从未改变，但叙事决定了哪些事实被看见。在公共事件中，叙事往往比事实更有力。</p>
+<h2 id="被忽视的制度问题"><a href="#被忽视的制度问题" class="headerlink" title="被忽视的制度问题"></a>被忽视的制度问题</h2><h3 id="反兴奋剂体系的结构性矛盾"><a href="#反兴奋剂体系的结构性矛盾" class="headerlink" title="反兴奋剂体系的结构性矛盾"></a>反兴奋剂体系的结构性矛盾</h3><p>现行反兴奋剂体系有一个内在矛盾：它要求运动员”配合一切检测”，但检测体系本身的质量参差不齐。</p>
+<p>检测人员资质不完整、采样程序有瑕疵——这些问题在WADA体系内并不罕见。但运动员被要求无条件配合，事后再申诉。</p>
+<p>这等于把一个不完美的系统的风险，全部转嫁到运动员身上。如果你配合了，你承担检测失误的风险。如果你不配合，你承担”抗拒检测”的后果。</p>
+<p>运动员被要求对一个不完美的系统保持完美信任，这本身就是制度设计的问题。</p>
+<h3 id="谁来监督监督者"><a href="#谁来监督监督者" class="headerlink" title="谁来监督监督者"></a>谁来监督监督者</h3><p>WADA是全球反兴奋剂的最高权威，但它的权力几乎不受约束。它可以决定检测标准、上诉规则、处罚力度。</p>
+<p>一个权力不受约束的机构，即使初衷良好，也会逐渐产生傲慢和滥用。运动员面对WADA，几乎没有对等的博弈能力——你只能配合或申诉，而申诉的裁判者还是WADA体系的仲裁法庭。</p>
+<p>这不是WADA独有的问题。任何监管机构都面临”谁来监督监督者”的困境。但在反兴奋剂领域，这个困境特别尖锐，因为运动员的职业生涯窗口很短——一个拖了三年的申诉，足以让一个运动员退役。</p>
+<h3 id="中国体育明星的系统性困境"><a href="#中国体育明星的系统性困境" class="headerlink" title="中国体育明星的系统性困境"></a>中国体育明星的系统性困境</h3><p>中国体育体制培养冠军的方式，和冠军在国际赛场需要的行为模式，之间存在断裂。</p>
+<p>在国内，冠军是被体制”养”起来的。他们的生活、训练、社交都被安排好了。他们被赋予了特权，同时也被剥夺了独立处理复杂事务的能力。</p>
+<p>当这种运动员面对国际规则时，他们往往不知道如何在一个没有”领导”可以电话求助的环境中做出正确判断。</p>
+<p>孙杨打电话给领导求助的那一刻，暴露了整个体制的问题：一个世界级运动员，在面对规则冲突时，不知道如何独立判断。</p>
+<p>这不是孙杨一个人的问题，是中国体育人才培养模式的系统性缺陷。体制把运动员当产品来造，但产品不需要独立判断，人需要。</p>
+<h2 id="种族歧视的角度"><a href="#种族歧视的角度" class="headerlink" title="种族歧视的角度"></a>种族歧视的角度</h2><p>种族歧视确实存在。国际体育机构对有色人种的检测频率和严格程度确实更高。这一点有数据支持。</p>
+<p>但把孙杨事件归因为种族歧视，反而模糊了真正的问题：</p>
+<p>如果一个运动员因为检测程序有瑕疵就自行破坏样本，在任何国家的体育法规中都是严重违规。这不是种族问题，是行为问题。</p>
+<p>用种族歧视解释一切，反而会掩盖真正需要改进的地方。它给人一种”我们没问题，是他们歧视我们”的安慰感，但这种安慰是以放弃进步为代价的。</p>
+<p>真正该问的问题不是”他们是否歧视我们”，而是”在既有歧视存在的前提下，我们怎样才能最大化自身利益”。后者比前者有用得多。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li>孙杨事件的核心是程序正义vs自行执法：程序有瑕疵不赋予你破坏程序的权力</li>
+<li>中国体育的信任赤字使中国运动员面临更严格审查——不公平但现实</li>
+<li>特权思维在国际法治框架下完全失效，国内的行为模式不能应对国际规则</li>
+<li>舆论叙事比事实更有力——事件走向被叙事塑造，而非单纯被事实决定</li>
+<li>制度层面：反兴奋剂体系把不完美系统的风险转嫁给运动员，WADA自身权力缺乏约束，中国体育体制缺乏对运动员独立判断能力的培养</li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"孙杨抗检事件","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2020-03-23","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2020/03/23/孙杨抗检事件/"},"url":"https://lanky228.github.io/2020/03/23/孙杨抗检事件/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["社会评论","体育","法治","制度"]}</script>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2020/03/23/%E9%87%8F%E5%AD%90%E5%8A%9B%E5%AD%A6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/23/%E9%87%8F%E5%AD%90%E5%8A%9B%E5%AD%A6/" class="post-title-link" itemprop="url">量子力学</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-23 00:00:04" itemprop="dateCreated datePublished" datetime="2020-03-23T00:00:04+08:00">2020-03-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>💡 量子力学不是”反直觉的怪理论”，它是宇宙的真实规则。经典力学才是近似。真正被颠覆的不是物理，而是”客观存在”这个概念本身。</p>
+<h2 id="背景：常见的误解"><a href="#背景：常见的误解" class="headerlink" title="背景：常见的误解"></a>背景：常见的误解</h2><p>很多人觉得量子力学很”玄”：猫又死又活、粒子同时在两个地方、观察者改变现实。</p>
+<p>但这些说法本身就带有偏见。我们觉得量子力学怪，是因为先入为主地用宏观世界的经验当标准。</p>
+<p>反过来想：经典力学才是近似，量子力学才是精确。我们不是在用”正常”去理解”奇怪”，而是在用”粗糙近似”去理解”真实规则”。</p>
+<h2 id="两个核心概念"><a href="#两个核心概念" class="headerlink" title="两个核心概念"></a>两个核心概念</h2><h3 id="量子：能量不是连续的"><a href="#量子：能量不是连续的" class="headerlink" title="量子：能量不是连续的"></a>量子：能量不是连续的</h3><p>能量不是像水流一样连续不断，而是像硬币一样一份一份的。每一份叫一个量子。</p>
+<p>$$ E &#x3D; h\nu $$</p>
+<p>光子的能量等于普朗克常数乘以频率。这个公式解释了光电效应——爱因斯坦因此获得1921年诺贝尔奖（不是相对论）。</p>
+<p>这个”不连续”看似技术细节，实则颠覆了一个两千年的假设。从亚里士多德到牛顿，自然哲学默认连续性是基本的。芝诺悖论就是建立在连续性的前提上。</p>
+<p>量子化说：连续性是宏观幻觉，底层是一份一份的。</p>
+<h3 id="波函数：粒子不是点"><a href="#波函数：粒子不是点" class="headerlink" title="波函数：粒子不是点"></a>波函数：粒子不是点</h3><p>在量子力学中，粒子不是一个确定的点，而是一个概率波。波函数 $$\Psi(r,t)$$ 描述了粒子在某处出现的概率分布。</p>
+<p>薛定谔方程描述波函数的演化：</p>
+<p>$$ i\hbar\frac{\partial}{\partial t}\Psi(r,t) &#x3D; \hat{H}\Psi(r,t) $$</p>
+<p>它本质上是一个能量守恒方程：动能加势能等于总能量。只不过描述对象从”确定的位置”变成了”概率分布”。</p>
+<h2 id="物质波：万物皆波"><a href="#物质波：万物皆波" class="headerlink" title="物质波：万物皆波"></a>物质波：万物皆波</h2><p>德布罗意提出，不仅光有波动性，所有物质都有：</p>
+<p>$$ \lambda &#x3D; \frac{h}{mv} &#x3D; \frac{h}{p} $$</p>
+<p>一个飞行的棒球也有波长——只是它的质量太大，波长小到无法察觉。但电子的波长足够大，可以产生干涉条纹。</p>
+<p>你脚下的地板、你手中的手机、甚至你自己，本质上都是波。</p>
+<h2 id="量子力学离你有多近"><a href="#量子力学离你有多近" class="headerlink" title="量子力学离你有多近"></a>量子力学离你有多近</h2><p>大多数人觉得量子力学是象牙塔里的东西，和日常生活无关。事实恰恰相反。</p>
+<p>你手机里的闪存（U盘、SSD同原理）靠的是量子隧穿效应。电子”穿墙”——通过了经典物理认为不可能通过的势垒。没有这个效应，你的手机存不了照片。</p>
+<p>激光、LED、半导体芯片——整个电子工业的底层都是量子力学。你每次扫码、每次开灯、每次看屏幕，都在用量子力学。</p>
+<p>这不是比喻。量子力学是你此刻正在使用的工具，不是遥远的理论。</p>
+<h2 id="真正的哲学冲击：存在是关系性的"><a href="#真正的哲学冲击：存在是关系性的" class="headerlink" title="真正的哲学冲击：存在是关系性的"></a>真正的哲学冲击：存在是关系性的</h2><p>量子力学真正颠覆的，不是”猫能不能又死又活”，而是一个更根本的问题：</p>
+<p>在测量之前，物理量是否有确定值？</p>
+<p>爱因斯坦认为有（”上帝不掷骰子”）。玻尔认为没有——物理量在测量瞬间才”坍缩”为确定值。</p>
+<p>目前的实验证据倾向于玻尔。在我们观察之前，世界并非以确定状态存在，而是以概率分布存在。</p>
+<p>这不是”观察者效应”（观察改变了系统），而是更深一层：未观测的属性本身就不存在确定值。</p>
+<p>这个结论的冲击力远超物理。它动摇的是”客观实在”这个概念本身。</p>
+<p>在经典世界观里，物体在被观察之前就有确定的状态——月亮在你不看它的时候仍然在那里。量子力学说：对于微观粒子，这个假设是错的。不是”我们不知道它的状态”，而是”它没有确定的状态”。</p>
+<p>贝尔不等式的实验验证进一步告诉我们：量子纠缠中的两个粒子，不存在”预先确定但隐藏的”关联。它们的关联是在测量瞬间才形成的。</p>
+<p>属性不是物体的内在特征，而是物体与测量设备（以及整个环境）关系的产物。存在不是独立的，是关系性的。</p>
+<h2 id="互补性：一个被忽视的世界观"><a href="#互补性：一个被忽视的世界观" class="headerlink" title="互补性：一个被忽视的世界观"></a>互补性：一个被忽视的世界观</h2><p>玻尔提出的互补原理比不确定性原理更深刻：某些概念对（位置&#x2F;动量、波&#x2F;粒子）不是矛盾的，而是互补的。你无法同时使用两者描述同一个现象，但两者都是完整的描述所必需的。</p>
+<p>这不是”我们能力不足”，而是现实本身就是这样的。现实不服从排中律——一个东西可以既不是纯粹的A，也不是纯粹的”非A”。</p>
+<p>这种思维方式对日常生活有直接启发：</p>
+<ul>
+<li>你和亲近的人吵架时，你记得的是”事实”，对方记得的是”感受”。两者都不是错的，但都无法单独描述完整真相。</li>
+<li>职场中”效率”和”创新”经常冲突。不是选一个放弃另一个，而是承认它们互补——你需要两者，但无法同时最大化。</li>
+<li>很多人纠结”我是内向还是外向”。答案可能是：两者都是，取决于场景。强迫选一个反而扭曲了自我认知。</li>
+</ul>
+<h2 id="为什么量子力学”看起来怪”"><a href="#为什么量子力学”看起来怪”" class="headerlink" title="为什么量子力学”看起来怪”"></a>为什么量子力学”看起来怪”</h2><p>因为人脑是在宏观世界进化出来的。我们的直觉适用于台球和苹果，不适用于电子和光子。</p>
+<p>经典力学只是量子力学在”大物体、低速度”条件下的近似。恰好是我们日常生活的尺度。</p>
+<p>就像鱼不知道水是什么——我们不知道自己浸泡在量子现实中。</p>
+<p>不是量子力学怪，是我们太习惯近似了。我们的认知系统是围绕”确定性”设计的——识别确定的位置、确定的时间、确定的因果。</p>
+<p>量子力学说，确定性不是底层规则，而是大量概率事件在宏观尺度上的统计涌现。你看到的”确定的世界”，是无数次不确定的叠加之后，概率坍缩成的稳定幻觉。</p>
+<h2 id="一个更深的悖论"><a href="#一个更深的悖论" class="headerlink" title="一个更深的悖论"></a>一个更深的悖论</h2><p>量子力学留下了它自己无法回答的问题：测量是什么？</p>
+<p>薛定谔方程是决定论的、连续的、可逆的。但”坍缩”是概率性的、不连续的、不可逆的。这两者怎么统一？</p>
+<p>如果测量装置也是量子系统（它当然是），那它也应该服从薛定谔方程，不该有”坍缩”。这就是测量问题的核心。</p>
+<p>各种诠释（哥本哈根、多世界、退相干）都在试图回答这个问题，但没有一个完全令人满意。量子力学是史上最精确的物理理论，但它无法解释自己的基础操作。</p>
+<p>这不是缺陷，而是线索：我们可能还需要一次更深的认知飞跃，才能理解”测量”到底意味着什么。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li>量子力学是宇宙的基本规则，经典力学只是宏观近似——你手机里的闪存就在用量子隧穿效应</li>
+<li>粒子本质是概率波，不是确定的点。存在是关系性的，不是内在的</li>
+<li>测量之前物理量可能没有确定值——这是对”客观实在”概念本身的颠覆</li>
+<li>互补性思维：现实不服从非此即彼。很多看似矛盾的东西不是谁对谁错，而是描述了同一现实的不同侧面</li>
+<li>量子力学最精确却无法解释自己的基础——测量问题暗示还有更深的层次等待发现</li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"量子力学","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2020-03-23","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2020/03/23/量子力学/"},"url":"https://lanky228.github.io/2020/03/23/量子力学/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["物理","哲学","量子力学","认知"]}</script>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lanky</p>
+  <div class="site-description" itemprop="description">Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">138</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lanky228" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lanky228" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1289206629@qq.com" title="E-Mail → mailto:1289206629@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lanky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">257k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:54</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

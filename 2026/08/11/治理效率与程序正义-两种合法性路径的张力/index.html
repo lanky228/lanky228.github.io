@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lanky228.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="💡 一句话总结：现代治理的合法性有两条路径——靠”解决问题”换认同，或靠”程序授权”获正当——二者各有盲区，谁也替代不了谁，数字时代可能给”第三条道路”打开空间。 背景当代治理研究有一个反复出现的困惑：一些能高效产出公共物品、显著改善民生的治理体系，绩效一放缓，合法性就动摇；而另一些程序完备、授权链条清晰的体系，面对迫切问题却陷入决策僵局与执行无力。 这指向现代治理理论中一个尚未消化的核心张力—">
+<meta property="og:type" content="article">
+<meta property="og:title" content="治理效率与程序正义——两种合法性路径的张力">
+<meta property="og:url" content="https://lanky228.github.io/2026/08/11/%E6%B2%BB%E7%90%86%E6%95%88%E7%8E%87%E4%B8%8E%E7%A8%8B%E5%BA%8F%E6%AD%A3%E4%B9%89-%E4%B8%A4%E7%A7%8D%E5%90%88%E6%B3%95%E6%80%A7%E8%B7%AF%E5%BE%84%E7%9A%84%E5%BC%A0%E5%8A%9B/index.html">
+<meta property="og:site_name" content="Lanky的博客">
+<meta property="og:description" content="💡 一句话总结：现代治理的合法性有两条路径——靠”解决问题”换认同，或靠”程序授权”获正当——二者各有盲区，谁也替代不了谁，数字时代可能给”第三条道路”打开空间。 背景当代治理研究有一个反复出现的困惑：一些能高效产出公共物品、显著改善民生的治理体系，绩效一放缓，合法性就动摇；而另一些程序完备、授权链条清晰的体系，面对迫切问题却陷入决策僵局与执行无力。 这指向现代治理理论中一个尚未消化的核心张力—">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-08-11T05:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-22T12:22:59.785Z">
+<meta property="article:author" content="Lanky">
+<meta property="article:tag" content="政治学">
+<meta property="article:tag" content="治理理论">
+<meta property="article:tag" content="合法性">
+<meta property="article:tag" content="制度分析">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lanky228.github.io/2026/08/11/%E6%B2%BB%E7%90%86%E6%95%88%E7%8E%87%E4%B8%8E%E7%A8%8B%E5%BA%8F%E6%AD%A3%E4%B9%89-%E4%B8%A4%E7%A7%8D%E5%90%88%E6%B3%95%E6%80%A7%E8%B7%AF%E5%BE%84%E7%9A%84%E5%BC%A0%E5%8A%9B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Lanky的技术博客",
+  "url": "https://lanky228.github.io",
+  "description": "Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。",
+  "inLanguage": "zh-CN"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Lanky",
+  "url": "https://lanky228.github.io",
+  "jobTitle": "Database & Data Lake Engineer",
+  "knowsAbout": ["Apache Calcite", "StarRocks", "ClickHouse", "Apache Iceberg", "OLAP", "Data Lakehouse", "TPC-DS Benchmark", "DuckDB", "Trino", "SQL Parser", "AI Coding"]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://lanky228.github.io" },
+    { "@type": "ListItem", "position": 2, "name": "治理效率与程序正义——两种合法性路径的张力", "item": "https://lanky228.github.io/2026/08/11/治理效率与程序正义-两种合法性路径的张力/" }
+  ]
+}
+</script>
+
+
+  <title>治理效率与程序正义——两种合法性路径的张力 | Lanky的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lanky的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">生活 学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/08/11/%E6%B2%BB%E7%90%86%E6%95%88%E7%8E%87%E4%B8%8E%E7%A8%8B%E5%BA%8F%E6%AD%A3%E4%B9%89-%E4%B8%A4%E7%A7%8D%E5%90%88%E6%B3%95%E6%80%A7%E8%B7%AF%E5%BE%84%E7%9A%84%E5%BC%A0%E5%8A%9B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          治理效率与程序正义——两种合法性路径的张力
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-08-11 13:00:00" itemprop="dateCreated datePublished" datetime="2026-08-11T13:00:00+08:00">2026-08-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>13k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>12 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>💡 一句话总结：现代治理的合法性有两条路径——靠”解决问题”换认同，或靠”程序授权”获正当——二者各有盲区，谁也替代不了谁，数字时代可能给”第三条道路”打开空间。</p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>当代治理研究有一个反复出现的困惑：一些能高效产出公共物品、显著改善民生的治理体系，绩效一放缓，合法性就动摇；而另一些程序完备、授权链条清晰的体系，面对迫切问题却陷入决策僵局与执行无力。</p>
+<p>这指向现代治理理论中一个尚未消化的核心张力——治理效率与程序正义之间的结构性矛盾。</p>
+<p>Fritz Scharpf 在欧洲治理研究中将这一张力概念化为”输出合法性”与”输入合法性”的二分：前者关注”政府为人民做什么”，后者关注”政府由人民授权而做”。</p>
+<p>任何治理体系都必须同时回答”你能解决问题吗”与”你有权做这些吗”两个追问。二者的权重配置，深刻塑造了不同的治理形态。</p>
+<p>为避免陷入对具体国家政治制度的点评——那往往滑入立场先行而非学理分析——本报告一律以”输出合法性模式”与”输入合法性模式”指代两种理想类型（ideal types，韦伯意义上的概念构造）。</p>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>📌 <strong>合法性有两个轴心</strong>：Scharpf 区分的”输入合法性”（程序授权、民众参与）与”输出合法性”（治理绩效、问题解决）构成现代治理正当性的双轨基础，二者不可完全相互替代。</p>
+<p>📌 <strong>五组结构性张力</strong>：在合法性来源、决策执行、参与模式、国家-社会关系、权力异化方式上，两种模式呈现系统性镜像对照——前者长于执行效率而短于参与深度，后者长于程序正当而短于产出有效。</p>
+<p>📌 <strong>权力异化有两种本质不同的路径</strong>：官僚通过非正式手段攫取资源的个体性寻租，受监督机制约束、属”非法窃取”；资本通过合法程序系统性影响政策的制度性俘获，结构性嵌入、属”合法俘获”。</p>
+<p>📌 <strong>两种模式各自面临边际收益递减的危机</strong>：输出合法性模式在绩效增量放缓、分配正义诉求上升时弹性不足；输入合法性模式在程序完善但产出无效时陷入”合法性空心化”与信任流失。</p>
+<p>📌 <strong>第三条道路的可能</strong>：协商民主理论与数字治理技术（AI 辅助审议、数字公民参与、区块链治理）为破解”参与深度 vs 执行效率”的二元对立提供了新的制度组合空间。</p>
+<h2 id="一、两种合法性路径的理论基础"><a href="#一、两种合法性路径的理论基础" class="headerlink" title="一、两种合法性路径的理论基础"></a>一、两种合法性路径的理论基础</h2><h3 id="输出合法性：绩效即正当"><a href="#输出合法性：绩效即正当" class="headerlink" title="输出合法性：绩效即正当"></a>输出合法性：绩效即正当</h3><p>输出合法性的核心命题是：治理的正当性来源于其有效解决民众共同问题的能力。</p>
+<p>Scharpf 指出，这一传统可追溯至亚里士多德与孟德斯鸠关于”混合政体”的论述，以及《联邦党人文集》的制度设计——合法性取决于治理机构能否在保护公共利益的意义上有效运作，既防止”多数暴政”，又防止”自利统治者”。</p>
+<p>独立司法、央行、监管机构等非政治性机构的设置，正是这一逻辑的制度化体现——它们的正当性不来自直接选举，而来自专业能力与产出质量。</p>
+<p>这一逻辑的极端形态在发展型国家（developmental state）研究中得到充分展现。Evans 与 Rauch 的跨国量化研究表明，官僚机构的”韦伯式特征”（功绩招聘、可预期职业生涯）显著促进经济增长，一个”韦伯度”量表能稳健预测发展中国家的增长表现。</p>
+<p>Pepinsky 等人进一步指出，东亚发展型官僚体系的两个标志性特征——基于功绩的知识型官僚招聘、官僚体系的整体凝聚力——使国家能有效选择产业、协调投资、奖惩企业。</p>
+<p>官僚招聘中的考试制度作为一种”东亚官僚选拔模式”具有深厚历史渊源，其制度精神可上溯至科举制：以标准化考试选拔专业官僚，以专业能力而非血统或选举作为任职依据。</p>
+<h3 id="输入合法性：程序即正当"><a href="#输入合法性：程序即正当" class="headerlink" title="输入合法性：程序即正当"></a>输入合法性：程序即正当</h3><p>输入合法性的核心命题是：治理的正当性来源于被治理者的授权与回应。</p>
+<p>Scharpf 追溯这一传统至希腊城邦的参与式民主理想与法国大革命，其卢梭式起点是”公意”（general will）与共同利益的等同——合法性由最大化民众直接参与、或最大化治理者对民众集体偏好的回应性来保障。</p>
+<p>在小型政治体中这证成直接民主；在代议制不可避免的场合，威斯敏斯特式的最大化政府可见度与选举问责制度具有最强合法性主张。</p>
+<p>这一逻辑的当代深化体现在哈贝马斯的审议民主理论中。他的”公共领域”概念刻画了一个介于国家与私人之间的沟通空间：私人个体在此就公共事务进行理性-批判性讨论，形成”公共意见”，并以此为政治系统提供合法性反馈。</p>
+<p>其话语伦理学主张：道德与政治规范的有效性，只能通过包容、非强制、所有参与者平等参与的论证实践来确立。Dryzek 进一步将这一思路发展为”话语民主”，批判工具理性在政治制度中的过度主导，主张以沟通理性重塑政策过程。</p>
+<h3 id="历史原型的对照"><a href="#历史原型的对照" class="headerlink" title="历史原型的对照"></a>历史原型的对照</h3><p>两种合法性路径各有其历史原型。</p>
+<p>输出合法性的早期制度化形态之一是科举制：以考试选拔官僚，以专业能力与治理绩效为正当性根基，强调”选贤任能”与”善治即正统”。</p>
+<p>输入合法性的早期形态则见于雅典抽签制与罗马共和的混合政体：以抽签、公民大会、元老院制衡等程序设计确保权力来源于民众授权与程序正当。</p>
+<p>这一对照并非偶然——它反映了两种关于”权力应如何被赋予”的根本不同预设：一种认为权力应归属于能证明其解决问题能力的人，另一种认为权力应归属于经过被治理者同意的程序。</p>
+<h2 id="二、五组结构性张力"><a href="#二、五组结构性张力" class="headerlink" title="二、五组结构性张力"></a>二、五组结构性张力</h2><p>理解两种合法性模式的差异，需要超越单一维度，进入结构性对照。以下五组张力刻画了二者的系统性镜像关系。</p>
+<h3 id="合法性来源：产出绩效-vs-程序授权"><a href="#合法性来源：产出绩效-vs-程序授权" class="headerlink" title="合法性来源：产出绩效 vs 程序授权"></a>合法性来源：产出绩效 vs 程序授权</h3><p>这是最根本的张力。</p>
+<p>输出合法性模式下，政权正当性主要来自治理产出——经济增长、社会稳定、公共物品供给、危机应对能力。Scharpf 在讨论欧洲福利国家时指出，当国家持续提供民众已习惯并继续要求的福利时，输出合法性得以维持；当绩效产出受阻时，合法性即受侵蚀。</p>
+<p>输入合法性模式下，政权正当性主要来自程序授权链条——选举、审议、司法审查、权力分立——产出质量是次要的，关键是权力是否经过被治理者同意的程序获得。</p>
+<p>二者的不可替代性在于：绩效再高，也不能完全替代程序授权（因为”做对了事”不等于”有权做事”）；程序再完备，也不能完全替代产出有效（因为”有权做事”不等于”做对了事”）。</p>
+<p>Scharpf 强调，所有民主政体变种都共享对选举问责作为输入机制的依赖，即使在输出导向的考量中，绩效与程序也不可完全相互替代。</p>
+<h3 id="决策执行：垂直指令链-vs-多级博弈制衡"><a href="#决策执行：垂直指令链-vs-多级博弈制衡" class="headerlink" title="决策执行：垂直指令链 vs 多级博弈制衡"></a>决策执行：垂直指令链 vs 多级博弈制衡</h3><p>输出合法性模式倾向于垂直指令链——决策集中、执行高效、责任清晰。其制度逻辑是：为有效解决问题，需要赋予执行者足够的自主权与统一的指挥链。</p>
+<p>发展型国家文献中的”节点机构”（nodal agency）概念正是这一逻辑的体现：一个具有跨部门协调权力的核心机构能够最大化政策协调与执行效率。</p>
+<p>输入合法性模式倾向于多级博弈制衡——权力分散、程序繁复、多重否决点（veto points）。其制度逻辑是：为防止权力滥用，需要让多个主体相互制约。但这一设计的代价是执行效率的系统性损耗。</p>
+<p>Fukuyama 将这一代价概念化为”否决政治”（vetocracy）：当制衡机制在意识形态极化与利益集团影响下过度深化，决策系统变得”过于民主”——太多主体拥有否决权，使基于选举多数的集体决策变得极度困难。</p>
+<p>立法成功率在现代从约 7% 降至约 2%，正是这一损耗的经验表征。</p>
+<h3 id="参与模式：吸纳型广度-vs-形式化深度"><a href="#参与模式：吸纳型广度-vs-形式化深度" class="headerlink" title="参与模式：吸纳型广度 vs 形式化深度"></a>参与模式：吸纳型广度 vs 形式化深度</h3><p>输出合法性模式下的公民参与呈现”吸纳型广度”特征：参与是功能性的、工具性的——为了获取信息、凝聚共识、降低执行阻力，而非为了满足程序正当性要求。</p>
+<p>参与渠道可以是协商、咨询、听证，但其深度受限于治理效率的考量。Boedeltje 与 Cornips 在 Scharpf 框架基础上指出，输入合法性要求参与的”公平性”，输出合法性要求参与的”能力”，而二者存在系统性冲突——最大化公平往往以牺牲能力为代价。</p>
+<p>输入合法性模式下的参与呈现”形式化深度”特征：参与是规范性的、程序性的——选举、公投、议会辩论、司法听证都有严格的程序规定。</p>
+<p>但形式化深度不等于实质影响：当参与被简化为周期性投票而日常政策由非选举的技术官僚或利益集团博弈决定时，参与深度反而可能流于形式。</p>
+<h3 id="国家-社会关系：国家主导型-vs-社会契约型"><a href="#国家-社会关系：国家主导型-vs-社会契约型" class="headerlink" title="国家-社会关系：国家主导型 vs 社会契约型"></a>国家-社会关系：国家主导型 vs 社会契约型</h3><p>输出合法性模式预设国家是公共物品的主动投放者——国家有正当性主动介入经济与社会运行，以解决问题为导向配置资源。</p>
+<p>这一预设下，国家与社会的关系是不对称的：国家是”投放者”，社会是”受惠者”；国家能力是核心变量。Evans 关于”嵌入型自主性”（embedded autonomy）的论述正是这一关系的精致化——官僚体系既保持自主性以免被俘获，又与社会（尤其商业精英）保持网络联系以获取信息与合作。</p>
+<p>输入合法性模式预设政府权力需持续授权——国家不是天然的公共物品投放者，而是被授权的代理人。社会契约是起点：权力来源于被治理者的同意，政府的行为边界由契约（宪法、法律）界定。</p>
+<p>这一预设下，国家与社会的关系是对称的、契约性的；限制政府权力越界比提升国家能力更重要。</p>
+<h3 id="权力异化：官僚寻租-vs-资本俘获"><a href="#权力异化：官僚寻租-vs-资本俘获" class="headerlink" title="权力异化：官僚寻租 vs 资本俘获"></a>权力异化：官僚寻租 vs 资本俘获</h3><p>这是最具洞察价值的一组张力。两种模式下权力都会异化，但异化的形态、机制、可治理性根本不同。</p>
+<p>输出合法性模式下，权力异化的主要形态是官僚寻租——官僚利用职权通过非正式手段攫取资源，表现为腐败、受贿、权力寻租。其特征是个体性的、受监督机制约束的：因为寻租行为违反正式制度，监督机构（审计、纪检、司法）有合法依据介入。</p>
+<p>输入合法性模式下，权力异化的主要形态是资本俘获（regulatory capture &#x2F; state capture）——资本通过合法的政治程序（游说、政治献金、旋转门、立法起草）系统性影响政策，使其服务于特定利益集团。其特征是制度性的、结构性的：因为俘获行为往往在法律框架内完成，监督机制缺乏合法介入依据。</p>
+<p>Stigler 在其奠基性的”经济规制理论”中直陈：”规制通常是由行业获取的，并主要为行业的利益而设计与运作”。</p>
+<p>Peltzman 在该理论发表 50 周年时回顾指出，Stigler 的公共选择框架将规制从”公共利益”的天真解释中解放出来，揭示了有组织的利益集团如何系统性塑造规制结果。</p>
+<p>Dal Bo 的综述进一步打开”影响”的黑箱，展示了旋转门、信息游说、委员会影响等多机制俘获。Fukuyama 则将这一现象置于其”政治衰败”框架中：利益集团利用否决权阻挠不利于自身的改革，”携带利益条款”等无人能从公共利益角度辩护的政策却无法废除。</p>
+<h2 id="三、三大根源"><a href="#三、三大根源" class="headerlink" title="三、三大根源"></a>三、三大根源</h2><p>两种合法性模式的差异并非偶然，而是有其深层的建国逻辑、国家-社会预设与现代化阶段根源。</p>
+<h3 id="建国逻辑：革命建国-vs-契约建国"><a href="#建国逻辑：革命建国-vs-契约建国" class="headerlink" title="建国逻辑：革命建国 vs 契约建国"></a>建国逻辑：革命建国 vs 契约建国</h3><p>输出合法性模式往往根植于”革命建国”或”危亡建国”的历史语境——国家在应对外部威胁、内部动乱、民族危亡的过程中形成，解决紧迫问题是政权诞生的核心正当性来源。</p>
+<p>在这一逻辑下，”能否解决问题”先于”是否经过同意”成为合法性的首要追问。治理绩效不仅是执政的依据，更是建国本身的依据。</p>
+<p>输入合法性模式则往往根植于”契约建国”——政权建立于显性或隐性的社会契约之上，”被统治者同意”是权力正当性的逻辑起点与制度基石。</p>
+<p>在这一逻辑下，程序授权先于绩效产出，因为没有同意的绩效本身不具正当性。</p>
+<h3 id="国家-社会预设：主动投放-vs-持续授权"><a href="#国家-社会预设：主动投放-vs-持续授权" class="headerlink" title="国家-社会预设：主动投放 vs 持续授权"></a>国家-社会预设：主动投放 vs 持续授权</h3><p>两种模式对国家角色的根本预设不同。</p>
+<p>输出合法性模式预设国家是公共物品的主动投放者——国家有正当性主动配置资源、介入社会、引导发展，因为”解决问题”是合法性的核心。这一预设下，国家能力建设是核心议题，官僚体系的韦伯式专业化（功绩招聘、可预期职业、凝聚力）是关键制度安排。</p>
+<p>输入合法性模式预设政府权力需持续授权——国家不是天然的问题解决者，而是被有限授权的代理人，其行为边界由法律与契约严格界定。这一预设下，限制权力越界、保障公民权利、维持授权链条的完整性是核心议题。</p>
+<h3 id="现代化阶段：追赶型-vs-后工业化"><a href="#现代化阶段：追赶型-vs-后工业化" class="headerlink" title="现代化阶段：追赶型 vs 后工业化"></a>现代化阶段：追赶型 vs 后工业化</h3><p>现代化阶段深刻塑造了两种模式的相对优势与主导地位。</p>
+<p>在追赶型现代化阶段，效率是生存法则——后发国家面对先发国家的竞争压力，必须以最快速度完成工业化、城市化、基础设施建设。这一阶段，输出合法性模式具有结构性优势：垂直决策、集中资源、快速执行的能力，直接关乎国家能否在竞争中存活。</p>
+<p>在后工业化阶段，增量发展放缓，存量分配成为主要议题——不同群体的利益冲突、价值分歧、身份认同需要在协商中调和，程序正义与参与深度成为合法性的关键。</p>
+<p>这一阶段，输入合法性模式的优势变得清晰：只有经过充分协商与授权的程序，才能为存量分配的零和博弈提供可接受的正当性。</p>
+<p>Scharpf 在讨论欧洲福利国家时敏锐地指出这一转换的张力：当经济一体化约束了国家继续提供民众已习惯的福利政策的能力时，输出合法性受损；而在更高层级（欧洲）又缺乏充分的输入合法性基础来接管这些政策，导致”民主自决的有效性”流失。</p>
+<h2 id="四、两种权力异化路径"><a href="#四、两种权力异化路径" class="headerlink" title="四、两种权力异化路径"></a>四、两种权力异化路径</h2><p>权力异化是任何治理模式都无法回避的结构性风险。但两种模式下异化的路径、机制与可治理性存在本质差异，这一差异往往被”腐败”这一笼统概念所遮蔽。</p>
+<h3 id="路径-A：官僚寻租——个体性、受监督约束"><a href="#路径-A：官僚寻租——个体性、受监督约束" class="headerlink" title="路径 A：官僚寻租——个体性、受监督约束"></a>路径 A：官僚寻租——个体性、受监督约束</h3><p>在输出合法性模式下，权力高度集中于官僚体系，异化的主要形态是官僚利用职务之便通过非正式手段获取资源——受贿、权力寻租、利益输送。这一异化的关键特征是：</p>
+<p>📌 <strong>个体性</strong>：异化主体是具体官僚或官僚小集团，而非整个制度结构。</p>
+<p>📌 <strong>非法性</strong>：寻租行为违反正式制度与法律，监督机构有合法依据介入。</p>
+<p>📌 <strong>可治理性</strong>：通过强化监督（审计、纪检、司法）、提升透明度、完善激励机制，可以在制度框架内约束。Evans 与 Rauch 的研究表明，韦伯式官僚特征本身即是抑制腐败的制度安排。</p>
+<p>这一路径的代价是：监督成本随官僚体系规模扩大而上升，且监督者本身也可能被俘获（”谁来监督监督者”的经典难题）。但其结构性优势在于：异化行为有明确的非法性边界，治理工具（法律、纪律、审计）有合法介入空间。</p>
+<h3 id="路径-B：资本俘获——制度性、结构性嵌入"><a href="#路径-B：资本俘获——制度性、结构性嵌入" class="headerlink" title="路径 B：资本俘获——制度性、结构性嵌入"></a>路径 B：资本俘获——制度性、结构性嵌入</h3><p>在输入合法性模式下，权力分散于多重博弈主体，异化的主要形态是资本通过合法的政治程序系统性影响政策。这一异化的关键特征是：</p>
+<p>📌 <strong>制度性</strong>：异化主体不是个别官员，而是资本-政治的结构性联结——游说、政治献金、旋转门、立法起草参与都是合法程序。</p>
+<p>📌 <strong>合法性</strong>：俘获行为在法律框架内完成，监督机构缺乏合法介入依据——因为”游说”是受法律保护的政治参与。</p>
+<p>📌 <strong>结构性嵌入</strong>：俘获不依赖于具体个人，而是嵌入制度结构本身；即使更换执政者，俘获机制依然运作。</p>
+<p>Stigler 的理论揭示了这一逻辑的内核：行业通过提供政党所需的”选票与资源”（竞选捐款、服务、雇佣）来换取有利于自身的规制。</p>
+<p>Peltzman 补充指出，行业利益更常见的目标是维护制度现状、阻止不利于己的改革，而非主动获取新规制。Dal Bo 的综述展示了俘获的多种机制——旋转门（监管者离职后进入被监管行业）、信息游说、委员会影响。</p>
+<p>Fukuyama 则将这一现象概念化为”再世袭化”（repatrimonialization）——特殊利益集团俘获国会、过度影响立法过程、扭曲税收与支出、向官僚机构引入自相矛盾的授权、利用司法程序挑战并延迟行动。</p>
+<h3 id="本质差异：非法窃取-vs-合法俘获"><a href="#本质差异：非法窃取-vs-合法俘获" class="headerlink" title="本质差异：非法窃取 vs 合法俘获"></a>本质差异：非法窃取 vs 合法俘获</h3><p>两种异化路径的本质差异可概括为：路径 A 是”非法窃取”——违反正式制度、个体性、可被监督机制约束；路径 B 是”合法俘获”——利用合法程序、制度性、监督机制缺乏介入依据。</p>
+<p>这一差异的实践含义是深远的：</p>
+<p>📌 反腐败（针对路径 A）的法律工具在路径 B 面前基本失效——因为俘获行为本身合法。</p>
+<p>📌 路径 B 的治理需要改革制度结构本身（如选举制度、游说规制、竞选资金规制），而这又受到俘获者的否决——Fukuyama 所言”利益集团利用权力否决不利于己的改革”正是这一困境的写照。</p>
+<p>📌 两种异化的可见性也不同：路径 A 的腐败往往是个案性的、可被曝光与惩处的；路径 B 的俘获是系统性的、弥漫性的、难以个案化处理的。</p>
+<h2 id="五、结构性风险与盲区"><a href="#五、结构性风险与盲区" class="headerlink" title="五、结构性风险与盲区"></a>五、结构性风险与盲区</h2><p>两种模式各自面临边际收益递减的危机，且二者的盲区具有互补性——这正是”第三条道路”得以构想的结构性前提。</p>
+<h3 id="输出合法性模式的风险：绩效边际递减与制度弹性不足"><a href="#输出合法性模式的风险：绩效边际递减与制度弹性不足" class="headerlink" title="输出合法性模式的风险：绩效边际递减与制度弹性不足"></a>输出合法性模式的风险：绩效边际递减与制度弹性不足</h3><p>输出合法性模式的核心风险在于其正当性来源的边际递减性。治理绩效在高速增长期可以持续提供合法性增量，但随着经济成熟化、增长放缓、社会诉求多元化，绩效增量边际递减，合法性供给能力下降。更深层的风险在于：</p>
+<p>📌 <strong>分配正义诉求上升</strong>：当基本生存问题解决后，民众的关注点从”总量增长”转向”分配公平”——而分配问题本质上是价值冲突与利益博弈，难以通过效率导向的垂直决策解决，需要协商与程序正当性。</p>
+<p>📌 <strong>制度弹性不足</strong>：以绩效为核心的治理体系，其制度调整往往是危机驱动的（绩效下滑触发调整），而非程序驱动的（定期审议、多方参与触发调整）。这意味着制度调整滞后于社会诉求变化，弹性不足。</p>
+<p>📌 <strong>合法性来源单一</strong>：当绩效这一单一合法性来源受损时，缺乏程序合法性作为补充缓冲，合法性流失可能加速。</p>
+<h3 id="输入合法性模式的风险：程序完善而产出无效，合法性空心化"><a href="#输入合法性模式的风险：程序完善而产出无效，合法性空心化" class="headerlink" title="输入合法性模式的风险：程序完善而产出无效，合法性空心化"></a>输入合法性模式的风险：程序完善而产出无效，合法性空心化</h3><p>输入合法性模式的核心风险在于其正当性来源的空洞化倾向。当程序完备但产出无效时，民众会逐渐意识到”程序正确”并不等于”问题解决”——合法性虽在程序上完整，但在实质上空心化。Fukuyama 对制度衰败的分析精确刻画了这一困境：</p>
+<p>📌 <strong>否决政治导致决策瘫痪</strong>：过多否决点使集体决策极度困难，立法成功率下降，政府难以应对迫切问题。</p>
+<p>📌 <strong>信任流失的自我强化循环</strong>：民众不信任政府→不愿授权→国会制定复杂规则限制政府自主权→决策缓慢昂贵→政府表现不佳→确认并加剧不信任→更不愿授权→更不愿纳税→政府资源不足→表现更差。这是一个自我实现的恶性循环。</p>
+<p>📌 <strong>制度崇拜阻碍改革</strong>：对宪法与制度的”准宗教式”崇敬使基本制度框架难以调整，即使其已明显不适应时代。</p>
+<p>📌 <strong>Huntington 式政治衰败</strong>：制度为应对特定情境而创，但情境变化后制度未能适应——或因认知刚性（人们固守既有心智模型），或因既得利益集团阻挠改革。这一衰败可发生于任何政体，民主政体虽有自我纠错机制，但也通过合法化利益集团活动而开放了衰败通道。</p>
+<h3 id="盲区互补：效率模式的盲区-参与深度；程序模式的盲区-执行效率"><a href="#盲区互补：效率模式的盲区-参与深度；程序模式的盲区-执行效率" class="headerlink" title="盲区互补：效率模式的盲区 &#x3D; 参与深度；程序模式的盲区 &#x3D; 执行效率"></a>盲区互补：效率模式的盲区 &#x3D; 参与深度；程序模式的盲区 &#x3D; 执行效率</h3><p>两种模式的盲区具有精确的互补性，这构成了制度学习与混合模式构想的结构性基础：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>输出合法性模式</th>
+<th>输入合法性模式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>核心优势</td>
+<td>执行效率、问题解决</td>
+<td>程序正当、权力制约</td>
+</tr>
+<tr>
+<td>核心盲区</td>
+<td>参与深度不足、价值冲突处理能力弱</td>
+<td>执行效率损耗、决策瘫痪风险</td>
+</tr>
+<tr>
+<td>异化形态</td>
+<td>官僚寻租（个体性、非法）</td>
+<td>资本俘获（制度性、合法）</td>
+</tr>
+<tr>
+<td>边际风险</td>
+<td>绩效递减→分配正义诉求→弹性不足</td>
+<td>程序完善而产出无效→合法性空心化</td>
+</tr>
+</tbody></table>
+<p>这一互补性意味着：输出合法性模式需要从输入合法性模式借鉴参与深度与程序正当性；输入合法性模式需要从输出合法性模式借鉴执行效率与问题解决能力。</p>
+<p>任何单一模式的自我封闭都会导致其结构性盲区放大为系统性危机。</p>
+<h2 id="六、第三条道路的可能性"><a href="#六、第三条道路的可能性" class="headerlink" title="六、第三条道路的可能性"></a>六、第三条道路的可能性</h2><p>两种模式的结构性互补，引出了一个关键问题：是否存在”第三条道路”——一种能够同时兼顾参与深度与执行效率、程序正当与产出有效的治理形态？</p>
+<p>这一问题在数字时代获得了新的回答空间。</p>
+<h3 id="协商民主的实践"><a href="#协商民主的实践" class="headerlink" title="协商民主的实践"></a>协商民主的实践</h3><p>协商民主（deliberative democracy）理论为破解”参与深度 vs 效率”的二元对立提供了规范基础。哈贝马斯的话语伦理学主张：规范的合法性只能通过包容、非强制、平等的论证实践来确立。</p>
+<p>这一思路的关键洞察是：参与不必是低效的——如果参与的质量（论证的理性、包容性、反思性）而非数量（参与人数、程序步骤）是合法性来源。Dryzek 进一步主张，话语民主能够克服工具理性在政治中的过度主导，以沟通理性重塑政策过程。</p>
+<p>但传统协商民主面临一个实践瓶颈：规模问题。面对面的审议只能容纳数十人，难以扩展到国家或洲际规模。这正是 Scharpf 在讨论欧洲民主赤字时指出的困境：缺乏全欧范围的媒体、政党竞争与公共意见形成机制，使欧洲层面的输入合法性基础薄弱。</p>
+<h3 id="数字治理：技术能否破解规模-深度悖论？"><a href="#数字治理：技术能否破解规模-深度悖论？" class="headerlink" title="数字治理：技术能否破解规模-深度悖论？"></a>数字治理：技术能否破解规模-深度悖论？</h3><p>数字技术正在改变协商民主的规模约束。</p>
+<p>OECD 2026 年关于 AI 与公民参与未来的报告分析了 22 个 OECD 成员国与伙伴国的 50 个 AI 公民参与案例，提出了九类 AI 应用类型学（信息开发、意义建构、翻译、转录、虚拟协助、调解、促动、模拟、架构），其中 AI 辅助的意义建构与促动工具能够在保持质量的前提下实现大规模审议。</p>
+<p>OECD 2025 年关于新兴技术应对公民参与挑战的报告进一步指出，AI、区块链、虚拟现实技术能够降低参与门槛、增强政府能力、以更可理解与可问责的参与过程赋权公民。</p>
+<p>具体而言，技术赋能的几个关键路径包括：</p>
+<p>📌 <strong>AI 辅助大规模审议</strong>：自然语言处理模型能够对海量公民输入进行聚类、情感分析、分歧映射，使数万乃至数十万人的审议成为可能。OECD 报告引用的”哈贝马斯机器”实验显示，AI 促动模型能够帮助生成都可接受的、包容性的陈述，在不忽视少数观点的前提下达成广泛接受的结论。</p>
+<p>📌 <strong>数字公民参与平台</strong>：参与式预算、城市规划、政策咨询等场景中的数字平台使公民能够便捷地提出建议、投票、追踪结果。葡萄牙的 Participa.gov、西班牙巴塞罗那、荷兰海牙等地的实践展示了数字工具如何使公民参与成为常态。</p>
+<p>📌 <strong>区块链治理</strong>：区块链的可验证、不可篡改特性为电子投票、参与式预算、请愿签名认证提供了信任基础，其治理实验（如 DAO 去中心化自治组织、二次方投票、抽签面板）探索了将民主审议嵌入代码基础设施的可能性。</p>
+<h3 id="混合模式的具体形态"><a href="#混合模式的具体形态" class="headerlink" title="混合模式的具体形态"></a>混合模式的具体形态</h3><p>第三条道路并非两种模式的简单折中，而是制度元件的重新组合。可能的混合形态包括：</p>
+<p>📌 <strong>双层合法性结构</strong>：在战略性、长期性问题（如产业政策、基础设施）上保留输出合法性逻辑——专业官僚、垂直执行、绩效问责；在分配性、价值冲突性问题（如税收、福利、公民权利）上强化输入合法性逻辑——协商、参与、程序正当。Scharpf 关于”差异化一体化”的思路正是这一分层逻辑的早期构想。</p>
+<p>📌 <strong>AI 促动的审议-执行循环</strong>：以 AI 辅助的大规模审议收集公民偏好与价值判断，以专业官僚体系执行决策，以数字工具追踪执行效果并反馈给审议环节，形成”审议→决策→执行→反馈→再审议”的闭环。Carnegie 基金会 2026 年的研究指出，这一”输入-过程-输出”链条的强化是 AI 赋能审议民主的关键。</p>
+<p>📌 <strong>抽签与代议的结合</strong>：以抽签 mini-public（小型公民审议小组）作为审议核心（确保包容性与代表性），以代议机构作为决策核心（确保问责与效率），以数字平台作为大众参与通道（确保规模与可及性）。区块链治理研究中关于”抽签面板 + 二次方投票 + 模块化审议层”的设计探索了这一组合的制度形态。</p>
+<h3 id="技术赋能的限度"><a href="#技术赋能的限度" class="headerlink" title="技术赋能的限度"></a>技术赋能的限度</h3><p>必须警惕技术赋能的限度。</p>
+<p>Carnegie 基金会的研究警告：AI 辅助审议的潜力”结构性地取决于民主制度是否具备人员配置、采购规则、审计能力与法律框架来负责任地治理这些工具”——而目前这些条件”都严重不足”。</p>
+<p>关键风险包括：</p>
+<p>📌 <strong>算法黑箱</strong>：AI 促动模型的算法逻辑如果不公开可审计，审议过程可能被隐性操纵。</p>
+<p>📌 <strong>供应商依赖</strong>：公共机构缺乏技术能力采购、评估、治理 AI 审议工具，形成对私营供应商的依赖，其激励可能与民主目标错位。</p>
+<p>📌 <strong>数字鸿沟</strong>：AI 工具可能排斥非技术熟练群体，加剧参与不平等。</p>
+<p>📌 <strong>技术解决方案主义</strong>：将复杂社会问题简化为技术问题，忽视制度与政治维度的改革。</p>
+<p>因此，第三条道路的可能性并非技术决定论的乐观——它要求在技术赋能的同时，进行相应的制度建设：开源公共平台、算法审计标准、数据主权安排、公共技术人才队伍建设。</p>
+<h2 id="七、最终出路"><a href="#七、最终出路" class="headerlink" title="七、最终出路"></a>七、最终出路</h2><h3 id="两种模式各自需要从对方借鉴什么"><a href="#两种模式各自需要从对方借鉴什么" class="headerlink" title="两种模式各自需要从对方借鉴什么"></a>两种模式各自需要从对方借鉴什么</h3><p>输出合法性模式需要从输入合法性模式借鉴的是：参与深度与程序正当性。</p>
+<p>具体而言，是在绩效导向的治理中嵌入协商机制——不是以参与替代效率，而是以参与增强政策的价值正当性与社会可接受性，尤其在分配性议题上。</p>
+<p>这要求承认：治理不仅是”解决问题”，也是”在冲突的价值与利益之间做出可接受的选择”——后者需要程序正当性而非仅靠产出效率。</p>
+<p>输入合法性模式需要从输出合法性模式借鉴的是：执行效率与问题解决能力。</p>
+<p>具体而言，是在程序导向的治理中重建国家能力——不是以效率替代程序，而是以有效产出为程序合法性提供实质支撑。</p>
+<p>Fukuyama 的诊断精确：否决政治的解药不是更多的否决点，而是”减少否决点、精简决策”的制度改革——取消参议员搁置权、废除冗长辩论、将复杂立法委托给更小的专家小组进行上下表决。</p>
+<h3 id="数字时代治理的新可能性"><a href="#数字时代治理的新可能性" class="headerlink" title="数字时代治理的新可能性"></a>数字时代治理的新可能性</h3><p>数字时代为两种模式的相互借鉴提供了前所未有的技术条件。</p>
+<p>AI 促动的大规模审议使”参与深度”不再必然以”执行效率”为代价；数字公民参与平台使”程序授权”不再必然以”决策瘫痪”为代价；区块链治理实验使”权力制约”不再必然以”否决政治”为代价。</p>
+<p>这些技术条件使第三条道路从规范构想走向经验可能。</p>
+<p>但这一可能性的实现，取决于一个关键条件：技术赋能必须伴随相应的制度建设。OECD 关于 AI 治理的前瞻框架强调五个相互依存的要素——引导性价值、战略情报、利益相关方参与、敏捷规制、国际合作。</p>
+<p>Carnegie 的研究则强调：最紧迫的投资不是 AI 能力开发，而是民主治理基础设施——标准制定、机构能力建设、开源公共平台开发、跨部门协调。</p>
+<h3 id="结论性判断"><a href="#结论性判断" class="headerlink" title="结论性判断"></a>结论性判断</h3><p>输出合法性与输入合法性不是非此即彼的选择，而是任何治理体系都必须同时回应的两个追问。</p>
+<p>任何单一模式的自我封闭都会导致其结构性盲区放大为系统性危机：输出合法性模式在绩效递减与分配正义诉求上升时弹性不足；输入合法性模式在程序完善而产出无效时合法性空心化。</p>
+<p>两种模式下的权力异化——官僚寻租与资本俘获——形态不同但同样致命，且后者因”合法俘获”的性质而更难治理。</p>
+<p>第三条道路的可能，在于以数字技术与协商民主理论为支撑，重新组合两种模式的制度元件：在战略性议题上保留执行效率，在分配性议题上强化参与深度，以 AI 促动的审议-执行循环连接二者。</p>
+<p>但这一可能性的实现，不取决于技术本身，而取决于是否愿意进行相应的制度改革——是否愿意在效率导向的治理中为参与让出空间，在程序导向的治理中为效率重建能力。</p>
+<p>最终，治理的正当性既不单在于”能解决问题”，也不单在于”经过授权”，而在于<strong>经过授权地解决问题、并在解决问题的过程中持续获得授权</strong>。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li><strong>两种合法性路径不可相互替代，但可以相互校正</strong>：输出合法性模式（绩效即正当）与输入合法性模式（程序即正当）各有结构性优势与盲区，制度学习是双向的——效率模式需借鉴参与深度，程序模式需借鉴执行效率。</li>
+<li><strong>权力异化的治理需要区分两种路径</strong>：官僚寻租（个体性、非法、可被监督约束）与资本俘获（制度性、合法、监督机制缺乏介入依据）需要不同的治理工具，混淆二者会导致治理工具错配。</li>
+<li><strong>数字时代为第三条道路提供了技术条件，但其实现取决于制度建设</strong>：AI 辅助审议、数字公民参与、区块链治理等技术使”参与深度 vs 执行效率”的二元对立不再必然，但技术赋能的限度要求在技术投资的同时进行制度建设。第三条道路不是技术决定论的乐观，而是技术与制度的协同演进。</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a href="https://www.mpifg.de/809424/1999-03-wz-scharpf" target="_blank" rel="noopener">Scharpf, F.W. (1999) <em>Governing in Europe: Effective and Democratic?</em></a> — 输入&#x2F;输出合法性区分的奠基性著作，提出”government by the people”与”government for the people”的双轨合法性框架。</li>
+<li><a href="https://d-nb.info/1053468547/34" target="_blank" rel="noopener">Scharpf, F.W. (2003) <em>Problem-Solving Effectiveness and Democratic Accountability in the EU</em>, MPIfG Working Paper 03&#x2F;1</a> — 系统阐述输入导向与输出导向合法性论证的功能、张力与不可替代性。</li>
+<li><a href="https://econpapers.repec.org/RePEc:rje:bellje:v:2:y:1971:i:spring:p:3-21" target="_blank" rel="noopener">Stigler, G.J. (1971) <em>The Theory of Economic Regulation</em>, Bell Journal of Economics and Management Science</a> — 规制俘获理论的奠基之作，提出”规制通常由行业获取并为其利益运作”。</li>
+<li><a href="https://ideas.repec.org/a/kap/pubcho/v193y2022i1d10.1007_s11127-022-00996-0.html" target="_blank" rel="noopener">Peltzman, S. (2022) <em>The theory of economic regulation after 50 years</em>, Public Choice</a> — Stigler 理论发表 50 周年回顾，区分”获取”与”设计运作”，分析行业维护现状的俘获逻辑。</li>
+<li><a href="https://www.foreignaffairs.com/united-states/america-decay" target="_blank" rel="noopener">Fukuyama, F. (2014) <em>America in Decay: The Sources of Political Dysfunction</em>, Foreign Affairs</a> — 提出否决政治（vetocracy）概念，分析制度衰败的机制与利益集团阻挠改革的困境。</li>
+<li><a href="https://www.the-american-interest.com/2013/12/08/the-decay-of-american-political-institutions/" target="_blank" rel="noopener">Fukuyama, F. (2013) <em>The Decay of American Political Institutions</em>, The American Interest</a> — 详述信任流失的自我强化循环与制度崇拜对改革的阻碍。</li>
+<li><a href="https://plato.stanford.edu/entries/habermas/" target="_blank" rel="noopener">Habermas, J. — Stanford Encyclopedia of Philosophy entry</a> — 哈贝马斯公共领域、话语伦理学与审议民主理论的系统梳理。</li>
+<li><a href="https://www.oecd.org/content/dam/oecd/en/publications/reports/2026/07/artificial-intelligence-and-the-future-of-citizen-participation_0608e00e/a1ee2e0a-en.pdf" target="_blank" rel="noopener">OECD (2026) <em>Artificial Intelligence and the Future of Citizen Participation</em></a> — 50 个 AI 公民参与案例的九类应用类型学，分析机遇、风险与缓解策略。</li>
+<li><a href="https://carnegieendowment.org/research/2026/05/realizing-the-potential-gains-of-ai-enabled-deliberative-democracy" target="_blank" rel="noopener">Carnegie Endowment (2026) <em>Realizing the Potential Gains of AI-Enabled Deliberative Democracy</em></a> — AI 赋能审议民主的结构性条件分析，强调民主治理基础设施建设优先于 AI 能力开发。</li>
+<li><a href="https://homepage.ntu.edu.tw/~kslin/macro2009/Evans%20and%20Rauch%201999.pdf" target="_blank" rel="noopener">Evans, P. &amp; Rauch, J.E. (1999) <em>Bureaucracy and Growth: A Cross-National Analysis of “Weberian” State Structures</em>, American Sociological Review</a> — “韦伯度”量表的跨国量化研究，证明功绩招聘与可预期职业显著促进经济增长。</li>
+<li><a href="https://www.annualreviews.org/content/journals/10.1146/annurev-polisci-051215-022705" target="_blank" rel="noopener">Pepinsky, T.B., Pierskalla, J.H. &amp; Sacks, A. (2017) <em>Bureaucracy and Service Delivery</em>, Annual Review of Political Science</a> — 韦伯式官僚、发展型国家、嵌入型自主性与官僚政治的综合综述。</li>
+<li><a href="https://journals.sagepub.com/doi/10.1177/0020852316685162" target="_blank" rel="noopener">Cheung, A. et al. (2017) <em>The development of modern public administration in East Asia</em>, International Review of Administrative Sciences</a> — 东亚公务员考试作为官僚选拔模式的历史渊源与现代发展。</li>
+<li><a href="https://plato.stanford.edu/entries/public-reason/" target="_blank" rel="noopener">Public Reason — Stanford Encyclopedia of Philosophy</a> — 公共理性与协商民主的规范基础，含哈贝马斯话语伦理学的合法性条件。</li>
+<li><a href="https://www.cambridge.org/core/books/discursive-democracy/815BE121E6B83858285E1D5E6669AECC" target="_blank" rel="noopener">Dryzek, J.S. (1990) <em>Discursive Democracy</em></a> — 批判工具理性主导，主张以沟通理性重塑政策过程的话语民主理论。</li>
+<li><a href="https://pure.mpg.de/rest/items/item_1235690/component/file_1235688/content" target="_blank" rel="noopener">Scharpf, F.W. (1996) <em>Economic Integration, Democracy and the Welfare State</em>, MPIfG Working Paper 96&#x2F;2</a> — 分析经济一体化对国家福利政策输出合法性的侵蚀与民主自决有效性的流失。</li>
+<li><a href="https://en.wikipedia.org/wiki/Vetocracy" target="_blank" rel="noopener">Vetocracy — Wikipedia</a> — 否决政治概念的定义、历史案例（波兰-立陶宛联邦、邦联条例等）与立法成功率的经验数据。</li>
+<li><a href="https://edoc.vifapol.de/opus/volltexte/2013/4630/pdf/dp12_6.pdf" target="_blank" rel="noopener">Scharpf, F.W. (2012) <em>Legitimacy Intermediation in the Multilevel European Polity and Its Collapse in the Euro Crisis</em></a> — 多层级治理中合法性中介的理论与危机，含输入&#x2F;输出合法性的自由主义与共和主义基础辨析。</li>
+<li><a href="https://ideas.repec.org/a/oup/oxford/v22y2006i2p203-225.html" target="_blank" rel="noopener">Dal Bó, E. (2006) <em>Regulatory Capture: A Review</em>, Oxford Review of Economic Policy</a> — 俘获理论的系统综述，打开影响黑箱，涵盖旋转门、信息游说、委员会影响等多机制。</li>
+<li><a href="https://fukuyama.people.stanford.edu/politicalorderandpoliticaldecay" target="_blank" rel="noopener">Fukuyama, F. (2014) <em>Political Order and Political Decay</em></a> — 政治秩序与政治衰败的宏观理论，含再世袭化与国家俘获的系统分析。</li>
+<li><a href="https://www.oecd.org/content/dam/oecd/en/publications/reports/2025/04/tackling-civic-participation-challenges-with-emerging-technologies_bbe2a7f5/ec2ca9a2-en.pdf" target="_blank" rel="noopener">OECD (2025) <em>Tackling civic participation challenges with emerging technologies</em></a> — AI、区块链、VR 应对公民参与挑战的分析，含哈贝马斯机器等案例。</li>
+<li><a href="https://www.nature.com/articles/s41599-026-06980-z" target="_blank" rel="noopener">Nature Humanities and Social Sciences Communications (2026) <em>Who governs the ledger: rethinking blockchain governance through democratic innovation</em></a> — 区块链治理的审议民主重构，含抽签、二次方投票、模块化审议层等制度设计。</li>
+</ol>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"治理效率与程序正义——两种合法性路径的张力","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-08-11","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/08/11/治理效率与程序正义-两种合法性路径的张力/"},"url":"https://lanky228.github.io/2026/08/11/治理效率与程序正义-两种合法性路径的张力/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["政治学","治理理论","合法性","制度分析"]}</script>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%94%BF%E6%B2%BB%E5%AD%A6/" rel="tag"># 政治学</a>
+              <a href="/tags/%E6%B2%BB%E7%90%86%E7%90%86%E8%AE%BA/" rel="tag"># 治理理论</a>
+              <a href="/tags/%E5%90%88%E6%B3%95%E6%80%A7/" rel="tag"># 合法性</a>
+              <a href="/tags/%E5%88%B6%E5%BA%A6%E5%88%86%E6%9E%90/" rel="tag"># 制度分析</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/08/10/%E6%8A%A4%E8%82%A4%E5%8E%9F%E7%90%86%E6%B4%9E%E5%AF%9F-%E6%8B%86%E8%A1%A5%E5%B0%81%E7%9A%84%E5%88%86%E5%AD%90%E7%94%9F%E7%89%A9%E5%AD%A6%E7%9C%9F%E7%9B%B8/" rel="prev" title="护肤原理洞察——拆补封的分子生物学真相">
+      <i class="fa fa-chevron-left"></i> 护肤原理洞察——拆补封的分子生物学真相
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2026/08/11/SQL%E6%95%B0%E6%8D%AE%E5%BA%93%E6%97%B6%E5%8C%BA%E5%A4%84%E7%90%86%E7%97%9B%E7%82%B9-UTC%E9%83%A8%E7%BD%B2%E4%B8%8EJDBC%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" rel="next" title="SQL数据库时区处理痛点——UTC部署与JDBC解决方案">
+      SQL数据库时区处理痛点——UTC部署与JDBC解决方案 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#摘要"><span class="nav-number">2.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一、两种合法性路径的理论基础"><span class="nav-number">3.</span> <span class="nav-text">一、两种合法性路径的理论基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#输出合法性：绩效即正当"><span class="nav-number">3.1.</span> <span class="nav-text">输出合法性：绩效即正当</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#输入合法性：程序即正当"><span class="nav-number">3.2.</span> <span class="nav-text">输入合法性：程序即正当</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#历史原型的对照"><span class="nav-number">3.3.</span> <span class="nav-text">历史原型的对照</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、五组结构性张力"><span class="nav-number">4.</span> <span class="nav-text">二、五组结构性张力</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#合法性来源：产出绩效-vs-程序授权"><span class="nav-number">4.1.</span> <span class="nav-text">合法性来源：产出绩效 vs 程序授权</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#决策执行：垂直指令链-vs-多级博弈制衡"><span class="nav-number">4.2.</span> <span class="nav-text">决策执行：垂直指令链 vs 多级博弈制衡</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参与模式：吸纳型广度-vs-形式化深度"><span class="nav-number">4.3.</span> <span class="nav-text">参与模式：吸纳型广度 vs 形式化深度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#国家-社会关系：国家主导型-vs-社会契约型"><span class="nav-number">4.4.</span> <span class="nav-text">国家-社会关系：国家主导型 vs 社会契约型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#权力异化：官僚寻租-vs-资本俘获"><span class="nav-number">4.5.</span> <span class="nav-text">权力异化：官僚寻租 vs 资本俘获</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、三大根源"><span class="nav-number">5.</span> <span class="nav-text">三、三大根源</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#建国逻辑：革命建国-vs-契约建国"><span class="nav-number">5.1.</span> <span class="nav-text">建国逻辑：革命建国 vs 契约建国</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#国家-社会预设：主动投放-vs-持续授权"><span class="nav-number">5.2.</span> <span class="nav-text">国家-社会预设：主动投放 vs 持续授权</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#现代化阶段：追赶型-vs-后工业化"><span class="nav-number">5.3.</span> <span class="nav-text">现代化阶段：追赶型 vs 后工业化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、两种权力异化路径"><span class="nav-number">6.</span> <span class="nav-text">四、两种权力异化路径</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#路径-A：官僚寻租——个体性、受监督约束"><span class="nav-number">6.1.</span> <span class="nav-text">路径 A：官僚寻租——个体性、受监督约束</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#路径-B：资本俘获——制度性、结构性嵌入"><span class="nav-number">6.2.</span> <span class="nav-text">路径 B：资本俘获——制度性、结构性嵌入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本质差异：非法窃取-vs-合法俘获"><span class="nav-number">6.3.</span> <span class="nav-text">本质差异：非法窃取 vs 合法俘获</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、结构性风险与盲区"><span class="nav-number">7.</span> <span class="nav-text">五、结构性风险与盲区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#输出合法性模式的风险：绩效边际递减与制度弹性不足"><span class="nav-number">7.1.</span> <span class="nav-text">输出合法性模式的风险：绩效边际递减与制度弹性不足</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#输入合法性模式的风险：程序完善而产出无效，合法性空心化"><span class="nav-number">7.2.</span> <span class="nav-text">输入合法性模式的风险：程序完善而产出无效，合法性空心化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#盲区互补：效率模式的盲区-参与深度；程序模式的盲区-执行效率"><span class="nav-number">7.3.</span> <span class="nav-text">盲区互补：效率模式的盲区 &#x3D; 参与深度；程序模式的盲区 &#x3D; 执行效率</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、第三条道路的可能性"><span class="nav-number">8.</span> <span class="nav-text">六、第三条道路的可能性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#协商民主的实践"><span class="nav-number">8.1.</span> <span class="nav-text">协商民主的实践</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数字治理：技术能否破解规模-深度悖论？"><span class="nav-number">8.2.</span> <span class="nav-text">数字治理：技术能否破解规模-深度悖论？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#混合模式的具体形态"><span class="nav-number">8.3.</span> <span class="nav-text">混合模式的具体形态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#技术赋能的限度"><span class="nav-number">8.4.</span> <span class="nav-text">技术赋能的限度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、最终出路"><span class="nav-number">9.</span> <span class="nav-text">七、最终出路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#两种模式各自需要从对方借鉴什么"><span class="nav-number">9.1.</span> <span class="nav-text">两种模式各自需要从对方借鉴什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数字时代治理的新可能性"><span class="nav-number">9.2.</span> <span class="nav-text">数字时代治理的新可能性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结论性判断"><span class="nav-number">9.3.</span> <span class="nav-text">结论性判断</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">10.</span> <span class="nav-text">✅ 总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">11.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lanky</p>
+  <div class="site-description" itemprop="description">Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">138</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lanky228" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lanky228" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1289206629@qq.com" title="E-Mail → mailto:1289206629@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lanky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">257k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:54</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

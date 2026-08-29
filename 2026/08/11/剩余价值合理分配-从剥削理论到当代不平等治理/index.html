@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lanky228.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="💡 当资本回报率（约 7.5%）持续高于经济增长率（约 2-3%）与借贷成本（0-2%），囤积资产比参与生产更理性——财富必然向顶端集中。这不是市场自然结果，而是制度选择。十一位当代重要学者的研究共同指向这一底层机制。 背景：财富不平等为何回到百年前水平当代世界经济面临一个悖论：全球 GDP 持续增长，技术进步日新月异，但财富不平等却达到自大萧条以来未见的水平。Oxfam 2024 年报告显示，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="剩余价值合理分配——从剥削理论到当代不平等治理">
+<meta property="og:url" content="https://lanky228.github.io/2026/08/11/%E5%89%A9%E4%BD%99%E4%BB%B7%E5%80%BC%E5%90%88%E7%90%86%E5%88%86%E9%85%8D-%E4%BB%8E%E5%89%A5%E5%89%8A%E7%90%86%E8%AE%BA%E5%88%B0%E5%BD%93%E4%BB%A3%E4%B8%8D%E5%B9%B3%E7%AD%89%E6%B2%BB%E7%90%86/index.html">
+<meta property="og:site_name" content="Lanky的博客">
+<meta property="og:description" content="💡 当资本回报率（约 7.5%）持续高于经济增长率（约 2-3%）与借贷成本（0-2%），囤积资产比参与生产更理性——财富必然向顶端集中。这不是市场自然结果，而是制度选择。十一位当代重要学者的研究共同指向这一底层机制。 背景：财富不平等为何回到百年前水平当代世界经济面临一个悖论：全球 GDP 持续增长，技术进步日新月异，但财富不平等却达到自大萧条以来未见的水平。Oxfam 2024 年报告显示，">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-08-11T14:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-22T12:22:59.780Z">
+<meta property="article:author" content="Lanky">
+<meta property="article:tag" content="政治经济学">
+<meta property="article:tag" content="不平等">
+<meta property="article:tag" content="分配正义">
+<meta property="article:tag" content="皮凯蒂">
+<meta property="article:tag" content="剩余价值">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lanky228.github.io/2026/08/11/%E5%89%A9%E4%BD%99%E4%BB%B7%E5%80%BC%E5%90%88%E7%90%86%E5%88%86%E9%85%8D-%E4%BB%8E%E5%89%A5%E5%89%8A%E7%90%86%E8%AE%BA%E5%88%B0%E5%BD%93%E4%BB%A3%E4%B8%8D%E5%B9%B3%E7%AD%89%E6%B2%BB%E7%90%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Lanky的技术博客",
+  "url": "https://lanky228.github.io",
+  "description": "Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。",
+  "inLanguage": "zh-CN"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Lanky",
+  "url": "https://lanky228.github.io",
+  "jobTitle": "Database & Data Lake Engineer",
+  "knowsAbout": ["Apache Calcite", "StarRocks", "ClickHouse", "Apache Iceberg", "OLAP", "Data Lakehouse", "TPC-DS Benchmark", "DuckDB", "Trino", "SQL Parser", "AI Coding"]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://lanky228.github.io" },
+    { "@type": "ListItem", "position": 2, "name": "剩余价值合理分配——从剥削理论到当代不平等治理", "item": "https://lanky228.github.io/2026/08/11/剩余价值合理分配-从剥削理论到当代不平等治理/" }
+  ]
+}
+</script>
+
+
+  <title>剩余价值合理分配——从剥削理论到当代不平等治理 | Lanky的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Lanky的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Lanky的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">生活 学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/08/11/%E5%89%A9%E4%BD%99%E4%BB%B7%E5%80%BC%E5%90%88%E7%90%86%E5%88%86%E9%85%8D-%E4%BB%8E%E5%89%A5%E5%89%8A%E7%90%86%E8%AE%BA%E5%88%B0%E5%BD%93%E4%BB%A3%E4%B8%8D%E5%B9%B3%E7%AD%89%E6%B2%BB%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          剩余价值合理分配——从剥削理论到当代不平等治理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-08-11 22:00:00" itemprop="dateCreated datePublished" datetime="2026-08-11T22:00:00+08:00">2026-08-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>15k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>14 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>💡 当资本回报率（约 7.5%）持续高于经济增长率（约 2-3%）与借贷成本（0-2%），囤积资产比参与生产更理性——财富必然向顶端集中。这不是市场自然结果，而是制度选择。十一位当代重要学者的研究共同指向这一底层机制。</p>
+<h2 id="背景：财富不平等为何回到百年前水平"><a href="#背景：财富不平等为何回到百年前水平" class="headerlink" title="背景：财富不平等为何回到百年前水平"></a>背景：财富不平等为何回到百年前水平</h2><p>当代世界经济面临一个悖论：全球 GDP 持续增长，技术进步日新月异，但财富不平等却达到自大萧条以来未见的水平。Oxfam 2024 年报告显示，最富 1% 人口攫取了全球新增财富的近半数。</p>
+<p>这一现象无法用”市场自然回报”简单解释——它指向剩余价值分配的系统性失衡。</p>
+<p>传统的剩余价值理论源于马克思：劳动者创造的价值超过其劳动力价格的部分被资本家占有。这一框架在 19 世纪工业资本主义语境下具有强大的解释力，但在当代面临三重挑战。</p>
+<p>一是服务业与知识经济中”劳动”的边界模糊化；二是金融化使资本回报脱离实体生产；三是全球化使剥削关系跨越国界，变得难以追溯。</p>
+<p>当代学者并未抛弃剩余价值概念，而是重新定义其外延——从”劳动剥削”扩展到”价值攫取”，从”工厂内”扩展到”全球价值链”，从”资本-劳动”二元扩展到”资本-技术-制度-全球交换”的多维结构。</p>
+<p>📌 本报告系统梳理十一位当代重要学者对剩余价值分配的理论贡献，归入三大流派——财富再分配派（Piketty&#x2F;Zucman&#x2F;Saez）、制度设计派（Acemoglu&#x2F;Stiglitz）、系统批判派（Hickel&#x2F;Suwandi），并辅以价值理论（Mazzucato&#x2F;Veneziani）、全球视角（Milanovic）与哲学根基（Sandel）的补充，最终与”囤积居奇”理论融合，构建一个统一的剩余价值分配失衡分析框架。</p>
+<h2 id="剩余价值理论的历史脉络"><a href="#剩余价值理论的历史脉络" class="headerlink" title="剩余价值理论的历史脉络"></a>剩余价值理论的历史脉络</h2><h3 id="马克思的原始框架"><a href="#马克思的原始框架" class="headerlink" title="马克思的原始框架"></a>马克思的原始框架</h3><p>马克思在《资本论》中定义剩余价值（mehrwert）为：劳动者创造的总价值减去其劳动力价格（工资）的差额。资本家通过延长工作日（绝对剩余价值）或提高劳动生产率（相对剩余价值）来扩大这一差额。</p>
+<p>这一框架的核心洞见是：利润并非来自”等价交换”的市场公平，而是来自对劳动时间的无偿占有——资本家按劳动力价值支付工资，却按劳动创造的价值出售产品，二者之差即剩余价值。</p>
+<p>马克思的框架在 19 世纪具有强大的经验支撑：工厂制度、长工作日、童工现象使剥削可见且可量化。但进入 20 世纪后，这一框架面临三重挑战。</p>
+<p>一是服务与知识经济的兴起使”生产性劳动”与”非生产性劳动”的边界模糊；二是金融部门的膨胀使资本回报越来越脱离实体生产；三是福利国家与累进税制在二战后一度压缩了不平等，使”剥削”似乎成为历史概念。</p>
+<h3 id="从劳动价值论到分配正义"><a href="#从劳动价值论到分配正义" class="headerlink" title="从劳动价值论到分配正义"></a>从劳动价值论到分配正义</h3><p>然而，20 世纪末以来不平等的再度攀升，使剩余价值问题以新形态回归。Piketty 团队构建的世界不平等数据库（WID）显示，美国顶层 1% 的收入份额从 1970 年代的约 10% 升至 2020 年代的约 20%，回到 1920 年代水平。</p>
+<p>这一”U 型曲线”表明，二战后的平等化是战争与政策的产物，而非资本主义的自然趋势。</p>
+<p>当代学者的策略并非直接复兴劳动价值论，而是将”剥削”重新定义为更宽泛的”价值攫取”。Mazzucato 在《万物价值》中指出，当代资本主义的核心问题是”价值攫取被奖励高于价值创造”——金融部门通过利差、交易费、市场操纵获取的收入被记入 GDP，但本质是转移现有财富而非创造新财富。</p>
+<p>这一重新定义使剩余价值概念不再局限于工厂，而能覆盖金融化、专利垄断、平台经济等当代现象。</p>
+<h3 id="公理化剥削理论的突破"><a href="#公理化剥削理论的突破" class="headerlink" title="公理化剥削理论的突破"></a>公理化剥削理论的突破</h3><p>Veneziani 与 Yoshihara 的工作为剥削概念提供了形式化基础。他们将剥削定义为”劳动的不平等交换”：在一个异质偏好、技能与资产的经济中，若某个体投入的劳动多于其消费所体现的劳动，即被剥削。</p>
+<p>这一定义满足两条弱且规范上重要的公理，并能保留马克思基本定理（FMT）——即正利润蕴含正剥削——在复杂经济中的有效性。</p>
+<p>⚠️ 公理化方法的意义在于：它表明剥削不是意识形态口号，而是可在一般均衡框架中严格定义的结构性关系。更重要的是，Veneziani 将剥削与权力联系起来——剥削不仅是分配结果，更是权力不对等的产物。这为后续的制度分析与价值链分析提供了理论基础。</p>
+<h2 id="当代分配正义的三大流派"><a href="#当代分配正义的三大流派" class="headerlink" title="当代分配正义的三大流派"></a>当代分配正义的三大流派</h2><h3 id="财富再分配派：Piketty-Zucman-Saez"><a href="#财富再分配派：Piketty-Zucman-Saez" class="headerlink" title="财富再分配派：Piketty &#x2F; Zucman &#x2F; Saez"></a>财富再分配派：Piketty &#x2F; Zucman &#x2F; Saez</h3><p><strong>Piketty 的 r &gt; g 命题。</strong> Piketty 在《21 世纪资本论》中提出，当资本回报率（r，历史上约 4-5%）持续高于经济增长率（g，历史上约 1-2%），财富必然向顶端集中。</p>
+<p>其机制是：已积累的财富以 r 速率增长，而整体经济以 g 速率增长，因此既有财富的相对份额持续上升。Piketty 强调，r &gt; g 并非唯一力量，制度变迁与政治冲击同样重要，但 r &gt; g 是”放大财富不平等稳态的重要力量”。</p>
+<p>Piketty 的政策处方是累进资本税。在 2014 年提出全球财富税时，主流评论者多持怀疑态度；但十年后的 2024 年，巴西在 G20 峰会正式提议对全球亿万富翁征收最低税，虽未通过但已进入主流议程。</p>
+<p>Piketty 与 Saez、Zucman 在 2023 年的合著中进一步论证：对亿万富翁的适当征税方式是累进财富税，因为其财富主要以企业股权形式存在，可直接分割征税——1% 的财富税意味着企业主只需向政府交出 1% 的股份。</p>
+<p><strong>Zucman 的全球最低财富税蓝图。</strong> Zucman 为 2024 年巴西 G20 倡议起草的蓝图提出：对财富超过 10 亿美元的个体征收相当于其财富 2% 的最低税。</p>
+<p>其关键实证发现是：全球亿万富翁过去四十年财富年均实际增长率 7.1%，税前回报率约 7.5%，但有效税率仅 0.3%（部分国家低至 0%）。</p>
+<p>2% 的最低税将使约 3000 名亿万富翁每年贡献 2000-2500 亿美元，扩展至亿万富翁以下的”百分百万富翁”可再增 1000-1400 亿美元。</p>
+<p>Zucman 强调，2% 是温和的——它仅确保亿万富翁支付不低于中产阶级的有效税率。其核心收益不在收入本身，而在于”恢复公平感”。</p>
+<p><strong>Saez 的避税机制解剖。</strong> Saez 与 Zucman 的系列研究系统解剖了超级富豪的避税机制。他们对美国 Forbes 400 的税务匹配研究发现：最富 400 人的综合有效税率在 2018-2020 年平均为 23.8%，低于全国平均的 30.2%，远低于高薪劳动者的 45%。</p>
+<p>其低税率主要源于：应税个人收入相对于经济收入极低——最富 100 人的应税收入仅占其经济收入的三分之一，而全国平均为三分之二。</p>
+<p>具体机制包括：C 型公司分红很少，限制个人所得税；穿透式企业通过”全额费用化”条款报告负应税收入；遗产税通过估值折扣与慈善扣除大幅削弱——2017 年遗产税仅征收 200 亿美元，相当于最富 0.1% 家庭 15 万亿美元净财富的 0.13%。</p>
+<p>Saez 论证，现代财富税可通过第三方信息报告、高免征额（5000 万美元以上）、退出税等设计克服欧洲旧财富税的三大弱点：税基竞争、离岸逃税、免征额过低。</p>
+<h3 id="制度设计派：Acemoglu-Stiglitz"><a href="#制度设计派：Acemoglu-Stiglitz" class="headerlink" title="制度设计派：Acemoglu &#x2F; Stiglitz"></a>制度设计派：Acemoglu &#x2F; Stiglitz</h3><p><strong>Acemoglu：制度决定技术收益分配。</strong> Acemoglu 获 2024 年诺贝尔经济学奖的核心洞见是：制度（产权、法律、规制、政治安排）塑造技术与繁荣的分配。</p>
+<p>他提出”效用-技术可能性前沿”（UTPF）框架：在给定制度与技术下，不同群体可达的效用水平取决于权力平衡。精英可能选择”经济输家”策略——阻碍有益技术与制度变革以维持其份额，即使这使整个社会处于更低的前沿。</p>
+<p>在 AI 时代，Acemoglu 与 Johnson 在《权力与进展》中警告：技术进步不会自动带来共享繁荣。中世纪大教堂时代的农业与建筑技术进步使精英攫取了几乎全部经济收益，英国农民在 1100-1300 年间净财富零增长。</p>
+<p>当代 AI 正沿类似路径发展——“so-so 技术”（如自助结账机）不增加生产力，仅将工作转嫁给消费者、财富转移给股东。Acemoglu 主张，AI 应增强人类而非替代人类，这需要工会、公民社会、反垄断与立法改革形成制衡力量。</p>
+<p><strong>Stiglitz：不平等是政策选择。</strong> Stiglitz 在《不平等的代价》中系统论证：美国顶层 1% 获取约 20% 收入、42% 财富的格局，主要源于寻租（rent-seeking，指通过政治影响、垄断等手段获取更大份额而非增大蛋糕）——垄断利润、政治影响、金融操纵等活动。</p>
+<p>金融部门占 GDP 的 8%，却攫取了危机前 40% 的企业利润，而其在增长或稳定方面的贡献微乎其微。</p>
+<p>Stiglitz 的关键论点是：不平等与增长之间存在反向关系——攻击寻租与扭曲不仅减少不平等，还增强经济。因为不平等的根源之一是机会缺失，而机会缺失意味着人力资源浪费。</p>
+<p>在 2024 年的参议院证词中，Stiglitz 进一步指出：美国亿万富翁的有效税率低于工人阶级，这是”根本上不公平的”——股息与资本利得的税率低于工资，使”在海滩度假村收股息的人支付比照顾我们的护士更少的税”。</p>
+<h3 id="系统批判派：Hickel-Suwandi"><a href="#系统批判派：Hickel-Suwandi" class="headerlink" title="系统批判派：Hickel &#x2F; Suwandi"></a>系统批判派：Hickel &#x2F; Suwandi</h3><p><strong>Hickel：去增长与榨取式资本主义。</strong> Hickel 在《少即是多》中提出：资本主义的核心特征不是市场，而是围绕 perpetual growth（永恒增长）组织的系统，其运作公式是”取多于还”（take more than you give back），生态危机是其必然结果。</p>
+<p>他引用数据指出，过去 40 年全球 GDP 增长的新增收入中，28% 流向了最富 1%（全是百万富翁）——这意味着近三分之一的劳动、资源与碳排放是为了让富人更富。</p>
+<p>Hickel 的”去增长”（degrowth）主张不是缩减 GDP，而是有计划地缩减高收入国家的不必要生产（SUV、计划性淘汰、广告等），将释放的生产能力转向必要目的（可再生能源、公共交通、再生农业）。</p>
+<p>他论证，这反而能加速绿色转型——因为增长导向场景下生产能力已被利润性活动占用，而去增长释放了闲置能力。</p>
+<p><strong>Suwandi：全球价值链中的新帝国主义。</strong> Suwandi 在《价值链》中提出”劳动价值商品链方法”，揭示跨国公司如何通过劳动管理策略将剩余价值从全球南方（发展中国家）转移至北方（发达国家）。</p>
+<p>其核心方法是”单位劳动成本”分析——通过比较全球价值链各环节的劳动成本，量化价值转移的方向与规模。</p>
+<p>Suwandi 以印尼供应商为案例，展示了跨国公司如何通过”经济化”与”灵活”生产策略（劳动管理方法、合同外包、准时制生产）重新确立北方的帝国主导地位，同时延续南方的依赖与全球经济极化。</p>
+<p>她与 Hickel 等人 2022 年的合著进一步量化了 1990-2015 年间通过不平等交换从全球南方流向北方的价值”流失”。今天，控制价值链并虹吸利润的主要是拥有巨大经济与政治权力的金融利益集团。</p>
+<h2 id="技术与剩余价值"><a href="#技术与剩余价值" class="headerlink" title="技术与剩余价值"></a>技术与剩余价值</h2><h3 id="技术不是天然公平"><a href="#技术不是天然公平" class="headerlink" title="技术不是天然公平"></a>技术不是天然公平</h3><p>Acemoglu 的核心贡献是打破了”技术自动带来共享繁荣”的 techno-optimism（技术乐观主义）神话。他通过千年经济史表明，技术进步的收益分配始终取决于制度与权力平衡。</p>
+<p>中世纪英国农奴未从大教堂建筑技术中获益，因为制度（工会禁令、远离民主）将收益导向精英。战后美国的三十年共享繁荣不是技术自动的结果，而是工会力量、反垄断执法、支持性规制共同作用的产物。</p>
+<h3 id="AI-作为精英控制工具"><a href="#AI-作为精英控制工具" class="headerlink" title="AI 作为精英控制工具"></a>AI 作为精英控制工具</h3><p>Acemoglu 警告，当代 AI 正沿”自动化取代人类”的路径发展，这既不利于经济也不利于民主，且二者相互强化。AI 在某些政府手中已是社会控制工具，同时为少数人创造财富。</p>
+<p>问题不在于 AI 能力本身，而在于其发展方向——是增强人类决策（如台湾的民主参与平台），还是替代人类以深化不平等与操纵用户（如社交媒体算法）。</p>
+<p>Acemoglu 的政策菜单包括：互联网用户的数据所有权；奖励就业而非自动化的税改；政府支持多元化高科技研究方向；废除《1996 年通信规范法》第 230 条；数字广告税以限制算法驱动的不实信息盈利能力。</p>
+<p>其核心主张是：技术辩论不应只围绕产品精巧与算法，而应聚焦”它们是在为人民工作还是反对人民”。</p>
+<h3 id="技术收益分配的制度条件"><a href="#技术收益分配的制度条件" class="headerlink" title="技术收益分配的制度条件"></a>技术收益分配的制度条件</h3><p>将 Acemoglu 的框架与 Piketty 的 r &gt; g 结合，可得出一个重要推论：技术进步提高 r（资本回报率），但若制度不将收益分配给劳动者，g（增长惠及大众的部分）不会同步上升，r &gt; g 的 gap（差距）反而扩大。</p>
+<p>这解释了为何 1980 年代以来信息技术革命伴随而非缓解了不平等——制度（工会衰落、税收累进性下降、金融化）将技术收益导向了顶端。</p>
+<h2 id="全球化与不平等交换"><a href="#全球化与不平等交换" class="headerlink" title="全球化与不平等交换"></a>全球化与不平等交换</h2><h3 id="公民身份租金"><a href="#公民身份租金" class="headerlink" title="公民身份租金"></a>公民身份租金</h3><p>Milanovic 提出了一个量化全球不平等的锐利概念：约 60% 的终身收入由出生国决定，形成”公民身份租金”（citizenship rent）。</p>
+<p>一个法国人与一个马里人若教育、经验、勤奋相同，工资差异可达 5:1 甚至更大，仅因前者在富国工作。这意味着全球不平等的主要维度不是”阶级”（国内不平等），而是”位置”（国家间不平等）。</p>
+<p>Milanovic 在《资本主义，独自》中指出，资本主义首次成为全球唯一社会经济系统。他区分”自由精英资本主义”与”政治资本主义”（以中国为代表），并警告前者的”homoploutia”现象——高劳动收入与高资本收入集中于同一群体——使经济精英与政治精英重叠，引入寡头特征。</p>
+<h3 id="全球价值链中的隐性剥削"><a href="#全球价值链中的隐性剥削" class="headerlink" title="全球价值链中的隐性剥削"></a>全球价值链中的隐性剥削</h3><p>Suwandi 的研究补足了 Milanovic 的宏观图景：公民身份租金的微观基础是全球价值链中的劳动榨取。</p>
+<p>跨国公司通过合同外包、准时制生产、劳动灵活化将成本压力传导至南方供应商，后者通过压低工资、延长工时、削弱劳动保护来吸收压力。</p>
+<p>这一过程的不平等交换结构使北方的”价值创造”叙事（如”苹果设计 iPhone”）掩盖了南方劳动者的剩余价值贡献。</p>
+<h3 id="全球不平等的动态"><a href="#全球不平等的动态" class="headerlink" title="全球不平等的动态"></a>全球不平等的动态</h3><p>Milanovic 的”大象曲线”显示，1988-2008 年间全球收入增长的赢家是全球中产阶层（主要是中国与印度）与顶端 1%，输家是发达国家的中下阶层。</p>
+<p>这一动态解释了民粹主义在发达国家的兴起——全球化使南方贫困减少，但北方中产被挤压。随着亚洲增长放缓，公民身份租金可能下降，全球不平等可能从”位置主导”回归”阶级主导”。</p>
+<h2 id="税收作为分配工具"><a href="#税收作为分配工具" class="headerlink" title="税收作为分配工具"></a>税收作为分配工具</h2><h3 id="全球累进资本税的可行性"><a href="#全球累进资本税的可行性" class="headerlink" title="全球累进资本税的可行性"></a>全球累进资本税的可行性</h3><p>Piketty 在 2014 年提出全球财富税时被视为乌托邦，但 2024 年巴西 G20 倡议使其进入主流议程。Zucman 的蓝图显示，2% 最低税在技术上可行——可借鉴跨国公司最低税的”最后征税人”机制，即使非所有国家采纳也能执行。</p>
+<p>关键挑战是强化退出税与信息共享，防止富豪通过移民或离岸结构逃避。</p>
+<h3 id="避税机制与反制"><a href="#避税机制与反制" class="headerlink" title="避税机制与反制"></a>避税机制与反制</h3><p>Saez 的研究详尽解剖了富豪避税：C 型公司不分红以避免个人所得税；穿透式企业利用”全额费用化”报告负应税收入；遗产通过估值折扣与慈善扣除大幅削弱税基。</p>
+<p>但 Saez 论证，现代财富税可通过第三方信息报告（如金融机构自动报送余额）、高免征额（5000 万美元以上，仅影响 0.1% 家庭）、无资产类别豁免、对中介资产的穿透征税等设计克服这些漏洞。</p>
+<h3 id="政治阻力"><a href="#政治阻力" class="headerlink" title="政治阻力"></a>政治阻力</h3><p>Stiglitz 指出，税收改革的阻力不仅是技术性的，更是政治性的——“1 美元一票”的民主使富豪能通过政治献金、旋转门、游说影响税制设计。</p>
+<p>降低富人税率反而鼓励寻租，因为寻租回报主要流向顶端，税率降低使寻租的净收益相对上升。因此，税收改革必须与政治改革（限制政治献金、强化利益冲突披露）联动。</p>
+<h2 id="去增长的挑战与张力"><a href="#去增长的挑战与张力" class="headerlink" title="去增长的挑战与张力"></a>去增长的挑战与张力</h2><h3 id="无限增长与有限星球的矛盾"><a href="#无限增长与有限星球的矛盾" class="headerlink" title="无限增长与有限星球的矛盾"></a>无限增长与有限星球的矛盾</h3><p>Hickel 的核心论证是：资本主义围绕 perpetual growth 组织，而星球资源有限，二者矛盾不可调和。他引用 11000 名科学家的联署声明，呼吁放弃 GDP 增长目标，转向人类福祉与生态稳定。</p>
+<p>关键证据是：超越一定点后（高收入国家已远超），GDP 与福祉的相关性断裂——西班牙人均 GDP 比美国低 50%，但预期寿命高 5 年；哥斯达黎加以美国 20% 的人均 GDP 实现了更高的福祉。</p>
+<h3 id="去增长是否可行"><a href="#去增长是否可行" class="headerlink" title="去增长是否可行"></a>去增长是否可行</h3><p>Hickel 强调，去增长不是衰退——衰退是增长依赖型经济停止增长的混乱后果，去增长是转向”不需要增长”的经济类型。</p>
+<p>其政策包括：缩减不必要生产（SUV、计划性淘汰、广告）；缩短工作周并引入公共就业保障；去商品化公共物品；更公平分配收入与财富。这反而能加速绿色转型，因为释放的生产能力可转向必要目的。</p>
+<h3 id="与发展型国家的张力"><a href="#与发展型国家的张力" class="headerlink" title="与发展型国家的张力"></a>与发展型国家的张力</h3><p>去增长理论与以中国为代表的发展型国家模式存在根本张力。中国依靠高增长维持政权合法性与社会稳定，”去增长”在政治上不可行。但中国的增长模式也面临生态代价与内需不足的矛盾。</p>
+<p>Milanovic 指出，政治资本主义的稳定依赖高增长——一旦增长放缓，腐败与不平等可能不被容忍。</p>
+<p>这暗示去增长的真正挑战不是技术性的，而是政治性的：如何在增长放缓时维持合法性，这需要从”绩效合法性”转向”程序合法性”与更公平的分配。</p>
+<h2 id="价值理论的再审视"><a href="#价值理论的再审视" class="headerlink" title="价值理论的再审视"></a>价值理论的再审视</h2><h3 id="Mazzucato：谁创造价值，谁攫取价值"><a href="#Mazzucato：谁创造价值，谁攫取价值" class="headerlink" title="Mazzucato：谁创造价值，谁攫取价值"></a>Mazzucato：谁创造价值，谁攫取价值</h3><p>Mazzucato 在《万物价值》中重启了经济学中失落的”价值”辩论。她指出，19 世纪后半叶价值理论从”客观”（基于生产条件）转向”主观”（基于价格与偏好），使任何有市场价格的活动都被视为价值创造。</p>
+<p>这一转向的后果是：金融部门从”非生产性”变为”生产性”（计入 GDP），使利差、交易费、市场操纵等价值攫取活动被合法化为”价值创造”。</p>
+<p>Mazzucato 的关键论点是：当价值由价格定义，收入分配的合理性便成为循环论证——你赚得多所以你创造价值，你创造价值因为你赚得多。这使不平等无法被质疑。</p>
+<p>她主张恢复价值创造与价值攫取的区分：前者是”建立不同类型资源以生产新商品与服务”的过程，后者是”移动现有资源与产出并从交易中获取不成比例收益”的活动。</p>
+<h3 id="Veneziani：剥削的公理化定义"><a href="#Veneziani：剥削的公理化定义" class="headerlink" title="Veneziani：剥削的公理化定义"></a>Veneziani：剥削的公理化定义</h3><p>Veneziani 的工作为剥削概念提供了数学严谨性。他与 Yoshihara 证明，在异质偏好、技能与资产的复杂经济中，”劳动的不平等交换”定义是唯一满足两条弱公理且保留马克思基本定理的定义。</p>
+<p>这表明剥削不是意识形态，而是可形式化的结构性关系。更重要的是，Veneziani 将剥削与权力联系——剥削不仅是分配结果，更是权力不对等的产物，这为制度分析提供了规范基础。</p>
+<h2 id="平等哲学的根基"><a href="#平等哲学的根基" class="headerlink" title="平等哲学的根基"></a>平等哲学的根基</h2><p>Sandel 在《优绩主义的暴政》中从哲学层面质疑了”应得”（desert）概念。他论证，成功者倾向于相信其成功是自身能力与努力的结果，而忽视运气与恩典，这产生”优绩主义傲慢”（meritocratic hubris），同时羞辱失败者。</p>
+<p>Sandel 追溯至 Rawls 的论证：天赋与努力的分布”从道德观点看是任意的”，因此不应据此分配回报。</p>
+<p>Sandel 的贡献是揭示：即使实现真正的机会平等，按才能与努力分配回报的体制仍是不正义的——因为它产生心理伤害（赢者的傲慢与输者的屈辱）并侵蚀共同善。</p>
+<p>他主张，我们需要重拾”运气的伦理”或”恩典的伦理”，承认成功受惠于我们无法控制的因素，从而培养感恩与谦逊，让社会团结有了根基。在实践层面，Sandel 呼吁”更新工作的尊严”，将非学位劳动的社会认可置于政治中心。</p>
+<h2 id="与”囤积居奇”理论的融合"><a href="#与”囤积居奇”理论的融合" class="headerlink" title="与”囤积居奇”理论的融合"></a>与”囤积居奇”理论的融合</h2><h3 id="囤积居奇的底层机制"><a href="#囤积居奇的底层机制" class="headerlink" title="囤积居奇的底层机制"></a>囤积居奇的底层机制</h3><p>囤积居奇理论的核心命题是：当借贷成本低于囤积收益，理性主体会无限加杠杆囤积资产，推动资产价格脱离基本面，最终以崩溃收场。</p>
+<p>这一机制可被剩余价值理论重新诠释：囤积收益本质上是对既有财富的资本回报（r），而社会收益是经济增长（g）。当 r &gt; g 持续存在，囤积资产比参与生产更理性——这正是 Piketty 命题的推论。</p>
+<h3 id="r-g-验证了囤积居奇的动力学"><a href="#r-g-验证了囤积居奇的动力学" class="headerlink" title="r &gt; g 验证了囤积居奇的动力学"></a>r &gt; g 验证了囤积居奇的动力学</h3><p>Zucman 的数据为这一融合提供了量化基础：全球亿万富翁过去四十年财富年均实际增长率 7.1%，税前回报率约 7.5%。而同期全球经济年均增长率约 2-3%。</p>
+<p>这意味着”囤积收益”（7.5%）远超”社会收益”（2-3%），r &gt; g 的差距高达 4-5 个百分点。更关键的是，亿万富翁的有效税率仅 0.2%-0.3%，使税后囤积收益几乎不被侵蚀。</p>
+<h3 id="借贷成本与无限加杠杆"><a href="#借贷成本与无限加杠杆" class="headerlink" title="借贷成本与无限加杠杆"></a>借贷成本与无限加杠杆</h3><p>2008 年金融危机后，主要央行实行近零利率政策，借贷成本降至 0-2%。这使囤积收益（7.5%）与借贷成本（0-2%）的差距高达 5-7 个百分点。</p>
+<p>在这一差距下，无限加杠杆囤积资产（房产、股票、艺术品、加密货币）成为理性策略。Saez 的研究显示，最富 400 人的应税收入仅占其经济收入的三分之一——这意味着他们的财富增长主要来自未实现资本利得，而这些利得在”实现”前不被征税，形成”囤积即避税”的循环。</p>
+<h3 id="财富集中作为囤积的现代形式"><a href="#财富集中作为囤积的现代形式" class="headerlink" title="财富集中作为囤积的现代形式"></a>财富集中作为囤积的现代形式</h3><p>传统囤积居奇针对粮食等必需品，当代囤积则针对资产。财富集中即是囤积的现代形式：当顶层 1% 持有 42% 财富，而这些财富以 r &gt; g 速率增长，其本质是少数人对社会生产能力的系统性囤积。</p>
+<p>Stiglitz 的寻租分析揭示了囤积的政治保护机制——垄断、金融化、政治影响使囤积收益被制度化。Mazzucato 的价值攫取概念则描述了囤积的经济机制——金融部门通过移动现有财富而非创造新财富来获利。</p>
+<h3 id="必然崩溃的逻辑"><a href="#必然崩溃的逻辑" class="headerlink" title="必然崩溃的逻辑"></a>必然崩溃的逻辑</h3><p>囤积居奇的终点是崩溃，因为无限加杠杆不可持续。当资产价格完全脱离基本面，任何冲击（利率上升、流动性收紧、信心动摇）都可能触发去杠杆螺旋。</p>
+<p>2008 年金融危机、2020 年市场崩盘、2023 年地区银行危机都是这一机制的实例。r &gt; g 的持续存在意味着，只要制度不干预，囤积-崩溃循环将周期性重现。</p>
+<p>这正是 Piketty 主张累进资本税、Zucman 主张全球最低财富税、Stiglitz 主张攻击寻租的根本理由——它们都是对囤积居奇动力学的制度性反制。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><p><strong>剩余价值分配失衡是当代不平等的核心机制，r &gt; g 是其量化表征。</strong> 当资本回报率（7.5%）持续高于经济增长率（2-3%）与借贷成本（0-2%），囤积资产比参与生产更理性，财富必然向顶端集中。</p>
+<p>这不是市场自然结果，而是制度选择——税收累进性下降、工会衰落、金融化放松管制共同制造了囤积的激励机制。治理不平等的首要任务是压缩 r 与 g 的差距，具体工具包括累进财富税（Zucman 蓝图）、反垄断与反寻租（Stiglitz）、技术方向引导（Acemoglu）、价值攫取识别（Mazzucato）。</p>
+<p><strong>技术不能自动解决不平等，制度决定其收益分配。</strong> AI 既是机会也是风险——它可能增强人类决策，也可能成为精英控制工具。Acemoglu 的历史研究表明，技术进步的共享繁荣从未自动发生，它始终是工会、公民社会、反垄断、立法改革形成的制衡力量的产物。</p>
+<p>在 AI 时代，我们需要主动选择”机器有用性”而非”机器智能”路径，奖励就业而非自动化的税改，确保技术收益流向劳动者而非仅股东。</p>
+<p><strong>去增长的真正挑战是政治性的，需要在增长放缓时维持合法性。</strong> 希克尔的去增长理论指出无限增长与有限星球不可调和，但其落地需要解决发展型国家的合法性转型问题。</p>
+<p>中国等政治资本主义模式的稳定依赖高增长，一旦增长放缓，需要从”绩效合法性”转向更公平的分配与更深的参与。这暗示全球不平等治理需要双轨：高收入国家主动去增长并缩减不必要生产，发展中国家则需在增长中嵌入更公平的分配机制。</p>
+<p>剩余价值分配的合理化，最终依赖于一个超越增长主义的新的文明叙事——以人类福祉与生态稳定为目标，而非以资本积累为鹄的。</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
+<li><p><strong>Roberto Veneziani &amp; Naoki Yoshihara, “Exploitation in economies with heterogeneous preferences, skills and assets: An axiomatic approach,” Journal of Theoretical Politics, 2015</strong> — <a href="https://ideas.repec.org/a/sae/jothpo/v27y2015i1p8-33.html" target="_blank" rel="noopener">https://ideas.repec.org/a/sae/jothpo/v27y2015i1p8-33.html</a> — 剥削作为劳动的不平等交换的公理化定义，在异质经济中唯一满足两条弱公理。</p>
+</li>
+<li><p><strong>Mariana Mazzucato, “The Value of Everything: Making and Taking in the Global Economy”</strong> — <a href="https://marianamazzucato.com/books/the-value-of-everything/" target="_blank" rel="noopener">https://marianamazzucato.com/books/the-value-of-everything/</a> — 价值攫取被奖励高于价值创造，需重启价值辩论。</p>
+</li>
+<li><p><strong>Thomas Piketty, “About Capital in the Twenty-First Century,” American Economic Review, 2015</strong> — <a href="https://www.aeaweb.org/articles?id=10.1257/aer.p20151060" target="_blank" rel="noopener">https://www.aeaweb.org/articles?id=10.1257%2Faer.p20151060</a> — 皮凯蒂澄清 r &gt; g 在财富不平等分析中的作用，及其对最优税收的含义。</p>
+</li>
+<li><p><strong>Gabriel Zucman et al., “A blueprint for a coordinated minimum effective taxation standard for ultra-high-net-worth individuals,” 2024</strong> — <a href="https://www.gabriel-zucman.eu/files/report-g20.pdf" target="_blank" rel="noopener">https://www.gabriel-zucman.eu/files/report-g20.pdf</a> — 2% 全球亿万富翁最低税蓝图，3000 人贡献 2000-2500 亿美元，亿万富翁有效税率仅 0.3%。</p>
+</li>
+<li><p><strong>Akcan Balkir, Emmanuel Saez, Danny Yagan, Gabriel Zucman, “Estimating Tax Burdens by Wealth Groups,” NBER Working Paper 34170, 2024</strong> — <a href="https://www.nber.org/system/files/working_papers/w34170/w34170.pdf" target="_blank" rel="noopener">https://www.nber.org/system/files/working_papers/w34170/w34170.pdf</a> — Forbes 400 综合有效税率 23.8%，低于全国平均 30.2%。</p>
+</li>
+<li><p><strong>Joseph Stiglitz, “From The Price of Inequality,” Vanity Fair, 2012</strong> — <a href="https://www.vanityfair.com/news/2012/05/joseph-stiglitz-the-price-on-inequality" target="_blank" rel="noopener">https://www.vanityfair.com/news/2012/05/joseph-stiglitz-the-price-on-inequality</a> — 顶层 1% 获取约 20% 收入、42% 财富，寻租是核心机制。</p>
+</li>
+<li><p><strong>MIT News, “An AI challenge only humans can solve,” 2023</strong> — <a href="https://news.mit.edu/2023/power-and-progress-book-ai-inequality-0517" target="_blank" rel="noopener">https://news.mit.edu/2023/power-and-progress-book-ai-inequality-0517</a> — Acemoglu 与 Johnson《权力与进展》：技术进步不自动带来共享繁荣，AI 可能成为精英控制工具。</p>
+</li>
+<li><p><strong>Branko Milanovic, “Is citizenship just a rent?,” Substack, 2021</strong> — <a href="https://brankomilanovic.substack.com/p/is-citizenship-just-a-rent" target="_blank" rel="noopener">https://brankomilanovic.substack.com/p/is-citizenship-just-a-rent</a> — 约 60% 终身收入由出生国决定，公民身份已退化为金融租金。</p>
+</li>
+<li><p><strong>Intan Suwandi, “Value Chains: The New Economic Imperialism,” Monthly Review Press, 2019</strong> — <a href="https://nyupress.org/9781583677810/value-chains/" target="_blank" rel="noopener">https://nyupress.org/9781583677810/value-chains/</a> — 全球价值链中的劳动榨取，跨国公司从南方攫取剩余价值。</p>
+</li>
+<li><p><strong>Thomas Piketty, “Capital in the 21st Century, Ten Years Later,” World Inequality Lab Working Paper 2025&#x2F;21</strong> — <a href="https://wid.world/document/capital-in-the-21st-century-ten-years-later-world-inequality-lab-working-paper-2025-21/" target="_blank" rel="noopener">https://wid.world/document/capital-in-the-21st-century-ten-years-later-world-inequality-lab-working-paper-2025-21/</a> — 十年后回顾：全球财富税从乌托邦到 G20 主流议程，平等化的长期趋势需要社会斗争。</p>
+</li>
+<li><p><strong>Roberto Veneziani &amp; Naoki Yoshihara, “Exploitation and Profits: A General Axiomatic Approach in Convex Economies with Heterogeneous Agents,” 2010</strong> — <a href="https://ideas.repec.org/p/ums/papers/2010-12.html" target="_blank" rel="noopener">https://ideas.repec.org/p/ums/papers/2010-12.html</a> — 在一般凸经济中保留马克思基本定理（FMT）的剥削定义。</p>
+</li>
+<li><p><strong>Roberto Veneziani, “A Progress Report On Marxian Economic Theory: On The Controversies In Exploitation Theory Since Okishio (1963),” Journal of Economic Surveys, 2017</strong> — <a href="https://ideas.repec.org/a/bla/jecsur/v31y2017i5p1421-1448.html" target="_blank" rel="noopener">https://ideas.repec.org/a/bla/jecsur/v31y2017i5p1421-1448.html</a> — 自 Okishio 以来剥削理论的争议综述，公理化路径的进展。</p>
+</li>
+<li><p><strong>Thomas Piketty, “Capital and Wealth Taxation in the 21st Century,” National Tax Journal, 2015</strong> — <a href="http://piketty.pse.ens.fr/files/Piketty2015NTJ.pdf" target="_blank" rel="noopener">http://piketty.pse.ens.fr/files/Piketty2015NTJ.pdf</a> — 阐明 r &gt; g 与财富不平等放大的关系，讨论累进遗产税与财富税的最优设计。</p>
+</li>
+<li><p><strong>Thomas Piketty, Emmanuel Saez, Gabriel Zucman, “Rethinking Capital and Wealth Taxation,” 2023</strong> — <a href="http://www.piketty.pse.ens.fr/files/PikettySaezZucman2023RKT.pdf" target="_blank" rel="noopener">http://www.piketty.pse.ens.fr/files/PikettySaezZucman2023RKT.pdf</a> — 论证亿万富翁应通过累进财富税征税，因企业股权可分割直接征税。</p>
+</li>
+<li><p><strong>EU Tax Observatory, “Global Tax Evasion Report 2024”</strong> — <a href="https://taxobservatory.eu/eutax-publication/global-tax-evasion-report-2024/" target="_blank" rel="noopener">https://taxobservatory.eu/eutax-publication/global-tax-evasion-report-2024/</a> — 全球亿万富翁有效税率 0%-0.5%，2% 最低税可贡献约 2500 亿美元。</p>
+</li>
+<li><p><strong>Berkeley News, “Economist Gabriel Zucman on the benefits of a (modest) billionaire tax,” 2025</strong> — <a href="https://news.berkeley.edu/2025/07/25/berkeley-talks-gabriel-zucman-billionaire-tax/" target="_blank" rel="noopener">https://news.berkeley.edu/2025/07/25/berkeley-talks-gabriel-zucman-billionaire-tax/</a> — 亿万富翁有效税率 0.2%，2% 最低税将恢复公平感。</p>
+</li>
+<li><p><strong>Emmanuel Saez &amp; Gabriel Zucman, “Responses to Objections to Warren’s Wealth Tax”</strong> — <a href="https://eml.berkeley.edu/%7Esaez/saez-zucman-wealthtaxobjections.pdf" target="_blank" rel="noopener">https://eml.berkeley.edu/%7Esaez/saez-zucman-wealthtaxobjections.pdf</a> — 财富税避税机制与反制设计，国际经验教训。</p>
+</li>
+<li><p><strong>Emmanuel Saez &amp; Gabriel Zucman, “Progressive Wealth Taxation,” Brookings Papers on Economic Activity, 2019</strong> — <a href="https://eml.berkeley.edu/%7Esaez/saez-zucmanBPEAoct19.pdf" target="_blank" rel="noopener">https://eml.berkeley.edu/%7Esaez/saez-zucmanBPEAoct19.pdf</a> — 累进财富税设计、避税与执行证据，Warren&#x2F;Sanders 提案分析。</p>
+</li>
+<li><p><strong>Daron Acemoglu, “Institutions, Technology and Prosperity,” Nobel Prize Lecture, 2025</strong> — <a href="https://www.nobelprize.org/uploads/2025/01/acemoglu-lecture.pdf" target="_blank" rel="noopener">https://www.nobelprize.org/uploads/2025/01/acemoglu-lecture.pdf</a> — 制度塑造技术与繁荣分配，UTPF 框架与精英的”经济输家”策略。</p>
+</li>
+<li><p><strong>MIT Sloan Management Review, “Why the Power of Technology Rarely Goes to the People,” 2023</strong> — <a href="https://sloanreview.mit.edu/article/why-the-power-of-technology-rarely-goes-to-the-people/" target="_blank" rel="noopener">https://sloanreview.mit.edu/article/why-the-power-of-technology-rarely-goes-to-the-people/</a> — 技术方向由权力持有者议程决定，共享繁荣需要制衡力量。</p>
+</li>
+<li><p><strong>Joseph Stiglitz, “The Origins of Inequality, and Policies to Contain It,” 2015</strong> — <a href="https://business.columbia.edu/sites/default/files-efs/imce-uploads/Joseph_Stiglitz/2015%20Origins%20of%20Inequality.pdf" target="_blank" rel="noopener">https://business.columbia.edu/sites/default/files-efs/imce-uploads/Joseph_Stiglitz/2015%20Origins%20of%20Inequality.pdf</a> — 不平等源于寻租、垄断与金融化，非市场自然结果。</p>
+</li>
+<li><p><strong>Joseph Stiglitz, U.S. Senate Budget Committee Testimony, 2024</strong> — <a href="https://www.budget.senate.gov/imo/media/doc/stiglitz_testimony_612.pdf" target="_blank" rel="noopener">https://www.budget.senate.gov/imo/media/doc/stiglitz_testimony_612.pdf</a> — 美国亿万富翁有效税率低于工人阶级，税制扭曲加剧金融化与不平等。</p>
+</li>
+<li><p><strong>Jason Hickel, “Less is More: How Degrowth Will Save the World”</strong> — <a href="https://www.jasonhickel.org/less-is-more" target="_blank" rel="noopener">https://www.jasonhickel.org/less-is-more</a> — 资本主义围绕 perpetual growth 组织，公式”取多于还”导致生态危机。</p>
+</li>
+<li><p><strong>Jason Hickel, “Accelerationist possibilities in an ecosocialist degrowth scenario,” 2023</strong> — <a href="https://www.jasonhickel.org/blog/2023/12/21/accelerationist-possibilities-in-an-ecosocialist-degrowth-scenario" target="_blank" rel="noopener">https://www.jasonhickel.org/blog/2023/12/21/accelerationist-possibilities-in-an-ecosocialist-degrowth-scenario</a> — 去增长释放生产能力，反而加速绿色转型。</p>
+</li>
+<li><p><strong>Monthly Review Press, “Value Chains”</strong> — <a href="https://monthlyreview.org/9781583677810/" target="_blank" rel="noopener">https://monthlyreview.org/9781583677810/</a> — 单位劳动成本分析量化全球不平等交换，印尼供应商案例。</p>
+</li>
+<li><p><strong>Daron Acemoglu, “Who Controls AI?,” Project Syndicate, 2023</strong> — <a href="https://www.project-syndicate.org/onpoint/who-controls-ai" target="_blank" rel="noopener">https://www.project-syndicate.org/onpoint/who-controls-ai</a> — 生成式 AI 治理的”谁”与”如何”同等重要，工人需在 AI 方向上有发声权。</p>
+</li>
+<li><p><strong>Branko Milanovic, “Global Inequality,” Harvard University Press, 2018</strong> — <a href="https://www.hup.harvard.edu/books/9780674984035" target="_blank" rel="noopener">https://www.hup.harvard.edu/books/9780674984035</a> — 全球不平等动态，国家间不平等是主要维度。</p>
+</li>
+<li><p><strong>LSE Review of Books, “Capitalism, Alone by Branko Milanovic,” 2019</strong> — <a href="https://blogs.lse.ac.uk/lsereviewofbooks/2019/11/11/book-review-capitalism-alone-by-branko-milanovic/" target="_blank" rel="noopener">https://blogs.lse.ac.uk/lsereviewofbooks/2019/11/11/book-review-capitalism-alone-by-branko-milanovic/</a> — 资本主义首次成为全球唯一系统，homoploutia 与政治资本主义的张力。</p>
+</li>
+<li><p><strong>CEPR VoxEU, “Income inequality and citizenship: Quantifying the link”</strong> — <a href="https://cepr.org/voxeu/columns/income-inequality-and-citizenship-quantifying-link" target="_blank" rel="noopener">https://cepr.org/voxeu/columns/income-inequality-and-citizenship-quantifying-link</a> — 量化公民身份溢价，瑞典对刚果的溢价达 329%。</p>
+</li>
+<li><p><strong>Jason Hickel, “We need a Green New Deal without growth,” 2020</strong> — <a href="https://www.jasonhickel.org/blog/2020/10/19/we-need-a-green-new-deal-without-growth" target="_blank" rel="noopener">https://www.jasonhickel.org/blog/2020/10/19/we-need-a-green-new-deal-without-growth</a> — 超越一定点后 GDP 与福祉断裂，去增长不等于衰退。</p>
+</li>
+<li><p><strong>Mariana Mazzucato, “Takers and Makers: Who are the Real Value Creators?,” Evonomics, 2019</strong> — <a href="https://evonomics.com/value-of-everything-mariana-mazzucato/" target="_blank" rel="noopener">https://evonomics.com/value-of-everything-mariana-mazzucato/</a> — 价格定义价值的循环论证使不平等无法被质疑，需区分价值创造与攫取。</p>
+</li>
+<li><p><strong>Michael Sandel, “The tyranny of merit,” TED Talk, 2020</strong> — <a href="https://www.ted.com/talks/michael_sandel_the_tyranny_of_merit" target="_blank" rel="noopener">https://www.ted.com/talks/michael_sandel_the_tyranny_of_merit</a> — 优绩主义傲慢与失败者屈辱，成功受运气与恩典影响。</p>
+</li>
+<li><p><strong>Journal of Democracy, “Is Meritocracy Just?,” 2021</strong> — <a href="https://www.journalofdemocracy.org/articles/is-meritocracy-just/" target="_blank" rel="noopener">https://www.journalofdemocracy.org/articles/is-meritocracy-just/</a> — 即使实现机会平等，按才能与努力分配仍不正义，Rawls 的”道德上任意”论证。</p>
+</li>
+<li><p><strong>American Academy of Arts &amp; Sciences, “Does Meritocracy Destroy the Common Good?,” 2021</strong> — <a href="https://www.amacad.org/news/does-meritocracy-destroy-common-good" target="_blank" rel="noopener">https://www.amacad.org/news/does-meritocracy-destroy-common-good</a> — 优绩主义侵蚀共同善，需重拾工作的尊严与运气的伦理。</p>
+</li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"剩余价值合理分配——从剥削理论到当代不平等治理","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-08-11","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/08/11/剩余价值合理分配-从剥削理论到当代不平等治理/"},"url":"https://lanky228.github.io/2026/08/11/剩余价值合理分配-从剥削理论到当代不平等治理/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["政治经济学","不平等","分配正义","皮凯蒂","剩余价值"]}</script>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%94%BF%E6%B2%BB%E7%BB%8F%E6%B5%8E%E5%AD%A6/" rel="tag"># 政治经济学</a>
+              <a href="/tags/%E4%B8%8D%E5%B9%B3%E7%AD%89/" rel="tag"># 不平等</a>
+              <a href="/tags/%E5%88%86%E9%85%8D%E6%AD%A3%E4%B9%89/" rel="tag"># 分配正义</a>
+              <a href="/tags/%E7%9A%AE%E5%87%AF%E8%92%82/" rel="tag"># 皮凯蒂</a>
+              <a href="/tags/%E5%89%A9%E4%BD%99%E4%BB%B7%E5%80%BC/" rel="tag"># 剩余价值</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2026/08/11/%E9%9F%A9%E6%9D%B0%E6%A1%88%E6%B4%9E%E5%AF%9F-%E7%B3%BB%E7%BB%9F%E5%BF%85%E7%84%B6%E9%94%99%E8%AF%AF%E4%B8%8E%E5%81%B6%E7%84%B6%E4%B8%AA%E4%BD%93%E6%83%A9%E7%BD%9A/" rel="prev" title="韩杰案洞察——系统必然错误与偶然个体惩罚">
+      <i class="fa fa-chevron-left"></i> 韩杰案洞察——系统必然错误与偶然个体惩罚
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2026/08/21/%E5%8A%B3%E5%8A%A8%E8%B5%84%E6%9C%AC%E5%8C%96-%E4%BB%8E%E5%88%86%E9%85%8D%E5%A4%B1%E8%A1%A1%E5%88%B0%E9%87%91%E8%9E%8D%E5%8D%B1%E6%9C%BA%E7%9A%84%E7%BB%93%E6%9E%84%E6%8B%86%E9%99%A4/" rel="next" title="劳动资本化——从分配失衡到金融危机的结构拆除">
+      劳动资本化——从分配失衡到金融危机的结构拆除 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景：财富不平等为何回到百年前水平"><span class="nav-number">1.</span> <span class="nav-text">背景：财富不平等为何回到百年前水平</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#剩余价值理论的历史脉络"><span class="nav-number">2.</span> <span class="nav-text">剩余价值理论的历史脉络</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#马克思的原始框架"><span class="nav-number">2.1.</span> <span class="nav-text">马克思的原始框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#从劳动价值论到分配正义"><span class="nav-number">2.2.</span> <span class="nav-text">从劳动价值论到分配正义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#公理化剥削理论的突破"><span class="nav-number">2.3.</span> <span class="nav-text">公理化剥削理论的突破</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#当代分配正义的三大流派"><span class="nav-number">3.</span> <span class="nav-text">当代分配正义的三大流派</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#财富再分配派：Piketty-Zucman-Saez"><span class="nav-number">3.1.</span> <span class="nav-text">财富再分配派：Piketty &#x2F; Zucman &#x2F; Saez</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#制度设计派：Acemoglu-Stiglitz"><span class="nav-number">3.2.</span> <span class="nav-text">制度设计派：Acemoglu &#x2F; Stiglitz</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#系统批判派：Hickel-Suwandi"><span class="nav-number">3.3.</span> <span class="nav-text">系统批判派：Hickel &#x2F; Suwandi</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术与剩余价值"><span class="nav-number">4.</span> <span class="nav-text">技术与剩余价值</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#技术不是天然公平"><span class="nav-number">4.1.</span> <span class="nav-text">技术不是天然公平</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AI-作为精英控制工具"><span class="nav-number">4.2.</span> <span class="nav-text">AI 作为精英控制工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#技术收益分配的制度条件"><span class="nav-number">4.3.</span> <span class="nav-text">技术收益分配的制度条件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全球化与不平等交换"><span class="nav-number">5.</span> <span class="nav-text">全球化与不平等交换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#公民身份租金"><span class="nav-number">5.1.</span> <span class="nav-text">公民身份租金</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#全球价值链中的隐性剥削"><span class="nav-number">5.2.</span> <span class="nav-text">全球价值链中的隐性剥削</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#全球不平等的动态"><span class="nav-number">5.3.</span> <span class="nav-text">全球不平等的动态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#税收作为分配工具"><span class="nav-number">6.</span> <span class="nav-text">税收作为分配工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#全球累进资本税的可行性"><span class="nav-number">6.1.</span> <span class="nav-text">全球累进资本税的可行性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#避税机制与反制"><span class="nav-number">6.2.</span> <span class="nav-text">避税机制与反制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#政治阻力"><span class="nav-number">6.3.</span> <span class="nav-text">政治阻力</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#去增长的挑战与张力"><span class="nav-number">7.</span> <span class="nav-text">去增长的挑战与张力</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#无限增长与有限星球的矛盾"><span class="nav-number">7.1.</span> <span class="nav-text">无限增长与有限星球的矛盾</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#去增长是否可行"><span class="nav-number">7.2.</span> <span class="nav-text">去增长是否可行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#与发展型国家的张力"><span class="nav-number">7.3.</span> <span class="nav-text">与发展型国家的张力</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#价值理论的再审视"><span class="nav-number">8.</span> <span class="nav-text">价值理论的再审视</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Mazzucato：谁创造价值，谁攫取价值"><span class="nav-number">8.1.</span> <span class="nav-text">Mazzucato：谁创造价值，谁攫取价值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Veneziani：剥削的公理化定义"><span class="nav-number">8.2.</span> <span class="nav-text">Veneziani：剥削的公理化定义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#平等哲学的根基"><span class="nav-number">9.</span> <span class="nav-text">平等哲学的根基</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#与”囤积居奇”理论的融合"><span class="nav-number">10.</span> <span class="nav-text">与”囤积居奇”理论的融合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#囤积居奇的底层机制"><span class="nav-number">10.1.</span> <span class="nav-text">囤积居奇的底层机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#r-g-验证了囤积居奇的动力学"><span class="nav-number">10.2.</span> <span class="nav-text">r &gt; g 验证了囤积居奇的动力学</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#借贷成本与无限加杠杆"><span class="nav-number">10.3.</span> <span class="nav-text">借贷成本与无限加杠杆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#财富集中作为囤积的现代形式"><span class="nav-number">10.4.</span> <span class="nav-text">财富集中作为囤积的现代形式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#必然崩溃的逻辑"><span class="nav-number">10.5.</span> <span class="nav-text">必然崩溃的逻辑</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">11.</span> <span class="nav-text">✅ 总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文章"><span class="nav-number">12.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Lanky</p>
+  <div class="site-description" itemprop="description">Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">138</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lanky228" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lanky228" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1289206629@qq.com" title="E-Mail → mailto:1289206629@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Lanky</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">257k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:54</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
