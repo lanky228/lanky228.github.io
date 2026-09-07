@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"lanky228.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="💡 一句话总结：四个K8s生态明星项目，各自修好了AI基础设施的一处错位——本文逐个拆解它们原来治什么病、动了什么手术、效果差多少。 上篇回顾：三个错位上一篇《4970亿美元买来了什么——AI基础设施的三个错位》讲了一个判断：AI基础设施不缺钱不缺卡，缺的是调度与隔离能力。 👉 上篇传送门 那篇文章留下了三个错位：利用率错配（GPU平均利用率仅5%）、进程重定义（K8s为旧进程设计，Agent">
+  <meta name="description" content="💡 一句话总结：四个K8s生态明星项目，各自修好了AI基础设施的一处错位——逐个拆解它们原来治什么病、动了什么手术、提升在哪。 上篇回顾：三个错位上一篇《4970亿美元买来了什么——AI基础设施的三个错位》给出一个判断：AI基础设施不缺钱不缺卡，缺的是调度与隔离能力。 👉 上篇传送门 三个错位是：利用率错配（GPU平均利用率仅5%）、进程重定义（K8s为旧进程设计，Agent是新物种）、战场打">
 <meta property="og:type" content="article">
 <meta property="og:title" content="明星项目拆解——AgentCube、Agent Sandbox、KAI Scheduler、Volcano如何接住Agent">
 <meta property="og:url" content="https://lanky228.github.io/2026/09/07/%E6%98%8E%E6%98%9F%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3-AgentCube-AgentSandbox-KAI-Scheduler-Volcano%E5%A6%82%E4%BD%95%E6%8E%A5%E4%BD%8FAgent/index.html">
 <meta property="og:site_name" content="Lanky的博客">
-<meta property="og:description" content="💡 一句话总结：四个K8s生态明星项目，各自修好了AI基础设施的一处错位——本文逐个拆解它们原来治什么病、动了什么手术、效果差多少。 上篇回顾：三个错位上一篇《4970亿美元买来了什么——AI基础设施的三个错位》讲了一个判断：AI基础设施不缺钱不缺卡，缺的是调度与隔离能力。 👉 上篇传送门 那篇文章留下了三个错位：利用率错配（GPU平均利用率仅5%）、进程重定义（K8s为旧进程设计，Agent">
+<meta property="og:description" content="💡 一句话总结：四个K8s生态明星项目，各自修好了AI基础设施的一处错位——逐个拆解它们原来治什么病、动了什么手术、提升在哪。 上篇回顾：三个错位上一篇《4970亿美元买来了什么——AI基础设施的三个错位》给出一个判断：AI基础设施不缺钱不缺卡，缺的是调度与隔离能力。 👉 上篇传送门 三个错位是：利用率错配（GPU平均利用率仅5%）、进程重定义（K8s为旧进程设计，Agent是新物种）、战场打">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-09-07T02:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-07T14:40:57.831Z">
+<meta property="article:modified_time" content="2026-09-07T14:43:40.078Z">
 <meta property="article:author" content="Lanky">
 <meta property="article:tag" content="AI">
 <meta property="article:tag" content="基础设施">
@@ -216,7 +216,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2026-09-07 10:00:00 / 修改时间：22:40:57" itemprop="dateCreated datePublished" datetime="2026-09-07T10:00:00+08:00">2026-09-07</time>
+              <time title="创建时间：2026-09-07 10:00:00 / 修改时间：22:43:40" itemprop="dateCreated datePublished" datetime="2026-09-07T10:00:00+08:00">2026-09-07</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -234,7 +234,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.2k</span>
+              <span>1.9k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -253,35 +253,35 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>💡 一句话总结：四个K8s生态明星项目，各自修好了AI基础设施的一处错位——本文逐个拆解它们原来治什么病、动了什么手术、效果差多少。</p>
-<h2 id="上篇回顾：三个错位"><a href="#上篇回顾：三个错位" class="headerlink" title="上篇回顾：三个错位"></a>上篇回顾：三个错位</h2><p>上一篇《4970亿美元买来了什么——AI基础设施的三个错位》讲了一个判断：AI基础设施不缺钱不缺卡，缺的是调度与隔离能力。</p>
+        <p>💡 一句话总结：四个K8s生态明星项目，各自修好了AI基础设施的一处错位——逐个拆解它们原来治什么病、动了什么手术、提升在哪。</p>
+<h2 id="上篇回顾：三个错位"><a href="#上篇回顾：三个错位" class="headerlink" title="上篇回顾：三个错位"></a>上篇回顾：三个错位</h2><p>上一篇《4970亿美元买来了什么——AI基础设施的三个错位》给出一个判断：AI基础设施不缺钱不缺卡，缺的是调度与隔离能力。</p>
 <p><a href="/2026/09/05/AI%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E7%9A%84%E4%B8%89%E4%B8%AA%E9%94%99%E4%BD%8D-4970%E4%BA%BF%E7%BE%8E%E5%85%83%E4%B9%B0%E6%9D%A5%E4%BA%86%E4%BB%80%E4%B9%88/">👉 上篇传送门</a></p>
-<p>那篇文章留下了三个错位：<strong>利用率错配</strong>（GPU平均利用率仅5%）、<strong>进程重定义</strong>（K8s为旧进程设计，Agent是新物种）、<strong>战场打错</strong>（延迟瓶颈在CPU不在芯片）。</p>
-<p>这篇文章不谈观点，谈药方。四个明星项目，正好对着错位开药：AgentCube和Agent Sandbox解”进程重定义”，KAI Scheduler解”利用率错配”，Volcano解决gang调度的死锁问题。</p>
-<p>用开餐馆打个比方，这四个项目分别管：包间怎么留、包间结不结实、桌位怎么排、客人怎么一起进门。</p>
-<h2 id="🍱-AgentCube：客人走了，包间别拆"><a href="#🍱-AgentCube：客人走了，包间别拆" class="headerlink" title="🍱 AgentCube：客人走了，包间别拆"></a>🍱 AgentCube：客人走了，包间别拆</h2><p><strong>原来的毛病</strong>：K8s的Pod（容器组）一旦缩容或空闲，直接删除，内存状态全部蒸发。Agent的对话上下文、加载的模型就住在内存里，删一次就得重来。重建一次要秒级，用户盯着”转圈加载”干着急。</p>
-<p><strong>动了什么手术</strong>：AgentCube引入Pod暂停机制。Pod不再被删除，而是像酒店”锁门保装修”——客人退房，家具、装修全留着，只清走活动物品。下次同一客人回来，直接开门入住。</p>
-<p><strong>效果</strong>：会话恢复从秒级降到几十毫秒，快了两个数量级。用户体感从”转圈加载”变成”秒回”。对Agent这种几分钟到几小时的长会话，这个差距就是体验的分水岭。</p>
-<h2 id="🏦-Agent-Sandbox：从纸板隔断到银行金库"><a href="#🏦-Agent-Sandbox：从纸板隔断到银行金库" class="headerlink" title="🏦 Agent Sandbox：从纸板隔断到银行金库"></a>🏦 Agent Sandbox：从纸板隔断到银行金库</h2><p><strong>原来的毛病</strong>：普通容器之间共享操作系统内核，隔断像纸板糊的。AI生成的代码要真实执行，万一它来一句<code>rm -rf /</code>呢？共享内核的容器根本挡不住。”信任但验证”的传统思路，对会自己写代码的Agent彻底失效。</p>
-<p><strong>动了什么手术</strong>：GKE Agent Sandbox换成gVisor和Kata这类强隔离方案——相当于把纸板隔断改成银行金库，Agent的每一个系统调用（程序请求操作系统做事的动作）都被金库管理员逐个拦截检查。原则只有一个：<strong>永远不信任，永远验证</strong>。</p>
-<p><strong>效果</strong>：沙箱创建每秒可达300个，延迟小于1秒，成本还低30%。快照恢复能做到毫秒级”开门”。隔离强度和创建速度第一次同时达标。</p>
-<h2 id="🔪-KAI-Scheduler：整卡出租改按份切"><a href="#🔪-KAI-Scheduler：整卡出租改按份切" class="headerlink" title="🔪 KAI Scheduler：整卡出租改按份切"></a>🔪 KAI Scheduler：整卡出租改按份切</h2><p><strong>原来的毛病</strong>：K8s默认把一整张GPU租给一个任务。而很多推理任务只吃几GB显存，整卡大部分算力在空转。这就是上篇说的利用率5%的病根之一——不是没活干，是桌子太大不敢拼桌。</p>
-<p><strong>动了什么手术</strong>：KAI Scheduler支持GPU分片调度，把一张卡切成多份，显存之间硬隔离（彼此看不见、抢不走）。一个任务占用多大切多大。</p>
-<p><strong>效果</strong>：一张卡从只跑1个任务，变成同时服务5到10个任务。GPU利用率从个位数提到70%以上。同样一批卡，产出翻了几倍。</p>
-<h2 id="🚪-Volcano：凑齐再进"><a href="#🚪-Volcano：凑齐再进" class="headerlink" title="🚪 Volcano：凑齐再进"></a>🚪 Volcano：凑齐再进</h2><p><strong>原来的毛病</strong>：分布式训练像团餐，必须整桌人到齐才开席。K8s默认调度是来一个安排一个——结果99张卡已分配、还差1张卡被别人占着，这99张卡就集体干等。资源死锁，谁也动不了。</p>
-<p><strong>动了什么手术</strong>：Volcano引入Gang调度（成组调度）：一桌8个位子，要么8个位子一次全留出来，要么一个都不留。”凑齐再进”，绝不放半桌客人进去干瞪眼。</p>
+<p>三个错位是：<strong>利用率错配</strong>（GPU平均利用率仅5%）、<strong>进程重定义</strong>（K8s为旧进程设计，Agent是新物种）、<strong>战场打错</strong>（延迟瓶颈在CPU不在芯片）。</p>
+<p>这篇不谈观点，谈药方。四个项目正好对着错位开药：AgentCube和Agent Sandbox解”进程重定义”，KAI Scheduler解”利用率错配”，Volcano解决gang调度死锁。</p>
+<p>用开餐馆打比方：四个项目分别管包间怎么留、包间结不结实、桌位怎么排、客人怎么一起进门。</p>
+<h2 id="🍱-AgentCube：客人走了，包间别拆"><a href="#🍱-AgentCube：客人走了，包间别拆" class="headerlink" title="🍱 AgentCube：客人走了，包间别拆"></a>🍱 AgentCube：客人走了，包间别拆</h2><p><strong>原来的毛病</strong>：K8s的Pod（容器组）一旦空闲或缩容就被删除，内存状态全部蒸发。Agent的对话上下文、加载的模型就住在内存里，删一次就得重来，重建要秒级，用户盯着”转圈加载”干着急。</p>
+<p><strong>动了什么手术</strong>：引入Pod暂停机制。Pod不再删除，而是”锁门保装修”——客人退房，家具装修全留着，下次回来直接开门入住。</p>
+<p><strong>效果</strong>：会话恢复从秒级降到几十毫秒，快两个数量级。用户体感从”转圈加载”变成”秒回”。对Agent这种动辄数小时的长会话，这就是体验分水岭。</p>
+<h2 id="🏦-Agent-Sandbox：从纸板隔断到银行金库"><a href="#🏦-Agent-Sandbox：从纸板隔断到银行金库" class="headerlink" title="🏦 Agent Sandbox：从纸板隔断到银行金库"></a>🏦 Agent Sandbox：从纸板隔断到银行金库</h2><p><strong>原来的毛病</strong>：普通容器共享操作系统内核，隔断像纸板糊的。AI生成的代码要真实执行，万一它来一句<code>rm -rf /</code>呢？”信任但验证”的老思路，对会自己写代码的Agent彻底失效。</p>
+<p><strong>动了什么手术</strong>：GKE Agent Sandbox换成gVisor、Kata强隔离——纸板隔断改成银行金库，Agent的每个系统调用（程序请求操作系统做事的动作）都被逐个拦截检查。原则只有一条：<strong>永远不信任，永远验证</strong>。</p>
+<p><strong>效果</strong>：每秒创建300个沙箱，延迟小于1秒，成本还低30%。快照恢复毫秒级”开门”。隔离强度和创建速度第一次同时达标。</p>
+<h2 id="🔪-KAI-Scheduler：整卡出租改按份切"><a href="#🔪-KAI-Scheduler：整卡出租改按份切" class="headerlink" title="🔪 KAI Scheduler：整卡出租改按份切"></a>🔪 KAI Scheduler：整卡出租改按份切</h2><p><strong>原来的毛病</strong>：K8s默认整张GPU租给一个任务。可很多推理任务只吃几GB显存，整卡大部分算力在空转。这就是利用率5%的病根之一——不是没活干，是桌子太大不敢拼桌。</p>
+<p><strong>动了什么手术</strong>：GPU分片调度，一张卡切成多份，显存硬隔离（彼此看不见、抢不走）。</p>
+<p><strong>效果</strong>：一张卡从跑1个任务变成同时服务5到10个，GPU利用率从个位数提到70%以上。同样一批卡，产出翻几倍。</p>
+<h2 id="🚪-Volcano：凑齐再进"><a href="#🚪-Volcano：凑齐再进" class="headerlink" title="🚪 Volcano：凑齐再进"></a>🚪 Volcano：凑齐再进</h2><p><strong>原来的毛病</strong>：分布式训练像团餐，必须整桌到齐才开席。K8s默认来一个安排一个——99张卡已分配、还差1张被别人占着，这99张就集体干等，资源死锁。</p>
+<p><strong>动了什么手术</strong>：引入Gang调度（成组调度）：一桌8个位子，要么8个一次全留出，要么一个不留。”凑齐再进”，绝不放半桌客人进去干瞪眼。</p>
 <p><strong>效果</strong>：部分分配导致的资源死锁被从机制上杜绝。大模型训练动辄几千卡，没有Gang调度根本排不开队——这也是它成为K8s批调度事实标准的原因。</p>
-<h2 id="🧩-还有两块拼图"><a href="#🧩-还有两块拼图" class="headerlink" title="🧩 还有两块拼图"></a>🧩 还有两块拼图</h2><p>同谱系里还有两个项目值得点名。<strong>Kueue</strong>管队列配额：算力不够时任务排队等位，而不是一起挤进去互相踩踏——它是利用率错配的”排队叫号系统”。<strong>Fluid</strong>管数据缓存：把训练数据提前搬到离GPU近的地方，治的是”Agent在等什么”里的等I&#x2F;O那一半。</p>
-<p>这两个是配角，但思路一致：<strong>先承认资源稀缺，再设计排队和搬运的规矩。</strong></p>
-<h2 id="💭-原创观点：这批项目的共同哲学是什么"><a href="#💭-原创观点：这批项目的共同哲学是什么" class="headerlink" title="💭 原创观点：这批项目的共同哲学是什么"></a>💭 原创观点：这批项目的共同哲学是什么</h2><p>拆完四个项目，回头看它们共享一个底层转向。</p>
-<p><strong>从管理机器，到服务会话。</strong> K8s管的对象是”机器上的进程”：短命、无状态、随时可杀。这四个项目管的对象是”会话”：长命、有状态、必须留装修。AgentCube留装修，Sandbox验证每个动作，都是在服务一个会话的完整生命周期。</p>
-<p><strong>从信任边界，到不信任边界。</strong> 旧世界的容器假设里面跑的是自家微服务，纸板隔断够用。新世界的容器里面跑的是AI生成的任意代码，金库是唯一选项。信任模型换了，隔离架构就得跟着换。</p>
-<p>所以我不同意”K8s失败了”的说法。更准确的说法是：<strong>K8s没有死，是Pod的概念死了一半。</strong> Pod还在，调度器还在，但”可随意删除、默认信任”的那一半假设已经死了，新长出来的那一半，就是这批明星项目。</p>
+<h2 id="🧩-配角补位"><a href="#🧩-配角补位" class="headerlink" title="🧩 配角补位"></a>🧩 配角补位</h2><p>同谱系还有两块拼图。<strong>Kueue</strong>管队列配额：算力不够时任务排队等位，不互相踩踏，是利用率错配的”排队叫号系统”。<strong>Fluid</strong>管数据缓存：把训练数据搬到离GPU近的地方，治”Agent在等什么”里的等I&#x2F;O。</p>
+<p>思路一致：<strong>先承认资源稀缺，再设计排队和搬运的规矩。</strong></p>
+<h2 id="💭-共同哲学：K8s没有死，是Pod死了一半"><a href="#💭-共同哲学：K8s没有死，是Pod死了一半" class="headerlink" title="💭 共同哲学：K8s没有死，是Pod死了一半"></a>💭 共同哲学：K8s没有死，是Pod死了一半</h2><p>拆完四个项目，它们共享一个底层转向。</p>
+<p><strong>从管理机器，到服务会话。</strong> K8s管的是”机器上的进程”：短命、无状态、随时可杀。这四个项目管的是”会话”：长命、有状态、必须留装修。AgentCube留装修，Sandbox验证每个动作，都是在服务一个会话的完整生命周期。</p>
+<p><strong>从信任边界，到不信任边界。</strong> 旧容器假设里面跑的是自家微服务，纸板隔断够用。新容器里跑的是AI生成的任意代码，金库是唯一选项。信任模型换了，隔离架构就得跟着换。</p>
+<p>所以我不同意”K8s失败了”——更准确的说法是：<strong>K8s没有死，是Pod的概念死了一半。</strong> Pod还在，调度器还在，但”可随意删除、默认信任”的那一半假设死了，新长出来的那一半，就是这批明星项目。</p>
 <p>上篇说错位孕育机会，这篇给出证据：机会不在发明新系统，而在沿着错位的裂缝，把旧地基重新浇筑一遍。</p>
 <h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ol>
-<li>AgentCube和Agent Sandbox解决”进程重定义”：会话要保得住（暂停恢复毫秒级），代码要防得住（系统调用全拦截）。</li>
-<li>KAI Scheduler和Volcano解决”利用率错配”：切卡把利用率从5%提到70%+，Gang调度杜绝整队干等。</li>
-<li>共同哲学：从管理机器到服务会话，从信任边界到不信任边界——K8s没有死，是Pod的概念死了一半。</li>
+<li>AgentCube和Agent Sandbox解”进程重定义”：会话保得住（恢复毫秒级），代码防得住（系统调用全拦截）。</li>
+<li>KAI Scheduler和Volcano解”利用率错配”：切卡把利用率从5%提到70%+，Gang调度杜绝整队干等。</li>
+<li>共同哲学：从管理机器到服务会话，从信任边界到不信任边界。</li>
 </ol>
 
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"明星项目拆解——AgentCube、Agent Sandbox、KAI Scheduler、Volcano如何接住Agent","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-09-07","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/09/07/明星项目拆解-AgentCube-AgentSandbox-KAI-Scheduler-Volcano如何接住Agent/"},"url":"https://lanky228.github.io/2026/09/07/明星项目拆解-AgentCube-AgentSandbox-KAI-Scheduler-Volcano如何接住Agent/","inLanguage":"zh-CN","dateModified":"2026-09-07","keywords":["AI","基础设施","Kubernetes"]}</script>
@@ -367,7 +367,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#上篇回顾：三个错位"><span class="nav-number">1.</span> <span class="nav-text">上篇回顾：三个错位</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🍱-AgentCube：客人走了，包间别拆"><span class="nav-number">2.</span> <span class="nav-text">🍱 AgentCube：客人走了，包间别拆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🏦-Agent-Sandbox：从纸板隔断到银行金库"><span class="nav-number">3.</span> <span class="nav-text">🏦 Agent Sandbox：从纸板隔断到银行金库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🔪-KAI-Scheduler：整卡出租改按份切"><span class="nav-number">4.</span> <span class="nav-text">🔪 KAI Scheduler：整卡出租改按份切</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🚪-Volcano：凑齐再进"><span class="nav-number">5.</span> <span class="nav-text">🚪 Volcano：凑齐再进</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🧩-还有两块拼图"><span class="nav-number">6.</span> <span class="nav-text">🧩 还有两块拼图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#💭-原创观点：这批项目的共同哲学是什么"><span class="nav-number">7.</span> <span class="nav-text">💭 原创观点：这批项目的共同哲学是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">8.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#上篇回顾：三个错位"><span class="nav-number">1.</span> <span class="nav-text">上篇回顾：三个错位</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🍱-AgentCube：客人走了，包间别拆"><span class="nav-number">2.</span> <span class="nav-text">🍱 AgentCube：客人走了，包间别拆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🏦-Agent-Sandbox：从纸板隔断到银行金库"><span class="nav-number">3.</span> <span class="nav-text">🏦 Agent Sandbox：从纸板隔断到银行金库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🔪-KAI-Scheduler：整卡出租改按份切"><span class="nav-number">4.</span> <span class="nav-text">🔪 KAI Scheduler：整卡出租改按份切</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🚪-Volcano：凑齐再进"><span class="nav-number">5.</span> <span class="nav-text">🚪 Volcano：凑齐再进</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🧩-配角补位"><span class="nav-number">6.</span> <span class="nav-text">🧩 配角补位</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#💭-共同哲学：K8s没有死，是Pod死了一半"><span class="nav-number">7.</span> <span class="nav-text">💭 共同哲学：K8s没有死，是Pod死了一半</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">8.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
