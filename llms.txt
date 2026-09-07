@@ -43,3 +43,9 @@
 ## 知识图谱
 - [Neo4j / RelationalAI知识图谱洞察](/2026/07/15/Neo4j-RelationalAI-知识图谱洞察/)
   图查询在多跳遍历场景远胜SQL，聚合分析应留在SQL引擎，图查询是补充而非替代
+
+## AI基础设施
+- [明星项目拆解——AgentCube、Agent Sandbox、KAI Scheduler、Volcano如何接住Agent](/2026/09/07/明星项目拆解-AgentCube-AgentSandbox-KAI-Scheduler-Volcano如何接住Agent/)
+  四个K8s生态明星项目逐个拆解：原来治什么病、动了什么手术、提升在哪。会话保持毫秒级恢复、GPU利用率5%提至70%+
+- [4970亿美元买来了什么——AI基础设施的三个错位](/2026/09/05/AI基础设施的三个错位-4970亿美元买来了什么/)
+  AI基础设施不缺芯片缺调度：GPU利用率仅5%、Agent重新定义进程、延迟瓶颈90.6%在CPU。瓶颈在系统不在芯片
