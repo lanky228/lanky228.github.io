@@ -187,119 +187,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/09/07/%E6%98%8E%E6%98%9F%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3-AgentCube-AgentSandbox-KAI-Scheduler-Volcano%E5%A6%82%E4%BD%95%E6%8E%A5%E4%BD%8FAgent/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lanky">
-      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lanky的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2026/09/07/%E6%98%8E%E6%98%9F%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3-AgentCube-AgentSandbox-KAI-Scheduler-Volcano%E5%A6%82%E4%BD%95%E6%8E%A5%E4%BD%8FAgent/" class="post-title-link" itemprop="url">明星项目拆解——AgentCube、Agent Sandbox、KAI Scheduler、Volcano如何接住Agent</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2026-09-07 10:00:00 / 修改时间：22:43:40" itemprop="dateCreated datePublished" datetime="2026-09-07T10:00:00+08:00">2026-09-07</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B4%9E%E5%AF%9F/" itemprop="url" rel="index"><span itemprop="name">洞察</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.9k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>💡 一句话总结：四个K8s生态明星项目，各自修好了AI基础设施的一处错位——逐个拆解它们原来治什么病、动了什么手术、提升在哪。</p>
-<h2 id="上篇回顾：三个错位"><a href="#上篇回顾：三个错位" class="headerlink" title="上篇回顾：三个错位"></a>上篇回顾：三个错位</h2><p>上一篇《4970亿美元买来了什么——AI基础设施的三个错位》给出一个判断：AI基础设施不缺钱不缺卡，缺的是调度与隔离能力。</p>
-<p><a href="/2026/09/05/AI%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E7%9A%84%E4%B8%89%E4%B8%AA%E9%94%99%E4%BD%8D-4970%E4%BA%BF%E7%BE%8E%E5%85%83%E4%B9%B0%E6%9D%A5%E4%BA%86%E4%BB%80%E4%B9%88/">👉 上篇传送门</a></p>
-<p>三个错位是：<strong>利用率错配</strong>（GPU平均利用率仅5%）、<strong>进程重定义</strong>（K8s为旧进程设计，Agent是新物种）、<strong>战场打错</strong>（延迟瓶颈在CPU不在芯片）。</p>
-<p>这篇不谈观点，谈药方。四个项目正好对着错位开药：AgentCube和Agent Sandbox解”进程重定义”，KAI Scheduler解”利用率错配”，Volcano解决gang调度死锁。</p>
-<p>用开餐馆打比方：四个项目分别管包间怎么留、包间结不结实、桌位怎么排、客人怎么一起进门。</p>
-<h2 id="🍱-AgentCube：客人走了，包间别拆"><a href="#🍱-AgentCube：客人走了，包间别拆" class="headerlink" title="🍱 AgentCube：客人走了，包间别拆"></a>🍱 AgentCube：客人走了，包间别拆</h2><p><strong>原来的毛病</strong>：K8s的Pod（容器组）一旦空闲或缩容就被删除，内存状态全部蒸发。Agent的对话上下文、加载的模型就住在内存里，删一次就得重来，重建要秒级，用户盯着”转圈加载”干着急。</p>
-<p><strong>动了什么手术</strong>：引入Pod暂停机制。Pod不再删除，而是”锁门保装修”——客人退房，家具装修全留着，下次回来直接开门入住。</p>
-<p><strong>效果</strong>：会话恢复从秒级降到几十毫秒，快两个数量级。用户体感从”转圈加载”变成”秒回”。对Agent这种动辄数小时的长会话，这就是体验分水岭。</p>
-<h2 id="🏦-Agent-Sandbox：从纸板隔断到银行金库"><a href="#🏦-Agent-Sandbox：从纸板隔断到银行金库" class="headerlink" title="🏦 Agent Sandbox：从纸板隔断到银行金库"></a>🏦 Agent Sandbox：从纸板隔断到银行金库</h2><p><strong>原来的毛病</strong>：普通容器共享操作系统内核，隔断像纸板糊的。AI生成的代码要真实执行，万一它来一句<code>rm -rf /</code>呢？”信任但验证”的老思路，对会自己写代码的Agent彻底失效。</p>
-<p><strong>动了什么手术</strong>：GKE Agent Sandbox换成gVisor、Kata强隔离——纸板隔断改成银行金库，Agent的每个系统调用（程序请求操作系统做事的动作）都被逐个拦截检查。原则只有一条：<strong>永远不信任，永远验证</strong>。</p>
-<p><strong>效果</strong>：每秒创建300个沙箱，延迟小于1秒，成本还低30%。快照恢复毫秒级”开门”。隔离强度和创建速度第一次同时达标。</p>
-<h2 id="🔪-KAI-Scheduler：整卡出租改按份切"><a href="#🔪-KAI-Scheduler：整卡出租改按份切" class="headerlink" title="🔪 KAI Scheduler：整卡出租改按份切"></a>🔪 KAI Scheduler：整卡出租改按份切</h2><p><strong>原来的毛病</strong>：K8s默认整张GPU租给一个任务。可很多推理任务只吃几GB显存，整卡大部分算力在空转。这就是利用率5%的病根之一——不是没活干，是桌子太大不敢拼桌。</p>
-<p><strong>动了什么手术</strong>：GPU分片调度，一张卡切成多份，显存硬隔离（彼此看不见、抢不走）。</p>
-<p><strong>效果</strong>：一张卡从跑1个任务变成同时服务5到10个，GPU利用率从个位数提到70%以上。同样一批卡，产出翻几倍。</p>
-<h2 id="🚪-Volcano：凑齐再进"><a href="#🚪-Volcano：凑齐再进" class="headerlink" title="🚪 Volcano：凑齐再进"></a>🚪 Volcano：凑齐再进</h2><p><strong>原来的毛病</strong>：分布式训练像团餐，必须整桌到齐才开席。K8s默认来一个安排一个——99张卡已分配、还差1张被别人占着，这99张就集体干等，资源死锁。</p>
-<p><strong>动了什么手术</strong>：引入Gang调度（成组调度）：一桌8个位子，要么8个一次全留出，要么一个不留。”凑齐再进”，绝不放半桌客人进去干瞪眼。</p>
-<p><strong>效果</strong>：部分分配导致的资源死锁被从机制上杜绝。大模型训练动辄几千卡，没有Gang调度根本排不开队——这也是它成为K8s批调度事实标准的原因。</p>
-<h2 id="🧩-配角补位"><a href="#🧩-配角补位" class="headerlink" title="🧩 配角补位"></a>🧩 配角补位</h2><p>同谱系还有两块拼图。<strong>Kueue</strong>管队列配额：算力不够时任务排队等位，不互相踩踏，是利用率错配的”排队叫号系统”。<strong>Fluid</strong>管数据缓存：把训练数据搬到离GPU近的地方，治”Agent在等什么”里的等I&#x2F;O。</p>
-<p>思路一致：<strong>先承认资源稀缺，再设计排队和搬运的规矩。</strong></p>
-<h2 id="💭-共同哲学：K8s没有死，是Pod死了一半"><a href="#💭-共同哲学：K8s没有死，是Pod死了一半" class="headerlink" title="💭 共同哲学：K8s没有死，是Pod死了一半"></a>💭 共同哲学：K8s没有死，是Pod死了一半</h2><p>拆完四个项目，它们共享一个底层转向。</p>
-<p><strong>从管理机器，到服务会话。</strong> K8s管的是”机器上的进程”：短命、无状态、随时可杀。这四个项目管的是”会话”：长命、有状态、必须留装修。AgentCube留装修，Sandbox验证每个动作，都是在服务一个会话的完整生命周期。</p>
-<p><strong>从信任边界，到不信任边界。</strong> 旧容器假设里面跑的是自家微服务，纸板隔断够用。新容器里跑的是AI生成的任意代码，金库是唯一选项。信任模型换了，隔离架构就得跟着换。</p>
-<p>所以我不同意”K8s失败了”——更准确的说法是：<strong>K8s没有死，是Pod的概念死了一半。</strong> Pod还在，调度器还在，但”可随意删除、默认信任”的那一半假设死了，新长出来的那一半，就是这批明星项目。</p>
-<p>上篇说错位孕育机会，这篇给出证据：机会不在发明新系统，而在沿着错位的裂缝，把旧地基重新浇筑一遍。</p>
-<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ol>
-<li>AgentCube和Agent Sandbox解”进程重定义”：会话保得住（恢复毫秒级），代码防得住（系统调用全拦截）。</li>
-<li>KAI Scheduler和Volcano解”利用率错配”：切卡把利用率从5%提到70%+，Gang调度杜绝整队干等。</li>
-<li>共同哲学：从管理机器到服务会话，从信任边界到不信任边界。</li>
-</ol>
-
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"明星项目拆解——AgentCube、Agent Sandbox、KAI Scheduler、Volcano如何接住Agent","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-09-07","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/09/07/明星项目拆解-AgentCube-AgentSandbox-KAI-Scheduler-Volcano如何接住Agent/"},"url":"https://lanky228.github.io/2026/09/07/明星项目拆解-AgentCube-AgentSandbox-KAI-Scheduler-Volcano如何接住Agent/","inLanguage":"zh-CN","dateModified":"2026-09-07","keywords":["AI","基础设施","Kubernetes"]}</script>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/09/05/AI%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E7%9A%84%E4%B8%89%E4%B8%AA%E9%94%99%E4%BD%8D-4970%E4%BA%BF%E7%BE%8E%E5%85%83%E4%B9%B0%E6%9D%A5%E4%BA%86%E4%BB%80%E4%B9%88/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -314,7 +201,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2026/09/05/AI%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E7%9A%84%E4%B8%89%E4%B8%AA%E9%94%99%E4%BD%8D-4970%E4%BA%BF%E7%BE%8E%E5%85%83%E4%B9%B0%E6%9D%A5%E4%BA%86%E4%BB%80%E4%B9%88/" class="post-title-link" itemprop="url">4970亿美元买来了什么——AI基础设施的三个错位</a>
+            <a href="/2026/09/05/AI%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E7%9A%84%E4%B8%89%E4%B8%AA%E9%94%99%E4%BD%8D-4970%E4%BA%BF%E7%BE%8E%E5%85%83%E4%B9%B0%E6%9D%A5%E4%BA%86%E4%BB%80%E4%B9%88/" class="post-title-link" itemprop="url">4970亿美元买来了什么——AI基础设施的三个错位与四个接盘侠</a>
         </h2>
 
         <div class="post-meta">
@@ -331,7 +218,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-09-07 22:31:41" itemprop="dateModified" datetime="2026-09-07T22:31:41+08:00">2026-09-07</time>
+                <time title="修改时间：2026-09-07 23:03:58" itemprop="dateModified" datetime="2026-09-07T23:03:58+08:00">2026-09-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -349,7 +236,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.7k</span>
+              <span>2.4k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -368,47 +255,53 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>💡 一句话总结：AI基础设施不缺钱、不缺芯片，缺的是把算力用起来的调度和隔离能力——瓶颈在系统，不在芯片。</p>
-<h2 id="背景钱景"><a href="#背景钱景" class="headerlink" title="背景钱景"></a>背景钱景</h2><p>2026年全球AI基础设施支出预计4970亿美元，同比增长56%，2029年将冲到1.08万亿。</p>
-<p>但有两张成绩单很扎眼：GPU集群平均利用率只有5%；推理支出233亿美元，历史上首次超过训练的190亿。</p>
-<p>一边是万亿级的投入，一边是九成的闲置。这不是矛盾，这是线索。</p>
-<h2 id="错位一：过剩与短缺并存"><a href="#错位一：过剩与短缺并存" class="headerlink" title="错位一：过剩与短缺并存"></a>错位一：过剩与短缺并存</h2><p>GPU利用率5%，听起来像产能过剩。但推理支出反超训练，又说明需求真实且在增长。</p>
-<p>我的判断：<strong>这不是过剩，是错配。</strong></p>
-<p>训练集群按峰值建，推理负载按秒波动，两者抢同一批卡。真正稀缺的从来不是FLOPS，而是把一张卡切成一百份、按需分给不同租户的调度与隔离能力。</p>
-<p>竞争焦点已经从”谁有卡”转向”谁每美元产出的Token多”。这本质上是在比拼软件和系统的效率，而不是算力的堆叠。</p>
-<h2 id="错位二：K8s被自己的用户革命"><a href="#错位二：K8s被自己的用户革命" class="headerlink" title="错位二：K8s被自己的用户革命"></a>错位二：K8s被自己的用户革命</h2><p>66%的企业用Kubernetes支撑AI负载。但K8s原生设计面向的是无状态微服务——启动快、随时可杀、不记得任何事。</p>
-<p>AI Agent恰好相反：会话要持续几分钟到几小时，中间状态丢不起，还得粘在同一个执行环境上（会话亲和）。</p>
-<p>于是出现了戏剧性的一幕：Google自己绕过了K8s的API Server，推出Agent Sandbox和Agent Substrate，直接管理有状态Agent的沙箱。GKE Agent Sandbox能做到每秒创建300个沙箱、延迟小于1秒、性价比高30%。</p>
-<p>有人说这是K8s的失败。我不这么看。</p>
-<p><strong>K8s没有失败，是”进程”这个概念被重新定义了。</strong> 容器编排的所有假设——短生命周期、无状态、可随意调度——都是围绕旧进程建立的。Agent是新物种，需要新的编排层。K8s不会消失，它会退到底层，上面再长出一层面向Agent的调度系统。</p>
-<p>这个新生态已经成型，四块拼图各有玩家：</p>
-<ul>
-<li><strong>调度</strong>：KAI Scheduler、Volcano、Kueue，负责GPU的公平分配</li>
-<li><strong>沙箱</strong>：GKE Agent Sandbox、AgentCube，负责Agent的隔离运行</li>
-<li><strong>网络</strong>：DRANet、Fluid、GPU Operator，负责数据高速到卡</li>
-<li><strong>工作流</strong>：Kubeflow、KServe、Ray，负责模型的训练与推理串联</li>
-</ul>
-<p>看名单就知道：调度和沙箱是新的竞争主航道，工作流层反而已经相对成熟。</p>
-<h2 id="错位三：军备竞赛打错了战场"><a href="#错位三：军备竞赛打错了战场" class="headerlink" title="错位三：军备竞赛打错了战场"></a>错位三：军备竞赛打错了战场</h2><p>MLPerf v6.0里，Blackwell Ultra靠软件优化把DeepSeek-R1吞吐提升了2.77倍——不换芯片，纯靠软件。</p>
-<p>更关键的数字是这个：Agent执行链路中，CPU环节占了端到端延迟的90.6%。</p>
-<p>也就是说，你花大价钱把GPU推理压到15毫秒一个Token，然后Agent在CPU上思考、调工具、等I&#x2F;O，耗掉几百倍的时间。</p>
-<p><strong>延迟优化的主战场在系统，不在芯片。</strong> 每年换一代GPU的边际收益，正在被”Agent在等什么”这个问题吞掉。谁先把Agent执行链路的CPU瓶颈打下来，谁就赢得Token生产效率。</p>
-<h2 id="务实视角：小团队怎么办"><a href="#务实视角：小团队怎么办" class="headerlink" title="务实视角：小团队怎么办"></a>务实视角：小团队怎么办</h2><p>这些宏观数字落到个人开发者头上，其实指向几个很具体的动作。</p>
+          <p>💡 一句话总结：AI基础设施不缺钱不缺卡，缺的是把算力用起来的调度和隔离能力——三个错位是病根，四个明星项目是药方。</p>
+<h2 id="背景钱景"><a href="#背景钱景" class="headerlink" title="背景钱景"></a>背景钱景</h2><p>2026年全球AI基础设施支出预计4970亿美元，同比增长56%，2029年冲到1.08万亿。</p>
+<p>但两张成绩单很扎眼：GPU集群平均利用率只有5%；推理支出233亿美元，首次超过训练的190亿。</p>
+<p>一边是万亿级投入，一边是九成闲置。这不是矛盾，这是线索。</p>
+<p>📌 我的判断浓缩成一句话：<strong>瓶颈在系统，不在芯片。</strong> 下面先看三个错位，再看谁在修。</p>
+<h2 id="错位一：过剩与短缺并存"><a href="#错位一：过剩与短缺并存" class="headerlink" title="错位一：过剩与短缺并存"></a>错位一：过剩与短缺并存</h2><p>GPU利用率5%，听着像产能过剩。但推理支出反超训练，说明需求真实且在涨。</p>
+<p>这不是过剩，是错配。训练集群按峰值建，推理负载按秒波动，两者抢同一批卡。</p>
+<p>真正稀缺的不是FLOPS，而是把一张卡切成一百份、按需分给不同租户的调度与隔离能力。竞争焦点已从”谁有卡”转向”谁每美元产出的Token多”。</p>
+<h2 id="错位二：K8s被自己的用户革命"><a href="#错位二：K8s被自己的用户革命" class="headerlink" title="错位二：K8s被自己的用户革命"></a>错位二：K8s被自己的用户革命</h2><p>66%的企业用Kubernetes支撑AI负载。但K8s原生面向无状态微服务——启动快、随时可杀、不记事。</p>
+<p>AI Agent恰好相反：会话持续几分钟到几小时，状态丢不起，还得粘在同一个执行环境上。</p>
+<p>于是Google自己绕过K8s的API Server，推出Agent Sandbox直接管理有状态Agent。<strong>K8s没有失败，是”进程”这个概念被重新定义了。</strong> Agent是新物种，需要新的编排层，K8s会退到底层。</p>
+<h2 id="错位三：军备竞赛打错了战场"><a href="#错位三：军备竞赛打错了战场" class="headerlink" title="错位三：军备竞赛打错了战场"></a>错位三：军备竞赛打错了战场</h2><p>MLPerf v6.0里，Blackwell Ultra靠纯软件优化把DeepSeek-R1吞吐提升2.77倍——不换芯片。</p>
+<p>更关键的数字：Agent执行链路中，CPU环节占端到端延迟的90.6%。你把GPU推理压到15毫秒一个Token，Agent却在CPU上思考、调工具、等I&#x2F;O，耗掉几百倍时间。</p>
+<p><strong>延迟优化的主战场在系统，不在芯片。</strong> 谁先打掉CPU瓶颈，谁就赢得Token生产效率。</p>
+<h2 id="🍱-AgentCube：客人走了，包间别拆"><a href="#🍱-AgentCube：客人走了，包间别拆" class="headerlink" title="🍱 AgentCube：客人走了，包间别拆"></a>🍱 AgentCube：客人走了，包间别拆</h2><p><strong>毛病</strong>：Pod一旦空闲或缩容就被删除，Agent的对话上下文、加载的模型全部蒸发，重建要秒级，用户盯着转圈干着急。</p>
+<p><strong>手术</strong>：引入Pod暂停机制——“锁门保装修”，客人退房但家具装修全留着，下次直接开门入住。</p>
+<p><strong>提升</strong>：会话恢复从秒级降到几十毫秒，快两个数量级。对动辄数小时的长会话，这是体验分水岭。</p>
+<h2 id="🏦-Agent-Sandbox：从纸板隔断到银行金库"><a href="#🏦-Agent-Sandbox：从纸板隔断到银行金库" class="headerlink" title="🏦 Agent Sandbox：从纸板隔断到银行金库"></a>🏦 Agent Sandbox：从纸板隔断到银行金库</h2><p><strong>毛病</strong>：普通容器共享操作系统内核，隔断像纸板糊的。AI生成的代码要真实执行，万一它来一句<code>rm -rf /</code>呢？”信任但验证”对会自己写代码的Agent彻底失效。</p>
+<p><strong>手术</strong>：换成gVisor、Kata强隔离——纸板隔断改成银行金库，每个系统调用逐个拦截检查。原则只有一条：<strong>永远不信任，永远验证。</strong></p>
+<p><strong>提升</strong>：每秒创建300个沙箱，延迟小于1秒，成本低30%，快照恢复毫秒级”开门”。隔离强度和创建速度第一次同时达标。</p>
+<h2 id="🔪-KAI-Scheduler：整卡出租改按份切"><a href="#🔪-KAI-Scheduler：整卡出租改按份切" class="headerlink" title="🔪 KAI Scheduler：整卡出租改按份切"></a>🔪 KAI Scheduler：整卡出租改按份切</h2><p><strong>毛病</strong>：K8s默认整张GPU租给一个任务。可很多推理任务只吃几GB显存，整卡大半算力空转——这就是利用率5%的病根之一，不是没活干，是桌子太大不敢拼桌。</p>
+<p><strong>手术</strong>：GPU分片调度，一张卡切成多份，显存硬隔离（彼此看不见、抢不走）。</p>
+<p><strong>提升</strong>：一张卡同时服务5到10个任务，GPU利用率从个位数提到70%以上。同样一批卡，产出翻几倍。</p>
+<h2 id="🚪-Volcano：凑齐再进"><a href="#🚪-Volcano：凑齐再进" class="headerlink" title="🚪 Volcano：凑齐再进"></a>🚪 Volcano：凑齐再进</h2><p><strong>毛病</strong>：分布式训练像团餐，必须整桌到齐才开席。K8s默认来一个安排一个——99张卡已分配、还差1张被占着，这99张就集体干等，资源死锁。</p>
+<p><strong>手术</strong>：Gang调度（成组调度）：一桌8个位子，要么8个一次全留出，要么一个不留。</p>
+<p><strong>提升</strong>：部分分配导致的死锁从机制上杜绝。大模型训练动辄几千卡，没有Gang调度根本排不开队——这也是它成为K8s批调度事实标准的原因。</p>
+<h2 id="🧩-配角补位"><a href="#🧩-配角补位" class="headerlink" title="🧩 配角补位"></a>🧩 配角补位</h2><p>同谱系还有两块拼图。<strong>Kueue</strong>管队列配额：算力不够时任务排队等位，不互相踩踏。<strong>Fluid</strong>管数据缓存：把训练数据搬到离GPU近的地方，治”Agent在等什么”里的等I&#x2F;O。</p>
+<p>思路一致：先承认资源稀缺，再设计排队和搬运的规矩。</p>
+<h2 id="💭-共同哲学：K8s没有死，是Pod死了一半"><a href="#💭-共同哲学：K8s没有死，是Pod死了一半" class="headerlink" title="💭 共同哲学：K8s没有死，是Pod死了一半"></a>💭 共同哲学：K8s没有死，是Pod死了一半</h2><p>拆完四个项目，它们共享一个底层转向：<strong>从管理机器，到服务会话。</strong></p>
+<p>K8s管的是短命、无状态、随时可杀的进程；这四个项目管的是长命、有状态、必须留装修的会话。同时信任模型也换了——旧容器跑自家微服务，纸板够用；新容器跑AI生成的任意代码，金库是唯一选项。</p>
+<p>所以更准确的说法是：<strong>K8s没有死，是Pod的概念死了一半。</strong> “可随意删除、默认信任”的那一半假设死了，新长出来的那一半，就是这批明星项目。</p>
+<p>机会不在发明新系统，而在沿着错位的裂缝，把旧地基重新浇筑一遍。</p>
+<h2 id="务实视角：小团队怎么办"><a href="#务实视角：小团队怎么办" class="headerlink" title="务实视角：小团队怎么办"></a>务实视角：小团队怎么办</h2><p>宏观数字落到个人开发者头上，指向几个具体动作。</p>
 <ul>
 <li>不要囤卡。利用率5%的市场里，租比买便宜得多。</li>
 <li>优先投入调度和缓存层，收益比换芯片高一个量级。</li>
-<li>选基础设施时盯TTFT（首Token延迟）≤1.5s和TPOT（单Token间隔）≤15ms，别只看厂商的峰值FLOPS。</li>
+<li>选基础设施盯TTFT（首Token延迟）≤1.5s和TPOT（单Token间隔）≤15ms，别只看峰值FLOPS。</li>
 </ul>
-<p>还有一个容易忽视的信号：中国的AISHPerf评测里，主流模型的Agent能力均分不到50，其中37%的失败源于推理链断裂——不是模型不聪明，是基础设施没能撑住长链路。</p>
-<p>反过来看头部玩家：商汤日均Token服务量已达2.42万亿。这意味着推理平台本身就是壁垒，Token吞吐规模正在成为新的护城河。</p>
-<p>对中小团队的启示很简单：<strong>别把宝押在模型能力上，把工程做扎实反而是差异化。</strong> 模型大家都在用同一批开源权重，能把推理链路跑稳跑快的团队，体验就能拉开差距。</p>
+<p>⚠️ 还有个容易忽视的信号：中国AISHPerf评测里，主流模型的Agent能力均分不到50，其中37%的失败源于推理链断裂——不是模型不聪明，是基础设施没撑住长链路。</p>
+<p>反过来看，商汤日均Token服务量已达2.42万亿。推理平台本身就是壁垒。对中小团队：<strong>别把宝押在模型能力上，把工程做扎实反而是差异化。</strong></p>
 <h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ol>
-<li>万亿支出买不来效率，算力的稀缺正在转化为调度与隔离能力的稀缺。</li>
-<li>Agent重新定义了”进程”，K8s之上会长出新的编排层，这是未来两年最大的基础设施机会。</li>
-<li>90.6%的CPU延迟占比说明：瓶颈在系统不在芯片，军备竞赛该换个战场了。</li>
+<li>三个错位：利用率错配（GPU仅5%）、进程重定义（Agent是新物种）、战场打错（90.6%延迟在CPU）。</li>
+<li>四个药方：AgentCube保会话（恢复毫秒级）、Sandbox防失控（系统调用全拦截）、KAI切卡提利用率（5%→70%+）、Volcano杜绝死锁。</li>
+<li>K8s没有死，是Pod的概念死了一半——机会在旧地基上重新浇筑。</li>
 </ol>
 
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"4970亿美元买来了什么——AI基础设施的三个错位","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-09-05","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/09/05/AI基础设施的三个错位-4970亿美元买来了什么/"},"url":"https://lanky228.github.io/2026/09/05/AI基础设施的三个错位-4970亿美元买来了什么/","inLanguage":"zh-CN","dateModified":"2026-09-07","keywords":["AI","基础设施"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"4970亿美元买来了什么——AI基础设施的三个错位与四个接盘侠","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-09-05","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/09/05/AI基础设施的三个错位-4970亿美元买来了什么/"},"url":"https://lanky228.github.io/2026/09/05/AI基础设施的三个错位-4970亿美元买来了什么/","inLanguage":"zh-CN","dateModified":"2026-09-07","keywords":["AI","基础设施","Kubernetes"]}</script>
 
       
     </div>
@@ -1866,7 +1759,7 @@
 <li>StackOverflow: Does serverTimezone param change session.time_zone in MySQL — <a href="https://stackoverflow.com/questions/51196041/does-servertimezone-param-change-session-time-zone-in-mysql" target="_blank" rel="noopener">https://stackoverflow.com/questions/51196041/does-servertimezone-param-change-session-time-zone-in-mysql</a> — serverTimezone 不改变 @@session.time_zone，需 sessionTimeZone 属性或 SET 语句</li>
 </ul>
 
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"SQL数据库时区处理痛点——UTC部署与JDBC解决方案","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-08-11","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/08/11/SQL数据库时区处理痛点-UTC部署与JDBC解决方案/"},"url":"https://lanky228.github.io/2026/08/11/SQL数据库时区处理痛点-UTC部署与JDBC解决方案/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["Druid","StarRocks","数据库","GaussDB","时区","JDBC"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"SQL数据库时区处理痛点——UTC部署与JDBC解决方案","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-08-11","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/08/11/SQL数据库时区处理痛点-UTC部署与JDBC解决方案/"},"url":"https://lanky228.github.io/2026/08/11/SQL数据库时区处理痛点-UTC部署与JDBC解决方案/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["Druid","数据库","StarRocks","GaussDB","时区","JDBC"]}</script>
 
       
     </div>
@@ -2416,6 +2309,205 @@
   
   
 
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lanky228.github.io/2026/08/03/%E5%AE%87%E7%A7%B0%E4%B8%8D%E5%AE%88%E6%81%92/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Lanky">
+      <meta itemprop="description" content="Lanky的技术博客 — 专注数据库、数据湖、AI编程领域的深度洞察与实测分析。含TPC-DS benchmark、OLAP选型对比、湖仓架构分析等原创内容。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lanky的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2026/08/03/%E5%AE%87%E7%A7%B0%E4%B8%8D%E5%AE%88%E6%81%92/" class="post-title-link" itemprop="url">宇称不守恒</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-08-03 12:00:00" itemprop="dateCreated datePublished" datetime="2026-08-03T12:00:00+08:00">2026-08-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-08-22 20:22:59" itemprop="dateModified" datetime="2026-08-22T20:22:59+08:00">2026-08-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">学习</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>💡 一句话总结：物理学界为保”宇称守恒”教条，硬把同一个粒子拆成 θ 和 τ 两个；杨振宁李政道靠文献审查捅破窗户纸，吴健雄用实验一锤定音——弱作用里宇称根本不守恒。</p>
+<h2 id="一堆一模一样的粒子，死法却不同"><a href="#一堆一模一样的粒子，死法却不同" class="headerlink" title="一堆一模一样的粒子，死法却不同"></a>一堆一模一样的粒子，死法却不同</h2><p>1950 年代，物理学家在宇宙射线中发现了一堆新粒子。</p>
+<p>他们把这堆粒子翻来覆去地测，所有数据都指向同一个结论：</p>
+<ul>
+<li>质量一样重</li>
+<li>电荷一样多</li>
+<li>寿命一样长</li>
+<li>自旋一样，而且是 0</li>
+</ul>
+<p>自旋为 0 意味着它像一个完美的圆球，没有”旋转轴”，不存在”朝上”或”朝下”的区别——宇宙任何一个方向看都完全一样。</p>
+<p>按物理学的铁律：所有可测性质相同，就是同一个粒子。</p>
+<p>但麻烦来了。这些粒子”死亡”（衰变）时，行为完全分裂：</p>
+<ul>
+<li>有一部分衰变成 2 个 π 介子</li>
+<li>有一部分衰变成 3 个 π 介子</li>
+</ul>
+<p>单看数量不同不算致命——能量守恒可以解释：初态能量固定，分给 2 个粒子每个飞得快（动量大），分给 3 个粒子每个飞得慢（动量小），两组轨迹在探测器里清清楚楚。</p>
+<p>真正致命的是这两个末态的”宇称值”不同。</p>
+<h2 id="宇称值是什么？怎么算？"><a href="#宇称值是什么？怎么算？" class="headerlink" title="宇称值是什么？怎么算？"></a>宇称值是什么？怎么算？</h2><p>宇称，粗暴理解就是物理量的”左右手属性”——照镜子时变不变。</p>
+<p>每个 π 介子自带一个内禀宇称值，数值是 -1。多粒子系统的总宇称值 &#x3D; 单个粒子的宇称值相乘（不是相加）。</p>
+<p>所以：</p>
+<ul>
+<li>2 个 π 介子：(-1) × (-1) &#x3D; +1（偶数个负号 → 正，称为”偶”）</li>
+<li>3 个 π 介子：(-1) × (-1) × (-1) &#x3D; -1（奇数个负号 → 负，称为”奇”）</li>
+</ul>
+<p>量子场论有一条铁律：如果宇称守恒，衰变前后的宇称值必须相等。</p>
+<p>那么问题来了：初始粒子只有一个固定的宇称值（比如 +1）。如果宇称守恒，末态也必须是 +1——那就只能衰变成 2 个 π（+1），绝对禁止衰变成 3 个 π（-1）。</p>
+<p>但实验清清楚楚告诉你：两种情况都在发生。</p>
+<p>如果是同一个粒子，它不可能同时拥有 +1 和 -1 两种初态宇称。按宇称守恒的逻辑，唯一结论是：衰变成 2 个 π 和衰变成 3 个 π 的，绝不可能是同一种粒子。</p>
+<h2 id="为了保”左右对称”，强行把一个人劈成两个人"><a href="#为了保”左右对称”，强行把一个人劈成两个人" class="headerlink" title="为了保”左右对称”，强行把一个人劈成两个人"></a>为了保”左右对称”，强行把一个人劈成两个人</h2><p>当时的物理学界有一个神圣不可侵犯的信仰：宇称守恒。</p>
+<p>翻译成人话：物理规律左右对称。真实世界和镜像世界的物理规则一模一样。</p>
+<p>这条定律在”强作用”和”电磁作用”里被实验反复验证过无数次，物理学家把它当成了”宇宙宪法”。</p>
+<p>为了不让这条宪法被推翻，物理学界做了一个极其粗暴的决定：</p>
+<p>衰变成 2 个 π 介子的，叫它 θ 粒子；衰变成 3 个 π 介子的，叫它 τ 粒子。哪怕它们所有性质一模一样，也硬说它们是两个不同的粒子！</p>
+<p>就好比你在街上遇到一对 DNA、身高、体重、指纹完全一致的双胞胎，但一个用左手吃饭，一个用右手。你为了维护”人类必须单手吃饭”的教条，硬说”你们不是双胞胎，是两个不同的人种”。</p>
+<p>更关键的是自旋为 0——你连”它俩朝向不同所以是不同粒子”这种借口都找不出来。所有物理性质完全重合，唯一区别只有”衰变成 2 个还是 3 个”。</p>
+<p>物理学界靠着这种”掩耳盗铃”硬撑了好几年。所有人都知道解释很牵强，但没人敢动宇称守恒——那是物理学审美的底线。</p>
+<h2 id="杨振宁和李政道：捅破窗户纸"><a href="#杨振宁和李政道：捅破窗户纸" class="headerlink" title="杨振宁和李政道：捅破窗户纸"></a>杨振宁和李政道：捅破窗户纸</h2><p>杨振宁和李政道没做任何新实验，只是坐下来翻了翻文献。</p>
+<p>他们把所有涉及”宇称守恒”的实验按作用力分类，列了一张表：</p>
+<table>
+<thead>
+<tr>
+<th>相互作用类型</th>
+<th>宇称守恒有没有被实验直接验证过？</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>电磁作用（原子发光）</td>
+<td>✅ 有，且精确</td>
+</tr>
+<tr>
+<td>强作用（原子核内部）</td>
+<td>✅ 有，且精确</td>
+</tr>
+<tr>
+<td>弱作用（β 衰变、θ-τ 衰变）</td>
+<td>❌ 从来没有！</td>
+</tr>
+</tbody></table>
+<p>他们发现了一个震惊的事实：宇称守恒在弱作用中，从来没人检验过。所有人都在”默认”它成立，只是因为它在另外两种作用中成立——这在逻辑上叫不当外推。</p>
+<p>基于此，他们提出了一个极其干净利落的推断：</p>
+<p>“你们强行把同一个粒子拆成 θ 和 τ，只是为了保住一条在弱作用中从未被验证的定律。但如果弱作用中宇称本来就不守恒呢？那 θ 和 τ 就是同一个粒子，矛盾自然消失。”</p>
+<p>这不是猜测，是文献审查逼出来的逻辑必然。</p>
+<h2 id="宇称不守恒如何让”2-个”和”3-个”同时出现"><a href="#宇称不守恒如何让”2-个”和”3-个”同时出现" class="headerlink" title="宇称不守恒如何让”2 个”和”3 个”同时出现"></a>宇称不守恒如何让”2 个”和”3 个”同时出现</h2><p>到这里，你需要理解最关键的一环：宇称守恒到底”禁止”了什么？</p>
+<p>如果宇称守恒（左右对称），意味着一条死命令：衰变后的宇称值，必须等于衰变前的宇称值。</p>
+<p>θ-τ 这个粒子的初态宇称值是固定的（比如 +1）。那么：</p>
+<ul>
+<li>它只能衰变成 2 个 π（宇称值 +1）——合法</li>
+<li>它绝对禁止衰变成 3 个 π（宇称值 -1）——因为 -1 ≠ +1，违反守恒律</li>
+</ul>
+<p>所以物理学家才说”θ 和 τ 不是同一个粒子”——按宇称守恒，一个初态只能对应一种末态宇称，不可能同时允许 +1 和 -1。</p>
+<p>但如果宇称不守恒呢？</p>
+<p>弱相互作用里没有”宇称值必须相等”这条法律。于是：</p>
+<ul>
+<li>2π 通道和 3π 通道都变成合法衰变路径</li>
+<li>初态宇称值是什么根本不重要，宇称在弱作用里不被保护</li>
+<li>具体走哪条路，只是量子力学的概率问题</li>
+</ul>
+<p>那么问题来了：既然两种路径都被允许，物理学家在探测器里看到的是什么？</p>
+<p>能量守恒接管工作。初态能量固定，分配给产物：</p>
+<ul>
+<li>走 2π 路径：能量分给 2 个粒子 → 每个飞得快（动量大） → 看到 2 条高能径迹</li>
+<li>走 3π 路径：能量分给 3 个粒子 → 每个飞得慢（动量小） → 看到 3 条低能径迹</li>
+</ul>
+<p>宇称不守恒不是”产生”了不同数量，而是”撤销了禁止不同数量同时存在的禁令”。一旦禁令撤销，能量守恒自然让两种数量展现出不同的动量特征，被你清清楚楚地看到。</p>
+<h2 id="吴健雄的实验：一锤定音"><a href="#吴健雄的实验：一锤定音" class="headerlink" title="吴健雄的实验：一锤定音"></a>吴健雄的实验：一锤定音</h2><p>光说”可能不守恒”不够，必须用实验证明。杨振宁和李政道在 1956 年的论文里，直接给出了验证方案。</p>
+<p>核心逻辑：如果宇称守恒（左右对称），当一个粒子自旋朝上时，它放出的电子朝上和朝下的概率必须各 50%（因为镜子内外规则一样）。如果宇称不守恒，电子会偏爱某个方向。</p>
+<p>吴健雄照着这个蓝图做了实验：</p>
+<ul>
+<li><strong>磁场拨正</strong>：用强磁场把钴-60 原子核的自旋轴全部拨到朝上。</li>
+<li><strong>极低温冻结</strong>：降温到 0.01K，冻结热振动，让原子核乖乖保持朝上（室温下热振动太剧烈，磁场刚拨正就被撞歪了）。</li>
+<li><strong>自然衰变</strong>：等待原子核自己 β 衰变，放出电子。衰变是随机的自然过程，没人去触发它。</li>
+<li><strong>数上下</strong>：在上下方各放一个计数器，数电子朝上飞多少、朝下飞多少。</li>
+</ul>
+<p>结果：当钴-60 自旋朝上时，放出的电子大部分朝下飞。上下数量不是 50:50。</p>
+<p>宣告：宇宙在弱相互作用里是个”左撇子”。真实世界和镜像世界的物理规则不一样——你照镜子，镜子里的那个衰变过程，在真实世界里根本不会发生。</p>
+<h2 id="这篇论文为什么强"><a href="#这篇论文为什么强" class="headerlink" title="这篇论文为什么强"></a>这篇论文为什么强</h2><p>你之前觉得”只是提个假设，论文质量弱”。现在回头看：</p>
+<ul>
+<li>别人在硬造概念（强行定义 θ 和 τ 是两个粒子）来保教条。</li>
+<li>杨振宁和李政道在解构教条——指出”你保的那条定律，在弱作用里根本没有实验依据”。</li>
+</ul>
+<p>他们的工作不是建大楼，而是拆穿了皇帝的新衣。从论文发表到诺奖不到两年——因为整个物理学界反应过来后，后背都是凉的：自己居然对着一个明显的逻辑漏洞，睁一只眼闭一只眼了好几年。</p>
+<h2 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h2><p>1964 年，人类发现了 CP 破坏——对称性更深的破缺。正是这种破缺，让宇宙大爆炸时物质比反物质多了十亿分之一。那多出来的十亿分之一，构成了今天的恒星、行星，以及你和我。</p>
+<p>对称是审美，不对称是事实。强行把事实塞进审美的框里，只会制造出 θ 和 τ 这样的笑话。</p>
+<h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ul>
+<li>θ-τ 之谜的本质：同一个粒子衰变成 2 个或 3 个 π 介子，物理学家为保宇称守恒教条，硬说成两个不同粒子</li>
+<li>杨振宁李政道的贡献：文献审查发现弱作用中宇称守恒从未被验证，捅破窗户纸是逻辑必然，不是猜测</li>
+<li>吴健雄实验：钴-60 自旋朝上时电子偏爱朝下飞，一锤定音证明弱作用中宇称不守恒</li>
+<li>对称破缺是存在前提：CP 破坏让物质比反物质多十亿分之一，才有今天的恒星、行星、你我</li>
+</ul>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"宇称不守恒","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-08-03","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/08/03/宇称不守恒/"},"url":"https://lanky228.github.io/2026/08/03/宇称不守恒/","inLanguage":"zh-CN","dateModified":"2026-08-22","keywords":["物理","对称性","杨振宁","李政道","吴健雄"]}</script>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
 
   
   <nav class="pagination">
@@ -2485,7 +2577,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-count">43</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -2540,12 +2632,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">261k</span>
+    <span title="站点总字数">259k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">3:57</span>
+    <span title="站点阅读时长">3:56</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>

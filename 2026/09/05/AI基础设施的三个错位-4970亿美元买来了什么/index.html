@@ -20,18 +20,19 @@
     var CONFIG = {"hostname":"lanky228.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="💡 一句话总结：AI基础设施不缺钱、不缺芯片，缺的是把算力用起来的调度和隔离能力——瓶颈在系统，不在芯片。 背景钱景2026年全球AI基础设施支出预计4970亿美元，同比增长56%，2029年将冲到1.08万亿。 但有两张成绩单很扎眼：GPU集群平均利用率只有5%；推理支出233亿美元，历史上首次超过训练的190亿。 一边是万亿级的投入，一边是九成的闲置。这不是矛盾，这是线索。 错位一：过剩与短">
+  <meta name="description" content="💡 一句话总结：AI基础设施不缺钱不缺卡，缺的是把算力用起来的调度和隔离能力——三个错位是病根，四个明星项目是药方。 背景钱景2026年全球AI基础设施支出预计4970亿美元，同比增长56%，2029年冲到1.08万亿。 但两张成绩单很扎眼：GPU集群平均利用率只有5%；推理支出233亿美元，首次超过训练的190亿。 一边是万亿级投入，一边是九成闲置。这不是矛盾，这是线索。 📌 我的判断浓缩成">
 <meta property="og:type" content="article">
-<meta property="og:title" content="4970亿美元买来了什么——AI基础设施的三个错位">
+<meta property="og:title" content="4970亿美元买来了什么——AI基础设施的三个错位与四个接盘侠">
 <meta property="og:url" content="https://lanky228.github.io/2026/09/05/AI%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E7%9A%84%E4%B8%89%E4%B8%AA%E9%94%99%E4%BD%8D-4970%E4%BA%BF%E7%BE%8E%E5%85%83%E4%B9%B0%E6%9D%A5%E4%BA%86%E4%BB%80%E4%B9%88/index.html">
 <meta property="og:site_name" content="Lanky的博客">
-<meta property="og:description" content="💡 一句话总结：AI基础设施不缺钱、不缺芯片，缺的是把算力用起来的调度和隔离能力——瓶颈在系统，不在芯片。 背景钱景2026年全球AI基础设施支出预计4970亿美元，同比增长56%，2029年将冲到1.08万亿。 但有两张成绩单很扎眼：GPU集群平均利用率只有5%；推理支出233亿美元，历史上首次超过训练的190亿。 一边是万亿级的投入，一边是九成的闲置。这不是矛盾，这是线索。 错位一：过剩与短">
+<meta property="og:description" content="💡 一句话总结：AI基础设施不缺钱不缺卡，缺的是把算力用起来的调度和隔离能力——三个错位是病根，四个明星项目是药方。 背景钱景2026年全球AI基础设施支出预计4970亿美元，同比增长56%，2029年冲到1.08万亿。 但两张成绩单很扎眼：GPU集群平均利用率只有5%；推理支出233亿美元，首次超过训练的190亿。 一边是万亿级投入，一边是九成闲置。这不是矛盾，这是线索。 📌 我的判断浓缩成">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-09-05T02:00:00.000Z">
-<meta property="article:modified_time" content="2026-09-07T14:31:41.120Z">
+<meta property="article:modified_time" content="2026-09-07T15:03:58.116Z">
 <meta property="article:author" content="Lanky">
 <meta property="article:tag" content="AI">
 <meta property="article:tag" content="基础设施">
+<meta property="article:tag" content="Kubernetes">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://lanky228.github.io/2026/09/05/AI%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E7%9A%84%E4%B8%89%E4%B8%AA%E9%94%99%E4%BD%8D-4970%E4%BA%BF%E7%BE%8E%E5%85%83%E4%B9%B0%E6%9D%A5%E4%BA%86%E4%BB%80%E4%B9%88/">
@@ -78,13 +79,13 @@
   "@type": "BreadcrumbList",
   "itemListElement": [
     { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://lanky228.github.io" },
-    { "@type": "ListItem", "position": 2, "name": "4970亿美元买来了什么——AI基础设施的三个错位", "item": "https://lanky228.github.io/2026/09/05/AI基础设施的三个错位-4970亿美元买来了什么/" }
+    { "@type": "ListItem", "position": 2, "name": "4970亿美元买来了什么——AI基础设施的三个错位与四个接盘侠", "item": "https://lanky228.github.io/2026/09/05/AI基础设施的三个错位-4970亿美元买来了什么/" }
   ]
 }
 </script>
 
 
-  <title>4970亿美元买来了什么——AI基础设施的三个错位 | Lanky的博客</title>
+  <title>4970亿美元买来了什么——AI基础设施的三个错位与四个接盘侠 | Lanky的博客</title>
   
 
 
@@ -204,7 +205,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          4970亿美元买来了什么——AI基础设施的三个错位
+          4970亿美元买来了什么——AI基础设施的三个错位与四个接盘侠
         </h1>
 
         <div class="post-meta">
@@ -221,7 +222,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2026-09-07 22:31:41" itemprop="dateModified" datetime="2026-09-07T22:31:41+08:00">2026-09-07</time>
+                <time title="修改时间：2026-09-07 23:03:58" itemprop="dateModified" datetime="2026-09-07T23:03:58+08:00">2026-09-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -239,7 +240,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.7k</span>
+              <span>2.4k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -258,47 +259,53 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>💡 一句话总结：AI基础设施不缺钱、不缺芯片，缺的是把算力用起来的调度和隔离能力——瓶颈在系统，不在芯片。</p>
-<h2 id="背景钱景"><a href="#背景钱景" class="headerlink" title="背景钱景"></a>背景钱景</h2><p>2026年全球AI基础设施支出预计4970亿美元，同比增长56%，2029年将冲到1.08万亿。</p>
-<p>但有两张成绩单很扎眼：GPU集群平均利用率只有5%；推理支出233亿美元，历史上首次超过训练的190亿。</p>
-<p>一边是万亿级的投入，一边是九成的闲置。这不是矛盾，这是线索。</p>
-<h2 id="错位一：过剩与短缺并存"><a href="#错位一：过剩与短缺并存" class="headerlink" title="错位一：过剩与短缺并存"></a>错位一：过剩与短缺并存</h2><p>GPU利用率5%，听起来像产能过剩。但推理支出反超训练，又说明需求真实且在增长。</p>
-<p>我的判断：<strong>这不是过剩，是错配。</strong></p>
-<p>训练集群按峰值建，推理负载按秒波动，两者抢同一批卡。真正稀缺的从来不是FLOPS，而是把一张卡切成一百份、按需分给不同租户的调度与隔离能力。</p>
-<p>竞争焦点已经从”谁有卡”转向”谁每美元产出的Token多”。这本质上是在比拼软件和系统的效率，而不是算力的堆叠。</p>
-<h2 id="错位二：K8s被自己的用户革命"><a href="#错位二：K8s被自己的用户革命" class="headerlink" title="错位二：K8s被自己的用户革命"></a>错位二：K8s被自己的用户革命</h2><p>66%的企业用Kubernetes支撑AI负载。但K8s原生设计面向的是无状态微服务——启动快、随时可杀、不记得任何事。</p>
-<p>AI Agent恰好相反：会话要持续几分钟到几小时，中间状态丢不起，还得粘在同一个执行环境上（会话亲和）。</p>
-<p>于是出现了戏剧性的一幕：Google自己绕过了K8s的API Server，推出Agent Sandbox和Agent Substrate，直接管理有状态Agent的沙箱。GKE Agent Sandbox能做到每秒创建300个沙箱、延迟小于1秒、性价比高30%。</p>
-<p>有人说这是K8s的失败。我不这么看。</p>
-<p><strong>K8s没有失败，是”进程”这个概念被重新定义了。</strong> 容器编排的所有假设——短生命周期、无状态、可随意调度——都是围绕旧进程建立的。Agent是新物种，需要新的编排层。K8s不会消失，它会退到底层，上面再长出一层面向Agent的调度系统。</p>
-<p>这个新生态已经成型，四块拼图各有玩家：</p>
-<ul>
-<li><strong>调度</strong>：KAI Scheduler、Volcano、Kueue，负责GPU的公平分配</li>
-<li><strong>沙箱</strong>：GKE Agent Sandbox、AgentCube，负责Agent的隔离运行</li>
-<li><strong>网络</strong>：DRANet、Fluid、GPU Operator，负责数据高速到卡</li>
-<li><strong>工作流</strong>：Kubeflow、KServe、Ray，负责模型的训练与推理串联</li>
-</ul>
-<p>看名单就知道：调度和沙箱是新的竞争主航道，工作流层反而已经相对成熟。</p>
-<h2 id="错位三：军备竞赛打错了战场"><a href="#错位三：军备竞赛打错了战场" class="headerlink" title="错位三：军备竞赛打错了战场"></a>错位三：军备竞赛打错了战场</h2><p>MLPerf v6.0里，Blackwell Ultra靠软件优化把DeepSeek-R1吞吐提升了2.77倍——不换芯片，纯靠软件。</p>
-<p>更关键的数字是这个：Agent执行链路中，CPU环节占了端到端延迟的90.6%。</p>
-<p>也就是说，你花大价钱把GPU推理压到15毫秒一个Token，然后Agent在CPU上思考、调工具、等I&#x2F;O，耗掉几百倍的时间。</p>
-<p><strong>延迟优化的主战场在系统，不在芯片。</strong> 每年换一代GPU的边际收益，正在被”Agent在等什么”这个问题吞掉。谁先把Agent执行链路的CPU瓶颈打下来，谁就赢得Token生产效率。</p>
-<h2 id="务实视角：小团队怎么办"><a href="#务实视角：小团队怎么办" class="headerlink" title="务实视角：小团队怎么办"></a>务实视角：小团队怎么办</h2><p>这些宏观数字落到个人开发者头上，其实指向几个很具体的动作。</p>
+        <p>💡 一句话总结：AI基础设施不缺钱不缺卡，缺的是把算力用起来的调度和隔离能力——三个错位是病根，四个明星项目是药方。</p>
+<h2 id="背景钱景"><a href="#背景钱景" class="headerlink" title="背景钱景"></a>背景钱景</h2><p>2026年全球AI基础设施支出预计4970亿美元，同比增长56%，2029年冲到1.08万亿。</p>
+<p>但两张成绩单很扎眼：GPU集群平均利用率只有5%；推理支出233亿美元，首次超过训练的190亿。</p>
+<p>一边是万亿级投入，一边是九成闲置。这不是矛盾，这是线索。</p>
+<p>📌 我的判断浓缩成一句话：<strong>瓶颈在系统，不在芯片。</strong> 下面先看三个错位，再看谁在修。</p>
+<h2 id="错位一：过剩与短缺并存"><a href="#错位一：过剩与短缺并存" class="headerlink" title="错位一：过剩与短缺并存"></a>错位一：过剩与短缺并存</h2><p>GPU利用率5%，听着像产能过剩。但推理支出反超训练，说明需求真实且在涨。</p>
+<p>这不是过剩，是错配。训练集群按峰值建，推理负载按秒波动，两者抢同一批卡。</p>
+<p>真正稀缺的不是FLOPS，而是把一张卡切成一百份、按需分给不同租户的调度与隔离能力。竞争焦点已从”谁有卡”转向”谁每美元产出的Token多”。</p>
+<h2 id="错位二：K8s被自己的用户革命"><a href="#错位二：K8s被自己的用户革命" class="headerlink" title="错位二：K8s被自己的用户革命"></a>错位二：K8s被自己的用户革命</h2><p>66%的企业用Kubernetes支撑AI负载。但K8s原生面向无状态微服务——启动快、随时可杀、不记事。</p>
+<p>AI Agent恰好相反：会话持续几分钟到几小时，状态丢不起，还得粘在同一个执行环境上。</p>
+<p>于是Google自己绕过K8s的API Server，推出Agent Sandbox直接管理有状态Agent。<strong>K8s没有失败，是”进程”这个概念被重新定义了。</strong> Agent是新物种，需要新的编排层，K8s会退到底层。</p>
+<h2 id="错位三：军备竞赛打错了战场"><a href="#错位三：军备竞赛打错了战场" class="headerlink" title="错位三：军备竞赛打错了战场"></a>错位三：军备竞赛打错了战场</h2><p>MLPerf v6.0里，Blackwell Ultra靠纯软件优化把DeepSeek-R1吞吐提升2.77倍——不换芯片。</p>
+<p>更关键的数字：Agent执行链路中，CPU环节占端到端延迟的90.6%。你把GPU推理压到15毫秒一个Token，Agent却在CPU上思考、调工具、等I&#x2F;O，耗掉几百倍时间。</p>
+<p><strong>延迟优化的主战场在系统，不在芯片。</strong> 谁先打掉CPU瓶颈，谁就赢得Token生产效率。</p>
+<h2 id="🍱-AgentCube：客人走了，包间别拆"><a href="#🍱-AgentCube：客人走了，包间别拆" class="headerlink" title="🍱 AgentCube：客人走了，包间别拆"></a>🍱 AgentCube：客人走了，包间别拆</h2><p><strong>毛病</strong>：Pod一旦空闲或缩容就被删除，Agent的对话上下文、加载的模型全部蒸发，重建要秒级，用户盯着转圈干着急。</p>
+<p><strong>手术</strong>：引入Pod暂停机制——“锁门保装修”，客人退房但家具装修全留着，下次直接开门入住。</p>
+<p><strong>提升</strong>：会话恢复从秒级降到几十毫秒，快两个数量级。对动辄数小时的长会话，这是体验分水岭。</p>
+<h2 id="🏦-Agent-Sandbox：从纸板隔断到银行金库"><a href="#🏦-Agent-Sandbox：从纸板隔断到银行金库" class="headerlink" title="🏦 Agent Sandbox：从纸板隔断到银行金库"></a>🏦 Agent Sandbox：从纸板隔断到银行金库</h2><p><strong>毛病</strong>：普通容器共享操作系统内核，隔断像纸板糊的。AI生成的代码要真实执行，万一它来一句<code>rm -rf /</code>呢？”信任但验证”对会自己写代码的Agent彻底失效。</p>
+<p><strong>手术</strong>：换成gVisor、Kata强隔离——纸板隔断改成银行金库，每个系统调用逐个拦截检查。原则只有一条：<strong>永远不信任，永远验证。</strong></p>
+<p><strong>提升</strong>：每秒创建300个沙箱，延迟小于1秒，成本低30%，快照恢复毫秒级”开门”。隔离强度和创建速度第一次同时达标。</p>
+<h2 id="🔪-KAI-Scheduler：整卡出租改按份切"><a href="#🔪-KAI-Scheduler：整卡出租改按份切" class="headerlink" title="🔪 KAI Scheduler：整卡出租改按份切"></a>🔪 KAI Scheduler：整卡出租改按份切</h2><p><strong>毛病</strong>：K8s默认整张GPU租给一个任务。可很多推理任务只吃几GB显存，整卡大半算力空转——这就是利用率5%的病根之一，不是没活干，是桌子太大不敢拼桌。</p>
+<p><strong>手术</strong>：GPU分片调度，一张卡切成多份，显存硬隔离（彼此看不见、抢不走）。</p>
+<p><strong>提升</strong>：一张卡同时服务5到10个任务，GPU利用率从个位数提到70%以上。同样一批卡，产出翻几倍。</p>
+<h2 id="🚪-Volcano：凑齐再进"><a href="#🚪-Volcano：凑齐再进" class="headerlink" title="🚪 Volcano：凑齐再进"></a>🚪 Volcano：凑齐再进</h2><p><strong>毛病</strong>：分布式训练像团餐，必须整桌到齐才开席。K8s默认来一个安排一个——99张卡已分配、还差1张被占着，这99张就集体干等，资源死锁。</p>
+<p><strong>手术</strong>：Gang调度（成组调度）：一桌8个位子，要么8个一次全留出，要么一个不留。</p>
+<p><strong>提升</strong>：部分分配导致的死锁从机制上杜绝。大模型训练动辄几千卡，没有Gang调度根本排不开队——这也是它成为K8s批调度事实标准的原因。</p>
+<h2 id="🧩-配角补位"><a href="#🧩-配角补位" class="headerlink" title="🧩 配角补位"></a>🧩 配角补位</h2><p>同谱系还有两块拼图。<strong>Kueue</strong>管队列配额：算力不够时任务排队等位，不互相踩踏。<strong>Fluid</strong>管数据缓存：把训练数据搬到离GPU近的地方，治”Agent在等什么”里的等I&#x2F;O。</p>
+<p>思路一致：先承认资源稀缺，再设计排队和搬运的规矩。</p>
+<h2 id="💭-共同哲学：K8s没有死，是Pod死了一半"><a href="#💭-共同哲学：K8s没有死，是Pod死了一半" class="headerlink" title="💭 共同哲学：K8s没有死，是Pod死了一半"></a>💭 共同哲学：K8s没有死，是Pod死了一半</h2><p>拆完四个项目，它们共享一个底层转向：<strong>从管理机器，到服务会话。</strong></p>
+<p>K8s管的是短命、无状态、随时可杀的进程；这四个项目管的是长命、有状态、必须留装修的会话。同时信任模型也换了——旧容器跑自家微服务，纸板够用；新容器跑AI生成的任意代码，金库是唯一选项。</p>
+<p>所以更准确的说法是：<strong>K8s没有死，是Pod的概念死了一半。</strong> “可随意删除、默认信任”的那一半假设死了，新长出来的那一半，就是这批明星项目。</p>
+<p>机会不在发明新系统，而在沿着错位的裂缝，把旧地基重新浇筑一遍。</p>
+<h2 id="务实视角：小团队怎么办"><a href="#务实视角：小团队怎么办" class="headerlink" title="务实视角：小团队怎么办"></a>务实视角：小团队怎么办</h2><p>宏观数字落到个人开发者头上，指向几个具体动作。</p>
 <ul>
 <li>不要囤卡。利用率5%的市场里，租比买便宜得多。</li>
 <li>优先投入调度和缓存层，收益比换芯片高一个量级。</li>
-<li>选基础设施时盯TTFT（首Token延迟）≤1.5s和TPOT（单Token间隔）≤15ms，别只看厂商的峰值FLOPS。</li>
+<li>选基础设施盯TTFT（首Token延迟）≤1.5s和TPOT（单Token间隔）≤15ms，别只看峰值FLOPS。</li>
 </ul>
-<p>还有一个容易忽视的信号：中国的AISHPerf评测里，主流模型的Agent能力均分不到50，其中37%的失败源于推理链断裂——不是模型不聪明，是基础设施没能撑住长链路。</p>
-<p>反过来看头部玩家：商汤日均Token服务量已达2.42万亿。这意味着推理平台本身就是壁垒，Token吞吐规模正在成为新的护城河。</p>
-<p>对中小团队的启示很简单：<strong>别把宝押在模型能力上，把工程做扎实反而是差异化。</strong> 模型大家都在用同一批开源权重，能把推理链路跑稳跑快的团队，体验就能拉开差距。</p>
+<p>⚠️ 还有个容易忽视的信号：中国AISHPerf评测里，主流模型的Agent能力均分不到50，其中37%的失败源于推理链断裂——不是模型不聪明，是基础设施没撑住长链路。</p>
+<p>反过来看，商汤日均Token服务量已达2.42万亿。推理平台本身就是壁垒。对中小团队：<strong>别把宝押在模型能力上，把工程做扎实反而是差异化。</strong></p>
 <h2 id="✅-总结"><a href="#✅-总结" class="headerlink" title="✅ 总结"></a>✅ 总结</h2><ol>
-<li>万亿支出买不来效率，算力的稀缺正在转化为调度与隔离能力的稀缺。</li>
-<li>Agent重新定义了”进程”，K8s之上会长出新的编排层，这是未来两年最大的基础设施机会。</li>
-<li>90.6%的CPU延迟占比说明：瓶颈在系统不在芯片，军备竞赛该换个战场了。</li>
+<li>三个错位：利用率错配（GPU仅5%）、进程重定义（Agent是新物种）、战场打错（90.6%延迟在CPU）。</li>
+<li>四个药方：AgentCube保会话（恢复毫秒级）、Sandbox防失控（系统调用全拦截）、KAI切卡提利用率（5%→70%+）、Volcano杜绝死锁。</li>
+<li>K8s没有死，是Pod的概念死了一半——机会在旧地基上重新浇筑。</li>
 </ol>
 
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"4970亿美元买来了什么——AI基础设施的三个错位","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-09-05","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/09/05/AI基础设施的三个错位-4970亿美元买来了什么/"},"url":"https://lanky228.github.io/2026/09/05/AI基础设施的三个错位-4970亿美元买来了什么/","inLanguage":"zh-CN","dateModified":"2026-09-07","keywords":["AI","基础设施"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"4970亿美元买来了什么——AI基础设施的三个错位与四个接盘侠","author":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"publisher":{"@type":"Person","name":"Lanky","url":"https://lanky228.github.io"},"datePublished":"2026-09-05","mainEntityOfPage":{"@type":"WebPage","@id":"https://lanky228.github.io/2026/09/05/AI基础设施的三个错位-4970亿美元买来了什么/"},"url":"https://lanky228.github.io/2026/09/05/AI基础设施的三个错位-4970亿美元买来了什么/","inLanguage":"zh-CN","dateModified":"2026-09-07","keywords":["AI","基础设施","Kubernetes"]}</script>
 
     </div>
 
@@ -310,6 +317,7 @@
           <div class="post-tags">
               <a href="/tags/AI/" rel="tag"># AI</a>
               <a href="/tags/%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD/" rel="tag"># 基础设施</a>
+              <a href="/tags/Kubernetes/" rel="tag"># Kubernetes</a>
           </div>
 
         
@@ -321,10 +329,7 @@
     <a href="/2026/08/29/RWA%E4%BB%A3%E5%B8%81%E5%8C%96%E6%B4%9E%E5%AF%9F-%E5%BD%93114%E4%B8%87%E4%BA%BF%E8%B5%84%E4%BA%A7%E6%90%AC%E4%B8%8A%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="prev" title="RWA代币化洞察——当114万亿资产搬上区块链">
       <i class="fa fa-chevron-left"></i> RWA代币化洞察——当114万亿资产搬上区块链
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2026/09/07/%E6%98%8E%E6%98%9F%E9%A1%B9%E7%9B%AE%E6%8B%86%E8%A7%A3-AgentCube-AgentSandbox-KAI-Scheduler-Volcano%E5%A6%82%E4%BD%95%E6%8E%A5%E4%BD%8FAgent/" rel="next" title="明星项目拆解——AgentCube、Agent Sandbox、KAI Scheduler、Volcano如何接住Agent">
-      明星项目拆解——AgentCube、Agent Sandbox、KAI Scheduler、Volcano如何接住Agent <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -383,7 +388,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景钱景"><span class="nav-number">1.</span> <span class="nav-text">背景钱景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#错位一：过剩与短缺并存"><span class="nav-number">2.</span> <span class="nav-text">错位一：过剩与短缺并存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#错位二：K8s被自己的用户革命"><span class="nav-number">3.</span> <span class="nav-text">错位二：K8s被自己的用户革命</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#错位三：军备竞赛打错了战场"><span class="nav-number">4.</span> <span class="nav-text">错位三：军备竞赛打错了战场</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#务实视角：小团队怎么办"><span class="nav-number">5.</span> <span class="nav-text">务实视角：小团队怎么办</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">6.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景钱景"><span class="nav-number">1.</span> <span class="nav-text">背景钱景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#错位一：过剩与短缺并存"><span class="nav-number">2.</span> <span class="nav-text">错位一：过剩与短缺并存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#错位二：K8s被自己的用户革命"><span class="nav-number">3.</span> <span class="nav-text">错位二：K8s被自己的用户革命</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#错位三：军备竞赛打错了战场"><span class="nav-number">4.</span> <span class="nav-text">错位三：军备竞赛打错了战场</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🍱-AgentCube：客人走了，包间别拆"><span class="nav-number">5.</span> <span class="nav-text">🍱 AgentCube：客人走了，包间别拆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🏦-Agent-Sandbox：从纸板隔断到银行金库"><span class="nav-number">6.</span> <span class="nav-text">🏦 Agent Sandbox：从纸板隔断到银行金库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🔪-KAI-Scheduler：整卡出租改按份切"><span class="nav-number">7.</span> <span class="nav-text">🔪 KAI Scheduler：整卡出租改按份切</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🚪-Volcano：凑齐再进"><span class="nav-number">8.</span> <span class="nav-text">🚪 Volcano：凑齐再进</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#🧩-配角补位"><span class="nav-number">9.</span> <span class="nav-text">🧩 配角补位</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#💭-共同哲学：K8s没有死，是Pod死了一半"><span class="nav-number">10.</span> <span class="nav-text">💭 共同哲学：K8s没有死，是Pod死了一半</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#务实视角：小团队怎么办"><span class="nav-number">11.</span> <span class="nav-text">务实视角：小团队怎么办</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#✅-总结"><span class="nav-number">12.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -397,7 +402,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-count">43</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -452,12 +457,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">261k</span>
+    <span title="站点总字数">259k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">3:57</span>
+    <span title="站点阅读时长">3:56</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
